@@ -99,7 +99,6 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
         ));
         this.add(FetchApod());
         this.add(FetchMultipleApod());
-        print(state.date);
       } catch (error) {
         print('Error CHANGING APOD: $error');
         emit(ApodState(

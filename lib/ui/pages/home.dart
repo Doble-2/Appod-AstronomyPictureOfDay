@@ -24,13 +24,13 @@ class _HomeViewState extends State<HomeView> {
     return Column(
         //  mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          DayPicker(),
-          Padding(padding: EdgeInsets.only(top: 10.0), child: MonthSlider()),
+          Padding(padding: EdgeInsets.only(top: 10.0), child: DayPicker()),
+          Padding(padding: EdgeInsets.only(top: 20.0), child: MonthSlider()),
           Padding(
-              padding: EdgeInsets.only(top: 10.0),
+              padding: EdgeInsets.only(top: 20.0),
               child: PrincipalApod(onTap: () {})),
           Padding(
-              padding: EdgeInsets.only(top: 10.0),
+              padding: EdgeInsets.only(top: 20.0),
               child: OtherApod(onTap: () {})),
         ]);
   }

@@ -20,7 +20,7 @@ class MonthButton extends StatelessWidget {
         width: 100,
         decoration: BoxDecoration(
           color: isSelected ? Color(0xFFF3F7FE) : Colors.transparent,
-          borderRadius: BorderRadius.all(Radius.circular(100.0)),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
         child: Center(
           child: Text(

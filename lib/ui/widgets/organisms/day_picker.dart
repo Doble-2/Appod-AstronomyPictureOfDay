@@ -53,15 +53,7 @@ class _DayPickerState extends State<DayPicker> {
               minHeight: 25,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(100.0)),
-            ),
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.all(Radius.circular(100.0)),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.blueAccent),
-              borderRadius: BorderRadius.all(Radius.circular(100.0)),
+              borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
           ),
           readOnly: true,

@@ -57,7 +57,7 @@ class ApodButton extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Container(
-                          width: 80,
+                          width: 85,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

@@ -13,15 +13,12 @@ class ApiConstants {
 
 class NetworkService {
   Future<Map<String, dynamic>> getApod(String date) async {
-    print(ApiConstants.nasaKey);
     final queryParameters = {
       ApiConstants.keyParameter: ApiConstants.nasaKey,
       ApiConstants.dateParameter: date,
     };
     var url = Uri.https(
         ApiConstants.nasaEndpoint, '/planetary/apod', queryParameters);
-    print(queryParameters);
-    print(url);
     final response = await http.get(
       url,
       headers: {

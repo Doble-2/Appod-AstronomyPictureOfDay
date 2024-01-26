@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/apod_button.dart';
 import 'package:nasa_apod/ui/widgets/molecules/month_button.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
+import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_button.dart';
 // Asegúrate de importar tu bloc
 
 class ApodSlider extends StatefulWidget {
@@ -45,7 +46,17 @@ class _ApodSliderState extends State<ApodSlider> {
             ),
           );
         } else {
-          return Text('data');
+          return SizedBox(
+            height: 200,
+            child: ListView.separated(
+              separatorBuilder: (context, index) => SizedBox(width: 10),
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return SkeletonApodButton();
+              },
+              itemCount: 7,
+            ),
+          );
         }
       },
     );
