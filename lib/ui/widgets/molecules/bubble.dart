@@ -10,7 +10,7 @@ class Bubble extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Color(0xFFF3F7FE),
-        borderRadius: BorderRadius.all(Radius.circular(100.0)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
       child: Padding(
         padding: EdgeInsets.all(7.0),
