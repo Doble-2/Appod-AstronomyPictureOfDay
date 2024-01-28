@@ -15,27 +15,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Apod Development',
-      theme: ThemeData(
-        colorScheme: const ColorScheme.highContrastDark(
-          primary: Color.fromARGB(60, 4, 0, 255),
-          secondary: Color.fromARGB(66, 255, 0, 0),
+        debugShowCheckedModeBanner: false,
+        title: 'Apod Development',
+        theme: ThemeData(
+          colorScheme: const ColorScheme.highContrastDark(
+            primary: Color.fromARGB(60, 4, 0, 255),
+            secondary: Color.fromARGB(66, 255, 0, 0),
+          ),
+          fontFamily: GoogleFonts.inter().fontFamily,
+          useMaterial3: true,
         ),
-        fontFamily: GoogleFonts.inter().fontFamily,
-        useMaterial3: true,
-      ),
-      home: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: const OwnAppBar(),
-        ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: SingleChildScrollView(child: HomeView()),
-        ),
-        bottomNavigationBar: OwnNavBar(),
-      ),
-    );
+        home: HomeView());
   }
 }
