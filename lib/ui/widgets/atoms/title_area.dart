@@ -12,8 +12,8 @@ class TitleArea extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      textAlign: TextAlign.center,
-      overflow: TextOverflow.ellipsis,
+      //textAlign: TextAlign.center,
+      //overflow: TextOverflow.ellipsis,
       style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 25),
     );
   }

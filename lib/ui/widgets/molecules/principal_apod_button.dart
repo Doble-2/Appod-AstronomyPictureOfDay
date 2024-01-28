@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nasa_apod/ui/pages/apod.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,7 +36,10 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
           return Padding(
             padding: EdgeInsets.only(top: 10.0),
             child: GestureDetector(
-              onTap: widget.onTap,
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ApodView()));
+              },
               child: Stack(
                 children: [
                   ClipRRect(
