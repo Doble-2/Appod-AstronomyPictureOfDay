@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         builder: FToastBuilder(),
         debugShowCheckedModeBanner: false,
-        title: 'Apod Development',
+        title: 'Appod - Astronomy picture of the day',
         theme: ThemeData(
           colorScheme: const ColorScheme.highContrastDark(
             primary: Color.fromARGB(60, 4, 0, 255),

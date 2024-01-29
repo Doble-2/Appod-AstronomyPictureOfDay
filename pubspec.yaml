@@ -46,6 +46,8 @@ dependencies:
   dio: ^5.4.0
   fluttertoast: ^8.2.4
   widget_zoom: ^0.0.3
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.3.7
   
 dev_dependencies:
   flutter_test:
@@ -61,6 +63,10 @@ dev_dependencies:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
+flutter_icons:
+    android: true
+    ios: true
+    image_path: "assets/Appod.png"
 # The following section is specific to Flutter packages.
 flutter:
 
@@ -72,6 +78,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - .env
+    - assets/Appod.png
    
   #   - images/a_dot_ham.jpeg
 
@@ -97,6 +104,7 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
+  
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

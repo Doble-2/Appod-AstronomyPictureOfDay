@@ -18,7 +18,7 @@ class Layout extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 20.0),
         child: SingleChildScrollView(child: child),
       ),
-      bottomNavigationBar: OwnNavBar(),
+      // bottomNavigationBar: OwnNavBar(),
     );
   }
 }
