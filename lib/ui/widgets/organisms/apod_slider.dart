@@ -16,18 +16,12 @@ class ApodSlider extends StatefulWidget {
 }
 
 class _ApodSliderState extends State<ApodSlider> {
-  void initState() {
-    super.initState();
-    context.read<ApodBloc>().add(FetchMultipleApod());
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ApodBloc, ApodState>(
       builder: (context, state) {
         if (state.multiplestatus == ApodStatus.success &&
-            state.multipleApodData.isNotEmpty &&
-            state.apodData != null) {
+            state.multipleApodData.isNotEmpty) {
           return SizedBox(
             height: 200,
             child: ListView.separated(
@@ -35,17 +29,24 @@ class _ApodSliderState extends State<ApodSlider> {
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
                 final apodData = state.multipleApodData[index];
+                print('true');
                 return ApodButton(
                   image: apodData['url'],
                   title: apodData['title'],
                   date: apodData['date'],
-                  author: 'author',
+                  author: apodData['copyright'] != null
+                      ? apodData['copyright']
+                      : 'Nasa',
                 );
               },
               itemCount: state.multipleApodData.length,
             ),
           );
         } else {
+          print('error');
+          print(state.multiplestatus);
+          print(state.multipleApodData);
+
           return SizedBox(
             height: 200,
             child: ListView.separated(

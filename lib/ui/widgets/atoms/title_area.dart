@@ -14,7 +14,8 @@ class TitleArea extends StatelessWidget {
       text,
       //textAlign: TextAlign.center,
       //overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 25),
+      style: const TextStyle(
+          fontWeight: FontWeight.w900, fontSize: 25, fontFamily: 'Nasa'),
     );
   }
 }

@@ -1,15 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
-import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
+import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
-import 'package:nasa_apod/ui/widgets/organisms/day_picker.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
-import 'package:nasa_apod/ui/widgets/organisms/month_slider.dart';
-import 'package:nasa_apod/ui/widgets/organisms/other_apod.dart';
-import 'package:nasa_apod/ui/widgets/organisms/principal_apod.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/rendering.dart';
+import 'package:dio/dio.dart';
 
 class ApodView extends StatefulWidget {
   @override
@@ -57,13 +58,11 @@ class _ApodViewState extends State<ApodView> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ApodView()));
+                              saveNetworkImage(state.apodData!['hdurl'],
+                                  state.apodData!['title']);
                             },
                             child: Icon(
-                              Icons.more_vert_outlined,
+                              Icons.download,
                               color: Colors.white,
                             ),
                           )
@@ -109,13 +108,19 @@ class _ApodViewState extends State<ApodView> {
                         size: 20,
                       ),
                     ),
-                    Text(
-                      'author',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
+                    Container(
+                      width: 150,
+                      child: Text(
+                        state.apodData!['copyright'] != null
+                            ? state.apodData!['copyright'].replaceAll('\n', '')
+                            : 'Nasa',
+                        overflow: TextOverflow.clip,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    ),
+                    )
                   ],
                 )
               ],

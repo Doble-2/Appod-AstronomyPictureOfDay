@@ -4,6 +4,7 @@ import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
+import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
 
 class PrincipalApodButton extends StatefulWidget {
@@ -37,6 +38,9 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
             padding: EdgeInsets.only(top: 10.0),
             child: GestureDetector(
               onTap: () {
+                context.read<ApodBloc>().add(
+                      ChangeDate(state.apodData!['date']),
+                    );
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => ApodView()));
               },
@@ -109,9 +113,12 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: widget.onTap,
+                            onTap: () {
+                              saveNetworkImage(state.apodData!['hdurl'],
+                                  state.apodData!['title']);
+                            },
                             child: Icon(
-                              Icons.more_vert_outlined,
+                              Icons.download,
                               color: Colors.white,
                             ),
                           )

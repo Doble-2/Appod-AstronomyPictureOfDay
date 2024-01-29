@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/organisms/day_picker.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 import 'package:nasa_apod/ui/widgets/organisms/month_slider.dart';
@@ -18,6 +20,11 @@ class _HomeViewState extends State<HomeView> {
     setState(() {
       _date = date;
     });
+  }
+
+  void initState() {
+    super.initState();
+    context.read<ApodBloc>().add(FetchMultipleApod());
   }
 
   @override

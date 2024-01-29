@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nasa_apod/ui/pages/home.dart';
 import 'package:nasa_apod/domain/use_case.dart';
 import 'package:nasa_apod/ui/widgets/organisms/nav_bar.dart';
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        builder: FToastBuilder(),
         debugShowCheckedModeBanner: false,
         title: 'Apod Development',
         theme: ThemeData(
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
             primary: Color.fromARGB(60, 4, 0, 255),
             secondary: Color.fromARGB(66, 255, 0, 0),
           ),
-          fontFamily: GoogleFonts.inter().fontFamily,
+          fontFamily: 'Nasa',
           useMaterial3: true,
         ),
         home: HomeView());

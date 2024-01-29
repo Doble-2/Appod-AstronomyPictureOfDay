@@ -10,9 +10,14 @@ class OwnAppBar extends StatelessWidget {
     return AppBar(
       backgroundColor: Colors.transparent,
       //title: SvgPicture.asset('wormLogo.svg', height: 26, width: 30),
-      title: Image(
-        image: AssetImage('assets/wormLogo.png'),
-        width: 100,
+      title: Text(
+        'APPOD',
+        style: TextStyle(
+          color: Color(0xFFE03C31),
+          fontFamily: 'Nasa',
+          fontSize: 30,
+          fontWeight: FontWeight.w900,
+        ),
       ),
       centerTitle: true,
     );
