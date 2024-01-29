@@ -36,6 +36,35 @@ class ApodButton extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15.0),
                     child: Image.network(
                       image,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return Stack(
+                          children: [
+                            Container(
+                              width: 200,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15.0),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF161616),
+                                    Color(0xFF1A1A1A)
+                                  ],
+                                  stops: [0.2, 2],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              child: Text('Error de conexion'),
+                              top: 10,
+                              left: 10,
+                            )
+                          ],
+                        );
+                      },
+                      semanticLabel: title,
                       fit: BoxFit.cover,
                       height: 100,
                       width: 200,
