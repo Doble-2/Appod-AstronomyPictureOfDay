@@ -50,6 +50,32 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                     borderRadius: BorderRadius.circular(40.0),
                     child: Image.network(
                       state.apodData!['url'],
+                      errorBuilder: (context, error, stackTrace) {
+                        return Stack(
+                          children: [
+                            Container(
+                              height: 250,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15.0),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF161616),
+                                    Color(0xFF1A1A1A)
+                                  ],
+                                  stops: [0.2, 2],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              child: Text('Error de conexion'),
+                              top: 10,
+                              left: 10,
+                            )
+                          ],
+                        );
+                      },
                       fit: BoxFit.cover,
                       height: 250,
                       width: MediaQuery.of(context).size.width,
@@ -131,7 +157,27 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
             ),
           );
         } else {
-          return Text('Failed to load data');
+          return Stack(
+            children: [
+              Container(
+                height: 250,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15.0),
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF161616), Color(0xFF1A1A1A)],
+                    stops: [0.2, 2],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+              Positioned(
+                child: Text('Error de conexion'),
+                top: 10,
+                left: 10,
+              )
+            ],
+          );
         }
       },
     );
