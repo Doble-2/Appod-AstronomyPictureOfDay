@@ -45,6 +45,7 @@ dependencies:
   image_gallery_saver: ^2.0.3
   dio: ^5.4.0
   fluttertoast: ^8.2.4
+  widget_zoom: ^0.0.3
   
 dev_dependencies:
   flutter_test:
