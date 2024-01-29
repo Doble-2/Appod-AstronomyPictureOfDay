@@ -62,7 +62,7 @@ class ApodButton extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Container(
-                            width: 85,
+                            width: 100,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -102,7 +102,13 @@ class ApodButton extends StatelessWidget {
                           padding: EdgeInsets.only(right: 5),
                           child: Icon(Icons.camera_alt_outlined, size: 15),
                         ),
-                        Text(author),
+                        Container(
+                          width: 150,
+                          child: Text(
+                            author.replaceAll('\n', ''),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     )
                   ],
