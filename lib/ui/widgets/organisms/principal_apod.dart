@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
-import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/principal_apod_button.dart';
@@ -29,7 +28,7 @@ class _PrincipalApodState extends State<PrincipalApod> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TitleArea(text: 'This day in space'),
+        const TitleArea(text: 'This day in space'),
         PrincipalApodButton(onTap: widget.onTap),
       ],
     );

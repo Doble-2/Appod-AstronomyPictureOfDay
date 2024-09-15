@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nasa_apod/ui/pages/home.dart';
 import 'package:nasa_apod/domain/use_case.dart';
-import 'package:nasa_apod/ui/widgets/organisms/nav_bar.dart';
-import 'ui/widgets/organisms/app_bar.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class MyApp extends StatelessWidget {
   final ApodUseCase apodUseCase;
 
-  MyApp({required this.apodUseCase});
+  const MyApp({super.key, required this.apodUseCase});
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +22,6 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Nasa',
           useMaterial3: true,
         ),
-        home: HomeView());
+        home: const HomeView());
   }
 }

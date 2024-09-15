@@ -59,7 +59,6 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
             date: state.date,
             multipleApodData: []));
       } catch (error) {
-        print('Error fetching APOD: $error');
         emit(ApodState(
             status: ApodStatus.failed,
             multiplestatus: ApodStatus.loading,
@@ -80,7 +79,6 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           apodData: state.apodData,
         ));
       } catch (error) {
-        print('Error fetching APOD: $error');
         emit(ApodState(
             status: ApodStatus.success,
             multiplestatus: ApodStatus.failed,
@@ -97,10 +95,9 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           multiplestatus: ApodStatus.loading,
           date: event.date,
         ));
-        this.add(FetchApod());
-        this.add(FetchMultipleApod());
+        add(FetchApod());
+        add(FetchMultipleApod());
       } catch (error) {
-        print('Error CHANGING APOD: $error');
         emit(ApodState(
             status: state.status,
             multiplestatus: state.multiplestatus,

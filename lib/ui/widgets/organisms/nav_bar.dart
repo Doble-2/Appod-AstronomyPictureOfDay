@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 // Creating a StatelessWidget for a general button
 class OwnNavBar extends StatelessWidget {
@@ -12,8 +9,8 @@ class OwnNavBar extends StatelessWidget {
     return SafeArea(
         child: Container(
       height: 60,
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 40),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFF161616), Color(0xFF1A1A1A)],
           stops: [0.5, 2],
@@ -33,7 +30,7 @@ class OwnNavBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.values[1],
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+          children: const [
             Icon(
               Icons.star_border,
               color: Colors.white,

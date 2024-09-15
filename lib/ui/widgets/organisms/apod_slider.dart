@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/apod_button.dart';
-import 'package:nasa_apod/ui/widgets/molecules/month_button.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_button.dart';
 // Asegúrate de importar tu bloc
 
 class ApodSlider extends StatefulWidget {
-  ApodSlider({
-    Key? key,
-  }) : super(key: key);
+  const ApodSlider({super.key});
 
   @override
   _ApodSliderState createState() => _ApodSliderState();
@@ -25,18 +22,15 @@ class _ApodSliderState extends State<ApodSlider> {
           return SizedBox(
             height: 200,
             child: ListView.separated(
-              separatorBuilder: (context, index) => SizedBox(width: 10),
+              separatorBuilder: (context, index) => const SizedBox(width: 10),
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
                 final apodData = state.multipleApodData[index];
-                print('true');
                 return ApodButton(
                   image: apodData['url'],
                   title: apodData['title'],
                   date: apodData['date'],
-                  author: apodData['copyright'] != null
-                      ? apodData['copyright']
-                      : 'Nasa',
+                  author: apodData['copyright'] ?? 'Nasa',
                 );
               },
               itemCount: state.multipleApodData.length,
@@ -46,10 +40,10 @@ class _ApodSliderState extends State<ApodSlider> {
           return SizedBox(
             height: 200,
             child: ListView.separated(
-              separatorBuilder: (context, index) => SizedBox(width: 10),
+              separatorBuilder: (context, index) => const SizedBox(width: 10),
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
-                return SkeletonApodButton();
+                return const SkeletonApodButton();
               },
               itemCount: 7,
             ),
@@ -58,14 +52,14 @@ class _ApodSliderState extends State<ApodSlider> {
           return SizedBox(
             height: 200,
             child: ListView.separated(
-              separatorBuilder: (context, index) => SizedBox(width: 10),
+              separatorBuilder: (context, index) => const SizedBox(width: 10),
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
                 return Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       color: Colors.black,
-                      boxShadow: [],
+                      boxShadow: const [],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +71,7 @@ class _ApodSliderState extends State<ApodSlider> {
                               height: 100,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15.0),
-                                gradient: LinearGradient(
+                                gradient: const LinearGradient(
                                   colors: [
                                     Color(0xFF161616),
                                     Color(0xFF1A1A1A)
@@ -88,22 +82,22 @@ class _ApodSliderState extends State<ApodSlider> {
                                 ),
                               ),
                             ),
-                            Positioned(
-                              child: Text('Error de conexion'),
+                            const Positioned(
                               top: 10,
                               left: 10,
+                              child: Text('Error de conexion'),
                             )
                           ],
                         ),
                         Padding(
-                          padding: EdgeInsets.only(top: 10),
+                          padding: const EdgeInsets.only(top: 10),
                           child: Container(
                             width: 200,
                             height: 60,
-                            padding: EdgeInsets.all(10.0),
+                            padding: const EdgeInsets.all(10.0),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15.0),
-                              gradient: LinearGradient(
+                              gradient: const LinearGradient(
                                 colors: [Color(0xFF161616), Color(0xFF1A1A1A)],
                                 stops: [0.5, 2],
                                 begin: Alignment.topLeft,

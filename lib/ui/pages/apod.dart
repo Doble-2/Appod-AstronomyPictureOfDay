@@ -1,19 +1,15 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:widget_zoom/widget_zoom.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
-import 'package:flutter/rendering.dart';
-import 'package:dio/dio.dart';
 
 class ApodView extends StatefulWidget {
+  const ApodView({super.key});
+
   @override
   _ApodViewState createState() => _ApodViewState();
 }
@@ -30,11 +26,11 @@ class _ApodViewState extends State<ApodView> {
     return Layout(
         child: BlocBuilder<ApodBloc, ApodState>(builder: (context, state) {
       if (state.status == ApodStatus.loading) {
-        return SkeletonPrincipalApodButton();
+        return const SkeletonPrincipalApodButton();
       } else if (state.status == ApodStatus.success && state.apodData != null) {
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
-              padding: EdgeInsets.only(top: 20.0),
+              padding: const EdgeInsets.only(top: 20.0),
               child: Stack(
                 children: [
                   ClipRRect(
@@ -55,7 +51,7 @@ class _ApodViewState extends State<ApodView> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           vertical: 10.0, horizontal: 20.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -65,7 +61,7 @@ class _ApodViewState extends State<ApodView> {
                               saveNetworkImage(state.apodData!['hdurl'],
                                   state.apodData!['title']);
                             },
-                            child: Icon(
+                            child: const Icon(
                               Icons.download,
                               color: Colors.white,
                             ),
@@ -77,16 +73,16 @@ class _ApodViewState extends State<ApodView> {
                 ],
               )),
           Padding(
-              padding: EdgeInsets.only(top: 30.0, left: 10),
+              padding: const EdgeInsets.only(top: 30.0, left: 10),
               child: TitleArea(text: state.apodData!['title'])),
           Padding(
-            padding: EdgeInsets.only(top: 20.0, left: 10),
+            padding: const EdgeInsets.only(top: 20.0, left: 10),
             child: Row(
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.only(right: 5),
                       child: Icon(
                         Icons.calendar_today,
@@ -95,7 +91,7 @@ class _ApodViewState extends State<ApodView> {
                     ),
                     Text(
                       state.apodData!['date'],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
                       ),
@@ -105,21 +101,21 @@ class _ApodViewState extends State<ApodView> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.only(right: 5, left: 30),
                       child: Icon(
                         Icons.camera_alt_outlined,
                         size: 20,
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: 150,
                       child: Text(
                         state.apodData!['copyright'] != null
                             ? state.apodData!['copyright'].replaceAll('\n', '')
                             : 'Nasa',
                         overflow: TextOverflow.clip,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
                         ),
@@ -131,15 +127,15 @@ class _ApodViewState extends State<ApodView> {
             ),
           ),
           Padding(
-              padding: EdgeInsets.only(top: 20.0, left: 10, bottom: 30),
+              padding: const EdgeInsets.only(top: 20.0, left: 10, bottom: 30),
               child: Text(state.apodData!['explanation'],
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                   )))
         ]);
       } else {
-        return Text('Failed to load data');
+        return const Text('Failed to load data');
       }
     }));
   }

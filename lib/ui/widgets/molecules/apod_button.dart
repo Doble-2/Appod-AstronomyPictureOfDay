@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
 
@@ -25,7 +24,7 @@ class ApodButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Colors.black,
-            boxShadow: [],
+            boxShadow: const [],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +44,7 @@ class ApodButton extends StatelessWidget {
                               height: 100,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15.0),
-                                gradient: LinearGradient(
+                                gradient: const LinearGradient(
                                   colors: [
                                     Color(0xFF161616),
                                     Color(0xFF1A1A1A)
@@ -56,10 +55,10 @@ class ApodButton extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Positioned(
-                              child: Text('Error de conexion'),
+                            const Positioned(
                               top: 10,
                               left: 10,
+                              child: Text('Error de conexion'),
                             )
                           ],
                         );
@@ -85,12 +84,12 @@ class ApodButton extends StatelessWidget {
                           end: Alignment.bottomCenter,
                         ),
                       ),
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           vertical: 10.0, horizontal: 20.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Container(
+                          SizedBox(
                             width: 100,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +97,7 @@ class ApodButton extends StatelessWidget {
                                 Text(
                                   date,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w400,
@@ -115,7 +114,7 @@ class ApodButton extends StatelessWidget {
               ),
               Container(
                 width: 200,
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -123,15 +122,15 @@ class ApodButton extends StatelessWidget {
                     Text(
                       title,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 20),
+                      style: const TextStyle(fontSize: 20),
                     ),
                     Row(
                       children: [
-                        Padding(
+                        const Padding(
                           padding: EdgeInsets.only(right: 5),
                           child: Icon(Icons.camera_alt_outlined, size: 15),
                         ),
-                        Container(
+                        SizedBox(
                           width: 150,
                           child: Text(
                             author.replaceAll('\n', ''),
@@ -150,7 +149,7 @@ class ApodButton extends StatelessWidget {
               ChangeDate(date),
             );
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ApodView()));
+            context, MaterialPageRoute(builder: (context) => const ApodView()));
       },
     );
   }

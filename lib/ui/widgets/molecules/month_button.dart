@@ -19,14 +19,14 @@ class MonthButton extends StatelessWidget {
       child: Container(
         width: 100,
         decoration: BoxDecoration(
-          color: isSelected ? Color(0xFFF3F7FE) : Colors.transparent,
-          borderRadius: BorderRadius.all(Radius.circular(12)),
+          color: isSelected ? const Color(0xFFF3F7FE) : Colors.transparent,
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
         ),
         child: Center(
           child: Text(
             month,
             style: TextStyle(
-              color: isSelected ? Colors.blue : Color(0xFFB8B8B8),
+              color: isSelected ? Colors.blue : const Color(0xFFB8B8B8),
             ),
           ),
         ),

@@ -12,15 +12,11 @@ class OtherApod extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TitleArea(text: 'Other days'),
-        Padding(
-            padding: EdgeInsets.only(top: 10.0),
-            child: Container(
-              child: ApodSlider(),
-            )),
+        Padding(padding: EdgeInsets.only(top: 10.0), child: ApodSlider()),
       ],
     );
   }

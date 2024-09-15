@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
-import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
@@ -31,18 +30,18 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
     return BlocBuilder<ApodBloc, ApodState>(
       builder: (context, state) {
         if (state.status == ApodStatus.loading) {
-          return SkeletonPrincipalApodButton();
+          return const SkeletonPrincipalApodButton();
         } else if (state.status == ApodStatus.success &&
             state.apodData != null) {
           return Padding(
-            padding: EdgeInsets.only(top: 10.0),
+            padding: const EdgeInsets.only(top: 10.0),
             child: GestureDetector(
               onTap: () {
                 context.read<ApodBloc>().add(
                       ChangeDate(state.apodData!['date']),
                     );
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ApodView()));
+                    MaterialPageRoute(builder: (context) => const ApodView()));
               },
               child: Stack(
                 children: [
@@ -57,7 +56,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                               height: 250,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15.0),
-                                gradient: LinearGradient(
+                                gradient: const LinearGradient(
                                   colors: [
                                     Color(0xFF161616),
                                     Color(0xFF1A1A1A)
@@ -68,10 +67,10 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                                 ),
                               ),
                             ),
-                            Positioned(
-                              child: Text('Error de conexion'),
+                            const Positioned(
                               top: 10,
                               left: 10,
+                              child: Text('Error de conexion'),
                             )
                           ],
                         );
@@ -89,23 +88,23 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           vertical: 10.0, horizontal: 20.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
+                          SizedBox(
                             width: 250,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.only(bottom: 5.0),
+                                  padding: const EdgeInsets.only(bottom: 5.0),
                                   child: Bubble(
                                     child: Text(
                                       state.apodData!['title'],
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Color(0xFF606060),
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
@@ -117,7 +116,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                                     child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Padding(
+                                    const Padding(
                                       padding: EdgeInsets.only(right: 5),
                                       child: Icon(
                                         Icons.calendar_today,
@@ -127,7 +126,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                                     ),
                                     Text(
                                       state.apodData!['date'],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Color(0xFF606060),
                                         fontSize: 15,
                                         fontWeight: FontWeight.w400,
@@ -143,7 +142,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                               saveNetworkImage(state.apodData!['hdurl'],
                                   state.apodData!['title']);
                             },
-                            child: Icon(
+                            child: const Icon(
                               Icons.download,
                               color: Colors.white,
                             ),
@@ -163,7 +162,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                 height: 250,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15.0),
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [Color(0xFF161616), Color(0xFF1A1A1A)],
                     stops: [0.2, 2],
                     begin: Alignment.topLeft,
@@ -171,10 +170,10 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                   ),
                 ),
               ),
-              Positioned(
-                child: Text('Error de conexion'),
+              const Positioned(
                 top: 10,
                 left: 10,
+                child: Text('Error de conexion'),
               )
             ],
           );

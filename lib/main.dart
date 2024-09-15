@@ -5,7 +5,6 @@ import 'package:nasa_apod/data/nasa.dart';
 import 'package:nasa_apod/domain/use_case.dart';
 import 'my_app.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
