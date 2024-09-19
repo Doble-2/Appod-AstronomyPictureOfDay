@@ -19,7 +19,7 @@ class _ApodSliderState extends State<ApodSlider> {
       builder: (context, state) {
         if (state.multiplestatus == ApodStatus.success &&
             state.multipleApodData.isNotEmpty) {
-          return Container(
+          return SizedBox(
             height: 200,
             child: ListView.separated(
               separatorBuilder: (context, index) => const SizedBox(width: 10),
@@ -27,7 +27,7 @@ class _ApodSliderState extends State<ApodSlider> {
               itemBuilder: (context, index) {
                 final apodData = state.multipleApodData[index];
                 return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   child: ApodButton(
                     image: apodData['url'],
                     title: apodData['title'],

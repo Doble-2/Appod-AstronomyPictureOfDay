@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
-import 'package:nasa_apod/ui/pages/apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
@@ -104,7 +103,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                                     child: Text(
                                       state.apodData!['title'],
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Color(0xFF606060),
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
@@ -143,7 +142,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                                     state.apodData!['title']);
                               },
                               child: Container(
-                                padding: EdgeInsets.all(7),
+                                padding: const EdgeInsets.all(7),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
                                   color: Colors.white,

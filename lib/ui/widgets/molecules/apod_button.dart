@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
-import 'package:nasa_apod/ui/pages/apod.dart';
 
 class ApodButton extends StatelessWidget {
   final String title;
@@ -22,7 +21,7 @@ class ApodButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 5),
+          margin: const EdgeInsets.symmetric(horizontal: 5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Theme.of(context).colorScheme.surface,
@@ -31,7 +30,7 @@ class ApodButton extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(.2),
                 spreadRadius: .5,
                 blurRadius: 1,
-                offset: Offset(0, .5), // changes position of shadow
+                offset: const Offset(0, .5), // changes position of shadow
               ),
             ],
           ),

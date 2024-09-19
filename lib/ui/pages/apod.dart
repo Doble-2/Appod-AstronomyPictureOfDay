@@ -62,7 +62,7 @@ class _ApodViewState extends State<ApodView> {
                                   state.apodData!['title']);
                             },
                             child: Container(
-                              padding: EdgeInsets.all(7),
+                              padding: const EdgeInsets.all(7),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(30),
                                 color: Colors.white,

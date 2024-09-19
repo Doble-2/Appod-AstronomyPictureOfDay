@@ -14,7 +14,7 @@ class Layout extends StatelessWidget {
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: OwnAppBar(),
       ),
-      bottomNavigationBar: OwnNavBar(),
+      bottomNavigationBar: const OwnNavBar(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: SingleChildScrollView(child: child),

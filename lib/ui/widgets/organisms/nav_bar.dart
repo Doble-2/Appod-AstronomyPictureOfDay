@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
-import 'package:nasa_apod/ui/pages/home.dart';
 
 // Creating a StatelessWidget for a general button
 class OwnNavBar extends StatelessWidget {
@@ -15,7 +14,7 @@ class OwnNavBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24), topRight: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
@@ -25,7 +24,7 @@ class OwnNavBar extends StatelessWidget {
                       ? 5
                       : .5,
               blurRadius: 5,
-              offset: Offset(0, .2),
+              offset: const Offset(0, .2),
             )
           ]),
       child: Row(

@@ -29,8 +29,8 @@ class _HomeViewState extends State<HomeView> {
             children: <Widget>[
           const Padding(
               padding: EdgeInsets.only(top: 10.0), child: DayPicker()),
-          Padding(
-              padding: const EdgeInsets.only(top: 20.0), child: MonthSlider()),
+          const Padding(
+              padding: EdgeInsets.only(top: 20.0), child: MonthSlider()),
           Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: PrincipalApod(onTap: () {})),

@@ -4,7 +4,6 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
 import 'package:nasa_apod/ui/pages/home.dart';
-import 'package:nasa_apod/domain/use_case.dart';
 import 'package:nasa_apod/ui/pages/settings.dart';
 import 'package:provider/provider.dart';
 
@@ -15,8 +14,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.system;
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -35,7 +32,7 @@ class _MyAppState extends State<MyApp> {
               primaryColor: Colors.blue,
 
               // Esquema de colores que define una paleta completa de colores para el tema
-              colorScheme: ColorScheme.light(
+              colorScheme: const ColorScheme.light(
                 primary: Colors.blue, // Color principal
                 onPrimary: Colors
                     .white, // Color del texto/iconos sobre el color principal
@@ -52,7 +49,7 @@ class _MyAppState extends State<MyApp> {
               ),
 
               // Define la apariencia del texto en la aplicación
-              textTheme: TextTheme(
+              textTheme: const TextTheme(
                 headlineMedium: TextStyle(
                     fontSize: 32.0,
                     fontWeight:
@@ -63,27 +60,27 @@ class _MyAppState extends State<MyApp> {
               ),
 
               // Configuración específica para la AppBar
-              appBarTheme: AppBarTheme(
+              appBarTheme: const AppBarTheme(
                 color: Colors.blue, // Color de fondo de la AppBar
                 iconTheme: IconThemeData(
                     color: Colors.blue), // Color de los iconos en la AppBar
               ),
 
               // Configuración específica para los botones
-              buttonTheme: ButtonThemeData(
+              buttonTheme: const ButtonThemeData(
                 buttonColor: Colors.blue, // Color de fondo de los botones
                 textTheme:
                     ButtonTextTheme.primary, // Estilo del texto en los botones
               ),
 
               // Configuración específica para los iconos
-              iconTheme: IconThemeData(
+              iconTheme: const IconThemeData(
                 color: Colors.black, // Color de los iconos
                 size: 24.0, // Tamaño de los iconos
               ),
 
               // Configuración específica para los campos de entrada de texto
-              inputDecorationTheme: InputDecorationTheme(
+              inputDecorationTheme: const InputDecorationTheme(
                 border:
                     OutlineInputBorder(), // Estilo del borde de los campos de entrada
                 focusedBorder: OutlineInputBorder(
@@ -94,6 +91,8 @@ class _MyAppState extends State<MyApp> {
                 labelStyle: TextStyle(
                     color: Colors.blue), // Estilo del texto de las etiquetas
               ),
+              fontFamily: 'Nasa',
+              useMaterial3: true,
             ),
 
             darkTheme: ThemeData(
@@ -121,7 +120,7 @@ class _MyAppState extends State<MyApp> {
               ),
 
               // Define la apariencia del texto en la aplicación
-              textTheme: TextTheme(
+              textTheme: const TextTheme(
                 headlineMedium: TextStyle(
                     fontSize: 32.0,
                     fontWeight: FontWeight.bold,
@@ -132,27 +131,27 @@ class _MyAppState extends State<MyApp> {
               ),
 
               // Configuración específica para la AppBar
-              appBarTheme: AppBarTheme(
+              appBarTheme: const AppBarTheme(
                 color: Colors.blueGrey, // Color de fondo de la AppBar
                 iconTheme: IconThemeData(
                     color: Colors.blue), // Color de los iconos en la AppBar
               ),
 
               // Configuración específica para los botones
-              buttonTheme: ButtonThemeData(
+              buttonTheme: const ButtonThemeData(
                 buttonColor: Colors.blueGrey, // Color de fondo de los botones
                 textTheme:
                     ButtonTextTheme.primary, // Estilo del texto en los botones
               ),
 
               // Configuración específica para los iconos
-              iconTheme: IconThemeData(
+              iconTheme: const IconThemeData(
                 color: Colors.white, // Color de los iconos
                 size: 24.0, // Tamaño de los iconos
               ),
 
               // Configuración específica para los campos de entrada de texto
-              inputDecorationTheme: InputDecorationTheme(
+              inputDecorationTheme: const InputDecorationTheme(
                 border:
                     OutlineInputBorder(), // Estilo del borde de los campos de entrada
                 focusedBorder: OutlineInputBorder(
