@@ -5,6 +5,8 @@ import 'package:nasa_apod/ui/widgets/molecules/month_button.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 
 class MonthSlider extends StatelessWidget {
+  const MonthSlider({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ApodBloc, ApodState>(builder: (context, state) {

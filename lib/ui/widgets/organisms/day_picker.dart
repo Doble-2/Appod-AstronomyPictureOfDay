@@ -13,7 +13,7 @@ class DayPicker extends StatefulWidget {
 }
 
 class _DayPickerState extends State<DayPicker> {
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
 
   Future<void> _selectDate() async {
     final DateTime initialDate = context.read<ApodBloc>().state.date == ''
