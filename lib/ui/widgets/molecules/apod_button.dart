@@ -21,10 +21,18 @@ class ApodButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: Colors.black,
-            boxShadow: const [],
+            color: Theme.of(context).colorScheme.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(.2),
+                spreadRadius: .5,
+                blurRadius: 1,
+                offset: Offset(0, .5), // changes position of shadow
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,8 +85,14 @@ class ApodButton extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            Colors.black.withOpacity(0.1),
-                            Colors.black.withOpacity(0.9),
+                            Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withOpacity(.2),
+                            Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withOpacity(.9),
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -97,8 +111,9 @@ class ApodButton extends StatelessWidget {
                                 Text(
                                   date,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -122,7 +137,7 @@ class ApodButton extends StatelessWidget {
                     Text(
                       title,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 20),
+                      style: const TextStyle(fontSize: 15),
                     ),
                     Row(
                       children: [

@@ -104,7 +104,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                                     child: Text(
                                       state.apodData!['title'],
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Color(0xFF606060),
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
@@ -138,15 +138,21 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {
-                              saveNetworkImage(state.apodData!['hdurl'],
-                                  state.apodData!['title']);
-                            },
-                            child: const Icon(
-                              Icons.download,
-                              color: Colors.white,
-                            ),
-                          )
+                              onTap: () {
+                                saveNetworkImage(state.apodData!['hdurl'],
+                                    state.apodData!['title']);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(7),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  color: Colors.white,
+                                ),
+                                child: Icon(
+                                  Icons.download,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ))
                         ],
                       ),
                     ),

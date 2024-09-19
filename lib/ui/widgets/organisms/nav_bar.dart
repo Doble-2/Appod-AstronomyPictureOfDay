@@ -10,35 +10,33 @@ class OwnNavBar extends StatelessWidget {
         child: Container(
       height: 60,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF161616), Color(0xFF1A1A1A)],
-          stops: [0.5, 2],
-          begin: Alignment.topLeft,
-          end: Alignment.topRight,
-        ),
-        borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-        /*boxShadow: [
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+          boxShadow: [
             BoxShadow(
-                color: Color.fromARGB(255, 255, 0, 0).withOpacity(0.2),
-                blurRadius: 70,
-                offset: Offset(0, -10))
-          ]*/
-      ),
+              color: Theme.of(context).colorScheme.primary.withOpacity(.3),
+              spreadRadius:
+                  Theme.of(context).colorScheme.surface == Colors.black
+                      ? 5
+                      : .5,
+              blurRadius: 5,
+              offset: Offset(0, .2),
+            )
+          ]),
       child: Row(
           mainAxisSize: MainAxisSize.values[1],
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: const [
-            Icon(
-              Icons.star_border,
-              color: Colors.white,
-            ),
-            Icon(Icons.home, color: Colors.white, size: 35),
+          children: [
+            Icon(Icons.favorite_border,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(.5)),
+            Icon(Icons.home_outlined,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(.5)),
             Icon(
               Icons.settings_outlined,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
             ),
           ]),
     ));

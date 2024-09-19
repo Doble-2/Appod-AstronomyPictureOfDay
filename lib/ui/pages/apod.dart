@@ -61,9 +61,14 @@ class _ApodViewState extends State<ApodView> {
                               saveNetworkImage(state.apodData!['hdurl'],
                                   state.apodData!['title']);
                             },
-                            child: const Icon(
-                              Icons.download,
-                              color: Colors.white,
+                            child: Container(
+                              padding: EdgeInsets.all(7),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.white,
+                              ),
+                              child: Icon(Icons.download,
+                                  color: Theme.of(context).colorScheme.primary),
                             ),
                           )
                         ],

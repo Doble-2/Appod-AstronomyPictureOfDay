@@ -9,7 +9,7 @@ class Bubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFFF3F7FE),
+        color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
       child: Padding(

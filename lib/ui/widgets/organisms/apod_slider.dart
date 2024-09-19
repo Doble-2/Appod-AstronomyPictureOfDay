@@ -19,18 +19,21 @@ class _ApodSliderState extends State<ApodSlider> {
       builder: (context, state) {
         if (state.multiplestatus == ApodStatus.success &&
             state.multipleApodData.isNotEmpty) {
-          return SizedBox(
+          return Container(
             height: 200,
             child: ListView.separated(
               separatorBuilder: (context, index) => const SizedBox(width: 10),
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
                 final apodData = state.multipleApodData[index];
-                return ApodButton(
-                  image: apodData['url'],
-                  title: apodData['title'],
-                  date: apodData['date'],
-                  author: apodData['copyright'] ?? 'Nasa',
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: ApodButton(
+                    image: apodData['url'],
+                    title: apodData['title'],
+                    date: apodData['date'],
+                    author: apodData['copyright'] ?? 'Nasa',
+                  ),
                 );
               },
               itemCount: state.multipleApodData.length,
