@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get/route_manager.dart';
+import 'package:nasa_apod/ui/pages/home.dart';
 
 // Creating a StatelessWidget for a general button
 class OwnNavBar extends StatelessWidget {
   const OwnNavBar({super.key});
-
   @override
   Widget build(BuildContext context) {
+    print(Get.currentRoute);
+
     return SafeArea(
         child: Container(
       height: 60,
@@ -31,13 +34,33 @@ class OwnNavBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(Icons.favorite_border,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(.5)),
-            Icon(Icons.home_outlined,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(.5)),
-            Icon(
-              Icons.settings_outlined,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
+                color: Get.currentRoute == '/favorite'
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(.5)),
+            GestureDetector(
+              onTap: () {
+                Get.offAllNamed("/");
+              },
+              child: Icon(Icons.home_filled,
+                  color: Get.currentRoute == '/'
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(.5)),
             ),
+            GestureDetector(
+              onTap: () {
+                Get.offAllNamed("/settings");
+              },
+              child: Icon(Icons.settings_outlined,
+                  color: Get.currentRoute == '/settings'
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(.5)),
+            )
           ]),
     ));
   }

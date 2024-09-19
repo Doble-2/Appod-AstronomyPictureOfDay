@@ -48,6 +48,8 @@ dependencies:
   widget_zoom: ^0.0.3
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.3.7
+  get: ^4.6.6
+  provider: ^6.1.2
   
 dev_dependencies:
   flutter_test:

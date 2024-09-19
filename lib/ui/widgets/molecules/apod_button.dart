@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/route_manager.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
 
@@ -163,8 +164,7 @@ class ApodButton extends StatelessWidget {
         context.read<ApodBloc>().add(
               ChangeDate(date),
             );
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const ApodView()));
+        Get.toNamed('/appod');
       },
     );
   }

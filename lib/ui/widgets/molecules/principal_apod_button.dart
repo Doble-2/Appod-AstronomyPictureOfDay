@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/route_manager.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,8 +41,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                 context.read<ApodBloc>().add(
                       ChangeDate(state.apodData!['date']),
                     );
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const ApodView()));
+                Get.toNamed('/appod');
               },
               child: Stack(
                 children: [
