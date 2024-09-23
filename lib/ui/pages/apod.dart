@@ -50,9 +50,10 @@ class _ApodViewState extends State<ApodView> {
             setState(() {
               explanationLoading = false;
             });
-            bool isWorking = await st
-                .isSimplyInstanceWorking("simplytranslate.pussthecat.org");
+            bool isWorking = await st.isSimplyInstanceWorking("st.tokhmi.xyz");
             if (isWorking) {
+              st.setSimplyInstance = "st.tokhmi.xyz";
+
               final translatedText =
                   await st.trSimply(state.apodData!['explanation'], "en", 'es');
               setState(() {
