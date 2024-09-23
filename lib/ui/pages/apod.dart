@@ -35,7 +35,7 @@ class _ApodViewState extends State<ApodView> {
     return Layout(
         child: BlocBuilder<ApodBloc, ApodState>(builder: (context, state) {
       if (state.status == ApodStatus.loading) {
-        return Column(
+        return const Column(
           children: [
             SkeletonPrincipalApodButton(),
             SkeletonTitle(),
@@ -44,7 +44,7 @@ class _ApodViewState extends State<ApodView> {
           ],
         );
       } else if (state.status == ApodStatus.success && state.apodData != null) {
-        Future<void> _translateExplanation(
+        Future<void> translateExplanation(
             BuildContext context, SimplyTranslator st) async {
           if (translatedExplanation == null) {
             setState(() {
@@ -185,13 +185,13 @@ class _ApodViewState extends State<ApodView> {
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
                       )))
-              : SkeletonDescription(),
+              : const SkeletonDescription(),
           translatedExplanation == null
               ? Padding(
                   padding:
                       const EdgeInsets.only(top: 5.0, left: 10, bottom: 30),
                   child: GestureDetector(
-                      onTap: () => _translateExplanation(context, st),
+                      onTap: () => translateExplanation(context, st),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [

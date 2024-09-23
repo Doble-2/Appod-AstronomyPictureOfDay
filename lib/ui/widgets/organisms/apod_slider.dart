@@ -78,7 +78,7 @@ class _ApodSliderState extends State<ApodSlider> {
                                               .colorScheme
                                               .surface ==
                                           Colors.black
-                                      ? LinearGradient(
+                                      ? const LinearGradient(
                                           colors: [
                                             Color.fromRGBO(
                                                 107, 107, 107, 0.466),
@@ -88,7 +88,7 @@ class _ApodSliderState extends State<ApodSlider> {
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                         )
-                                      : LinearGradient(
+                                      : const LinearGradient(
                                           colors: [
                                             Color.fromRGBO(61, 61, 61, 0.322),
                                             Color.fromARGB(22, 126, 125, 125),
@@ -117,7 +117,7 @@ class _ApodSliderState extends State<ApodSlider> {
                                             .colorScheme
                                             .surface ==
                                         Colors.black
-                                    ? LinearGradient(
+                                    ? const LinearGradient(
                                         colors: [
                                           Color.fromRGBO(107, 107, 107, 0.466),
                                           Color.fromARGB(22, 126, 125, 125),
@@ -126,7 +126,7 @@ class _ApodSliderState extends State<ApodSlider> {
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       )
-                                    : LinearGradient(
+                                    : const LinearGradient(
                                         colors: [
                                           Color.fromRGBO(61, 61, 61, 0.322),
                                           Color.fromARGB(22, 126, 125, 125),

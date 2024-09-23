@@ -9,7 +9,7 @@ class SkeletonApodButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: Theme.of(context).colorScheme.surface == Colors.black
-              ? LinearGradient(
+              ? const LinearGradient(
                   colors: [
                     Color.fromRGBO(107, 107, 107, 0.466),
                     Color.fromARGB(22, 126, 125, 125),
@@ -18,7 +18,7 @@ class SkeletonApodButton extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 )
-              : LinearGradient(
+              : const LinearGradient(
                   colors: [
                     Color.fromRGBO(61, 61, 61, 0.322),
                     Color.fromARGB(22, 126, 125, 125),
