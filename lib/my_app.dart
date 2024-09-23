@@ -91,7 +91,6 @@ class _MyAppState extends State<MyApp> {
                 labelStyle: TextStyle(
                     color: Colors.blue), // Estilo del texto de las etiquetas
               ),
-              fontFamily: 'Nasa',
               useMaterial3: true,
             ),
 
@@ -165,7 +164,6 @@ class _MyAppState extends State<MyApp> {
               ),
 
               // Fuente personalizada para el tema
-              fontFamily: 'Nasa',
 
               // Uso de Material Design 3
               useMaterial3: true,

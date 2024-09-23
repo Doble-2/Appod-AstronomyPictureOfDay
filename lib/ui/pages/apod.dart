@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_data.dart';
+import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_description.dart';
+import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_title.dart';
+import 'package:simplytranslate/simplytranslate.dart';
 import 'package:widget_zoom/widget_zoom.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
@@ -21,13 +26,52 @@ class _ApodViewState extends State<ApodView> {
     context.read<ApodBloc>().add(FetchApod());
   }
 
+  String? translatedExplanation;
+  bool explanationLoading = true;
   @override
   Widget build(BuildContext context) {
+    final st = SimplyTranslator(EngineType.google);
+
     return Layout(
         child: BlocBuilder<ApodBloc, ApodState>(builder: (context, state) {
       if (state.status == ApodStatus.loading) {
-        return const SkeletonPrincipalApodButton();
+        return Column(
+          children: [
+            SkeletonPrincipalApodButton(),
+            SkeletonTitle(),
+            SkeletonData(),
+            SkeletonDescription()
+          ],
+        );
       } else if (state.status == ApodStatus.success && state.apodData != null) {
+        Future<void> _translateExplanation(
+            BuildContext context, SimplyTranslator st) async {
+          if (translatedExplanation == null) {
+            setState(() {
+              explanationLoading = false;
+            });
+            bool isWorking = await st
+                .isSimplyInstanceWorking("simplytranslate.pussthecat.org");
+            if (isWorking) {
+              final translatedText =
+                  await st.trSimply(state.apodData!['explanation'], "en", 'es');
+              setState(() {
+                translatedExplanation = translatedText;
+                explanationLoading = true;
+              });
+            } else {
+              Fluttertoast.showToast(
+                  msg: "Servicio de traduccion fuera de servicio",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  fontSize: 16.0);
+              setState(() {
+                explanationLoading = true;
+              });
+            }
+          }
+        }
+
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
               padding: const EdgeInsets.only(top: 20.0),
@@ -131,13 +175,44 @@ class _ApodViewState extends State<ApodView> {
               ],
             ),
           ),
-          Padding(
-              padding: const EdgeInsets.only(top: 20.0, left: 10, bottom: 30),
-              child: Text(state.apodData!['explanation'],
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                  )))
+          explanationLoading == true
+              ? Padding(
+                  padding:
+                      const EdgeInsets.only(top: 20.0, left: 10, bottom: 15),
+                  child: Text(
+                      translatedExplanation ?? state.apodData!['explanation'],
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                      )))
+              : SkeletonDescription(),
+          translatedExplanation == null
+              ? Padding(
+                  padding:
+                      const EdgeInsets.only(top: 5.0, left: 10, bottom: 30),
+                  child: GestureDetector(
+                      onTap: () => _translateExplanation(context, st),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Translate',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                left: 7,
+                              ),
+                              child: Icon(
+                                Icons.g_translate,
+                                color: Theme.of(context).colorScheme.primary,
+                              ))
+                        ],
+                      )),
+                )
+              : Container(),
         ]);
       } else {
         return const Text('Failed to load data');

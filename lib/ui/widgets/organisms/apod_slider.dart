@@ -73,17 +73,30 @@ class _ApodSliderState extends State<ApodSlider> {
                               width: 200,
                               height: 100,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF161616),
-                                    Color(0xFF1A1A1A)
-                                  ],
-                                  stops: [0.2, 2],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  gradient: Theme.of(context)
+                                              .colorScheme
+                                              .surface ==
+                                          Colors.black
+                                      ? LinearGradient(
+                                          colors: [
+                                            Color.fromRGBO(
+                                                107, 107, 107, 0.466),
+                                            Color.fromARGB(22, 126, 125, 125),
+                                          ],
+                                          stops: [0.2, 2],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : LinearGradient(
+                                          colors: [
+                                            Color.fromRGBO(61, 61, 61, 0.322),
+                                            Color.fromARGB(22, 126, 125, 125),
+                                          ],
+                                          stops: [0.2, 2],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )),
                             ),
                             const Positioned(
                               top: 10,
@@ -99,14 +112,29 @@ class _ApodSliderState extends State<ApodSlider> {
                             height: 60,
                             padding: const EdgeInsets.all(10.0),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15.0),
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF161616), Color(0xFF1A1A1A)],
-                                stops: [0.5, 2],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
+                                borderRadius: BorderRadius.circular(15.0),
+                                gradient: Theme.of(context)
+                                            .colorScheme
+                                            .surface ==
+                                        Colors.black
+                                    ? LinearGradient(
+                                        colors: [
+                                          Color.fromRGBO(107, 107, 107, 0.466),
+                                          Color.fromARGB(22, 126, 125, 125),
+                                        ],
+                                        stops: [0.2, 2],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : LinearGradient(
+                                        colors: [
+                                          Color.fromRGBO(61, 61, 61, 0.322),
+                                          Color.fromARGB(22, 126, 125, 125),
+                                        ],
+                                        stops: [0.2, 2],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )),
                           ),
                         )
                       ],
