@@ -8,9 +8,9 @@ class PrincipalApod extends StatefulWidget {
   final VoidCallback onTap;
 
   const PrincipalApod({
-    Key? key,
+    super.key,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   _PrincipalApodState createState() => _PrincipalApodState();

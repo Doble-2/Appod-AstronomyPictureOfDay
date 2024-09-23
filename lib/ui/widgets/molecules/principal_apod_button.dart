@@ -10,9 +10,9 @@ class PrincipalApodButton extends StatefulWidget {
   final VoidCallback onTap;
 
   const PrincipalApodButton({
-    Key? key,
+    super.key,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   _PrincipalApodState createState() => _PrincipalApodState();

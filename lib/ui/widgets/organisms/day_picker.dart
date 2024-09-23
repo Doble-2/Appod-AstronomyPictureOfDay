@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DayPicker extends StatefulWidget {
   const DayPicker({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _DayPickerState createState() => _DayPickerState();

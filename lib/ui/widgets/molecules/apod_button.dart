@@ -10,12 +10,12 @@ class ApodButton extends StatelessWidget {
   final String image;
 
   const ApodButton({
-    Key? key,
+    super.key,
     required this.title,
     required this.date,
     required this.author,
     required this.image,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
