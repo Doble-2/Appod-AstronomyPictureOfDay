@@ -1,0 +1,40 @@
+name: Build iOS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_ios:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Xcode
+        uses: actions/setup-xcode@v3
+        with:
+          version: '14.3'  # Ajusta la versión según sea necesario
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Get Flutter
+        uses: actions/checkout@v3
+        with:
+          repository: flutter/flutter
+          path: flutter
+      - run: flutter/bin/flutter --version
+      - run: flutter/bin/flutter channel stable
+      - run: flutter/bin/flutter upgrade
+      - uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Build iOS app
+        run: flutter build ipa
+      - name: Upload IPA
+        uses: actions/upload-artifact@v3
+        with:
+          path: build/ios/ipa/*.ipa
