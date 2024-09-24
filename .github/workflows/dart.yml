@@ -1,20 +1,40 @@
-            - name: flutter-build-ios
-  # You may pin to the exact commit or the version.
-  # uses: cedvdb/action-flutter-build-ios@8311b492719eaf37f7289725638169a01b468670
-  uses: cedvdb/action-flutter-build-ios@v1
-  with:
-    # The root directory of the flutter app within this repository
-    working-directory: # optional, default is ./
-    # The full build command, can be used to add arguments
-    build-cmd: # optional, default is flutter build ipa --release
-    # Whether this project uses flutterfire, this is needed because flutterfire cli adds a post build script...
-    flutterfire: # optional, default is true
-    # base 64 of the p12 certificate
-    certificate-base64: 
-    # password of the above certificate
-    certificate-password: 
-    # base 64 of your.mobileprovision
-    provisioning-profile-base64: 
-    # random string in secrets
-    keychain-password: 
-          
+name: Build iOS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_ios:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Xcode
+        uses: actions/setup-xcode@v3
+        with:
+          version: '14.3'  # Ajusta la versión según sea necesario
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Get Flutter
+        uses: actions/checkout@v3
+        with:
+          repository: flutter/flutter
+          path: flutter
+      - run: flutter/bin/flutter --version
+      - run: flutter/bin/flutter channel stable
+      - run: flutter/bin/flutter upgrade
+      - uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Build iOS app
+        run: flutter build ipa
+      - name: Upload IPA
+        uses: actions/upload-artifact@v3
+        with:
+          path: build/ios/ipa/*.ipa
