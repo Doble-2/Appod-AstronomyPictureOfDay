@@ -1,0 +1,20 @@
+            - name: flutter-build-ios
+  # You may pin to the exact commit or the version.
+  # uses: cedvdb/action-flutter-build-ios@8311b492719eaf37f7289725638169a01b468670
+  uses: cedvdb/action-flutter-build-ios@v1
+  with:
+    # The root directory of the flutter app within this repository
+    working-directory: # optional, default is ./
+    # The full build command, can be used to add arguments
+    build-cmd: # optional, default is flutter build ipa --release
+    # Whether this project uses flutterfire, this is needed because flutterfire cli adds a post build script...
+    flutterfire: # optional, default is true
+    # base 64 of the p12 certificate
+    certificate-base64: 
+    # password of the above certificate
+    certificate-password: 
+    # base 64 of your.mobileprovision
+    provisioning-profile-base64: 
+    # random string in secrets
+    keychain-password: 
+          
