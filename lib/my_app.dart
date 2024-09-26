@@ -30,12 +30,13 @@ class _MyAppState extends State<MyApp> {
     // Replace with your actual authentication logic
     final isLoggedIn = await AuthService().isLoggedIn();
     setState(() {
-      _isLoading = false;
       _initialRoute = isLoggedIn ? '/' : '/login';
+
+      _isLoading = false;
     });
   }
 
-  String _initialRoute = '';
+  String _initialRoute = '/login';
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +202,9 @@ class _MyAppState extends State<MyApp> {
                 routes: {
                   '/': (context) => const HomeView(),
                   '/appod': (context) => const ApodView(),
-                  '/settings': (context) => const SettingsView(),
+                  '/settings': (context) => SettingsView(
+                        authService: AuthService(),
+                      ),
                   '/register': (context) => const CreateAccount(),
                   '/login': (context) => const LoginScreen(),
                 },

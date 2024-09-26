@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_data.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_description.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_title.dart';
@@ -101,6 +102,21 @@ class _ApodViewState extends State<ApodView> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          GestureDetector(
+                            onTap: () {
+                              AuthService()
+                                  .addFavorite(state.apodData!['date']);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(7),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.white,
+                              ),
+                              child: Icon(Icons.favorite,
+                                  color: Theme.of(context).colorScheme.primary),
+                            ),
+                          ),
                           GestureDetector(
                             onTap: () {
                               saveNetworkImage(state.apodData!['hdurl'],

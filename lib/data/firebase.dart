@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
+  // ignore: unused_field
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<String?> registration({
@@ -77,5 +79,53 @@ class AuthService {
       }
     }
     return false;
+  }
+
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userUID');
+  }
+
+  Future<void> addFavorite(String date) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userUID = prefs.getString('userUID');
+
+    CollectionReference favorites =
+        FirebaseFirestore.instance.collection('favorites');
+    print('object');
+
+    QuerySnapshot querySnapshot =
+        await favorites.where('uid', isEqualTo: userUID).get();
+    print(querySnapshot);
+    if (querySnapshot.docs.isNotEmpty) {
+      // Document exists, update the 'favorites' array
+      DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+
+      print('object');
+      print(documentSnapshot);
+      Map<String, dynamic> data =
+          documentSnapshot.data() as Map<String, dynamic>;
+      List currentFavorites = data['images'] as List;
+      currentFavorites.add(date);
+
+      return favorites
+          .doc(documentSnapshot.id)
+          .update({'images': currentFavorites})
+          .then((value) => print("Favorite added successfully!"))
+          .catchError((error) => print("Failed to update favorite: $error"));
+    } else {
+      // Document doesn't exist, create a new document
+      return favorites
+          .add({
+            'uid': userUID,
+            'images': [
+              date
+            ], // Initialize the favorites array with the new date
+          })
+          .then((value) => print("Favorite added successfully!"))
+          .catchError((error) => print("Failed to add favorite: $error"));
+    }
   }
 }

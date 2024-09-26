@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/data/firebase.dart';
-import 'package:nasa_apod/ui/pages/create_account.dart';
 import 'package:get/route_manager.dart';
 
 class LoginScreen extends StatefulWidget {
