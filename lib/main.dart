@@ -7,6 +7,8 @@ import 'my_app.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding
@@ -14,7 +16,10 @@ void main() async {
   await initializeDateFormatting(); // Inicializa los datos de formato de fecha
   final networkService = NetworkService();
   await dotenv.load(fileName: ".env");
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   final apodRepository = ApodRepositoryImpl(networkService);
   final apodUseCase = ApodUseCase(apodRepository);
   final apodBloc = ApodBloc(apodUseCase);

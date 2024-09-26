@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "885350117808",
+    "project_id": "appod-3f4d9",
+    "storage_bucket": "appod-3f4d9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885350117808:android:695c4cf117f0ea18bde675",
+        "android_client_info": {
+          "package_name": "appod.angelcalderon.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4EixJE9nILmS0CD4KSXSZZQM5KA4Tib0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
