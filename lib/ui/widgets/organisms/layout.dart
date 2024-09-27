@@ -10,16 +10,19 @@ class Layout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: OwnAppBar(),
-      ),
-      bottomNavigationBar: const OwnNavBar(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: SingleChildScrollView(child: child),
-      ),
-      // bottomNavigationBar: OwnNavBar(),
-    );
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: OwnAppBar(),
+        ),
+        bottomNavigationBar: const OwnNavBar(),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: SingleChildScrollView(child: child),
+          ),
+        )
+
+        // bottomNavigationBar: OwnNavBar(),
+        );
   }
 }

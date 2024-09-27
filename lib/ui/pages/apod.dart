@@ -29,6 +29,8 @@ class _ApodViewState extends State<ApodView> {
 
   String? translatedExplanation;
   bool explanationLoading = true;
+  bool _isExpanded = false;
+
   @override
   Widget build(BuildContext context) {
     final st = SimplyTranslator(EngineType.google);
@@ -102,36 +104,69 @@ class _ApodViewState extends State<ApodView> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              AuthService()
-                                  .addFavorite(state.apodData!['date']);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(7),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color: Colors.white,
+                          _isExpanded
+                              ? Column(
+                                  children: [
+                                    AnimatedPositioned(
+                                      duration: Duration(milliseconds: 300),
+                                      top: _isExpanded ? 60 : 0,
+                                      left: _isExpanded ? 40 : 0,
+                                      child: FloatingActionButton(
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                        onPressed: () {
+                                          AuthService().addFavorite(
+                                              state.apodData!['date']);
+                                        },
+                                        mini: true,
+                                        child: Icon(
+                                          Icons.favorite,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ), // Icono del botón principal
+                                      ),
+                                    ),
+                                    AnimatedPositioned(
+                                      duration: Duration(milliseconds: 300),
+                                      top: _isExpanded ? 60 : 0,
+                                      right: 40,
+                                      child: FloatingActionButton(
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                        onPressed: () {
+                                          saveNetworkImage(
+                                              state.apodData!['hdurl'],
+                                              state.apodData!['title']);
+                                        },
+                                        mini: true,
+                                        child: Icon(Icons.download,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
+                                      ),
+                                    )
+                                  ],
+                                )
+                              : Container(),
+                          Stack(
+                            children: [
+                              FloatingActionButton(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.onPrimary,
+                                onPressed: () {
+                                  setState(() {
+                                    _isExpanded = !_isExpanded;
+                                  });
+                                },
+                                child: Icon(Icons.add,
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
                               ),
-                              child: Icon(Icons.favorite,
-                                  color: Theme.of(context).colorScheme.primary),
-                            ),
+                            ],
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              saveNetworkImage(state.apodData!['hdurl'],
-                                  state.apodData!['title']);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(7),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color: Colors.white,
-                              ),
-                              child: Icon(Icons.download,
-                                  color: Theme.of(context).colorScheme.primary),
-                            ),
-                          )
                         ],
                       ),
                     ),

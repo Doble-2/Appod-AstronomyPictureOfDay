@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/route_manager.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
 
@@ -16,13 +17,29 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
+  bool isLoggedIn = false;
   void handleLogout() async {
     await widget.authService.logout();
     // Clear user data from SharedPreferences (optional)
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('userUID');
 
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    Get.toNamed('/login');
+  }
+
+  Future<void> _checkAuthentication() async {
+    // Replace with your actual authentication logic
+    isLoggedIn = await AuthService().isLoggedIn();
+
+    setState(() {
+      isLoggedIn = isLoggedIn;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthentication();
   }
 
   @override
@@ -36,9 +53,19 @@ class _SettingsViewState extends State<SettingsView> {
             Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
           },
         ),
-        ElevatedButton(
-          onPressed: handleLogout,
-          child: const Text('Logout'),
+        ListTile(
+          title: const Text('Cuenta'),
+          trailing: ElevatedButton(
+            onPressed: isLoggedIn == true
+                ? handleLogout
+                : () {
+                    Get.toNamed('/login');
+                  },
+            child: Text(
+              isLoggedIn == true ? 'Logout' : 'Login',
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
         ),
       ]),
     );
