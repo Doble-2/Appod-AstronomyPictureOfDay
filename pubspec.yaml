@@ -70,10 +70,12 @@ dev_dependencies:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-flutter_icons:
+flutter_launcher_icons:
     android: true
     ios: true
-    image_path: "assets/Appod.png"
+    image_path: 'assets/icon/mini.png'
+    remove_alpha_ios: true
+
 # The following section is specific to Flutter packages.
 flutter:
 
@@ -85,8 +87,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - .env
-    - assets/Appod.png
-   
+    - assets/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

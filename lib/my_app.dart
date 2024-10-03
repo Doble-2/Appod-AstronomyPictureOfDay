@@ -5,6 +5,7 @@ import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
 import 'package:nasa_apod/ui/pages/create_account.dart';
+import 'package:nasa_apod/ui/pages/favorites.dart';
 import 'package:nasa_apod/ui/pages/home.dart';
 import 'package:nasa_apod/ui/pages/login.dart';
 import 'package:nasa_apod/ui/pages/settings.dart';
@@ -181,6 +182,9 @@ class _MyAppState extends State<MyApp> {
                 ),
             '/register': (context) => const CreateAccount(),
             '/login': (context) => const LoginScreen(),
+            '/favorites': (context) => FavoritesView(
+                  authService: AuthService(),
+                ),
           },
         );
       }),

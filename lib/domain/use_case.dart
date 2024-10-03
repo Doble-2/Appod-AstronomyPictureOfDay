@@ -9,4 +9,5 @@ class ApodUseCase {
       _apodRepository.getApod(date);
   Future<List> getMultipleApod(String date) =>
       _apodRepository.getMultipleApod(date);
+  Future<List> getFavoritesApod() => _apodRepository.getFavoritesApod();
 }

@@ -12,7 +12,7 @@ void saveNetworkImage(String imageUrl, String title) async {
   Fluttertoast.showToast(
       msg: "Procesando la solicitud, por favor espere...",
       toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
+      gravity: ToastGravity.BOTTOM,
       fontSize: 16.0);
 
   try {

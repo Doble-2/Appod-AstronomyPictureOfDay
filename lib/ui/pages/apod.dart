@@ -21,10 +21,22 @@ class ApodView extends StatefulWidget {
 }
 
 class _ApodViewState extends State<ApodView> {
+  bool _isLogged = false;
+
   @override
   void initState() {
     super.initState();
     context.read<ApodBloc>().add(FetchApod());
+    _checkAuthentication();
+  }
+
+  Future<void> _checkAuthentication() async {
+    // Replace with your actual authentication logic
+    _isLogged = await AuthService().isLoggedIn();
+
+    setState(() {
+      _isLogged = _isLogged;
+    });
   }
 
   String? translatedExplanation;
@@ -116,8 +128,16 @@ class _ApodViewState extends State<ApodView> {
                                             .colorScheme
                                             .onPrimary,
                                         onPressed: () {
-                                          AuthService().addFavorite(
-                                              state.apodData!['date']);
+                                          if (_isLogged) {
+                                            AuthService().addFavorite(
+                                                state.apodData!['date']);
+                                          } else {
+                                            Fluttertoast.showToast(
+                                                msg: " Por favor inicia sesión",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.BOTTOM,
+                                                fontSize: 16.0);
+                                          }
                                         },
                                         mini: true,
                                         child: Icon(
