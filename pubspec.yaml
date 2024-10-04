@@ -45,7 +45,6 @@ dependencies:
   dio: ^5.4.0
   fluttertoast: ^8.2.4
   widget_zoom: ^0.0.3
-  flutter_launcher_icons: ^0.14.0
   get: ^4.6.6
   provider: ^6.1.2
   simplytranslate: ^2.2.1+3
@@ -66,16 +65,17 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 flutter_launcher_icons:
-    android: true
-    ios: true
-    image_path: 'assets/icon/mini.png'
-    remove_alpha_ios: true
-
+    android: "launcher_icon"
+    image_path: "assets/icon/mini.png"
+    adaptive_icon_foreground: "assets/icon/mini.png"
+    adaptive_icon_background: "#ed1e79"
+    min_sdk_android: 21 
 # The following section is specific to Flutter packages.
 flutter:
 
