@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
@@ -19,7 +18,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _initialRoute = '/';
+  final String _initialRoute = '/';
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +26,6 @@ class _MyAppState extends State<MyApp> {
       create: (context) => ThemeProvider(),
       child: Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
         return GetMaterialApp(
-          builder: FToastBuilder(),
           debugShowCheckedModeBanner: false,
           title: 'Appod - Astronomy picture of the day',
           theme: ThemeData(
@@ -122,7 +120,6 @@ class _MyAppState extends State<MyApp> {
               onError: Colors
                   .white, // Color del texto/iconos sobre el color de error
             ),
-
             // Define la apariencia del texto en la aplicación
             textTheme: const TextTheme(
               headlineMedium: TextStyle(

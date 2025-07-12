@@ -4,7 +4,7 @@ import 'package:get/route_manager.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();

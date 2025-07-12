@@ -1,20 +1,11 @@
 // image_saver.dart
 import 'dart:io';
 
-import 'package:dio/dio.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 
 void saveNetworkImage(String imageUrl, String title) async {
-  Fluttertoast.showToast(
-      msg: "Procesando la solicitud, por favor espere...",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      fontSize: 16.0);
-
   try {
     // Download image
     final http.Response response = await http.get(Uri.parse(imageUrl));
@@ -34,17 +25,9 @@ void saveNetworkImage(String imageUrl, String title) async {
     final finalPath = await FlutterFileDialog.saveFile(params: params);
 
     if (finalPath != null) {
-      Fluttertoast.showToast(
-          msg: "Operación completada con éxito.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          fontSize: 16.0);
+      // Operación completada con éxito.
     }
   } catch (e) {
-    Fluttertoast.showToast(
-        msg: "No pudimos instalar la imagen",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        fontSize: 16.0);
+    // No pudimos instalar la imagen
   }
 }

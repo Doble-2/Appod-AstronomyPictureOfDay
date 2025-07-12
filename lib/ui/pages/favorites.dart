@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:nasa_apod/data/firebase.dart';
-import 'package:nasa_apod/provider/theme_provider.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoritesView extends StatefulWidget {
   final AuthService authService;
@@ -33,11 +30,11 @@ class _FavoritesViewState extends State<FavoritesView> {
     return Layout(
         child: BlocBuilder<ApodBloc, ApodState>(builder: (context, state) {
       if (state.favoriteApodStatus == ApodStatus.loading) {
-        return Text('data');
+        return const Text('data');
       } else if (state.favoriteApodStatus == ApodStatus.success &&
           state.favoriteApodData != []) {
         return Column(children: [
-          Container(
+          SizedBox(
               height: MediaQuery.of(context).size.height * .8,
               child: ListView.builder(
                 itemCount: state.favoriteApodData.length,
@@ -218,7 +215,7 @@ class _FavoritesViewState extends State<FavoritesView> {
               ))
         ]);
       } else
-        return Text('failed');
+        return const Text('failed');
     }));
   }
 }

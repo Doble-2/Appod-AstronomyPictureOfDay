@@ -1,6 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -74,7 +72,7 @@ class AuthService {
     if (userUID != null) {
       try {
         // Verify the user's UID with Firebase
-        User? user = await FirebaseAuth.instance.currentUser;
+        User? user = FirebaseAuth.instance.currentUser;
         return user != null && user.uid == userUID;
       } catch (e) {
         return false;
@@ -90,12 +88,7 @@ class AuthService {
     await prefs.remove('userUID');
   }
 
-  Future<Future<void>> addFavorite(String date) async {
-    Fluttertoast.showToast(
-        msg: "Procesando la solicitud, por favor espere...",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        fontSize: 16.0);
+  Future<void> addFavorite(String date) async {
     final prefs = await SharedPreferences.getInstance();
     String? userUID = prefs.getString('userUID');
 
@@ -113,29 +106,19 @@ class AuthService {
       List currentFavorites = data['images'] as List;
       if (currentFavorites.contains(date)) {
         // La fecha ya está en los favoritos, no la agregamos
-        return Fluttertoast.showToast(
-            msg: "La fecha ya está en tus favoritos.",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            fontSize: 16.0);
+        return;
       } else {
         currentFavorites.add(date);
 
-        favorites
+        await favorites
             .doc(documentSnapshot.id)
             .update({'images': currentFavorites})
             .then((value) => print("Favorite added successfully!"))
             .catchError((error) => print("Failed to update favorite: $error"));
-
-        return Fluttertoast.showToast(
-            msg: "Operación completada con éxito.",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            fontSize: 16.0);
       }
     } else {
       // Document doesn't exist, create a new document
-      favorites
+      await favorites
           .add({
             'uid': userUID,
             'images': [
@@ -144,12 +127,8 @@ class AuthService {
           })
           .then((value) => print("Favorite added successfully!"))
           .catchError((error) => print("Failed to add favorite: $error"));
-      return Fluttertoast.showToast(
-          msg: "Ha ocurrido un error. Vuelva a intentarlo.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          fontSize: 16.0);
     }
+    return;
   }
 
   Future<List> getFavorites() async {
@@ -175,12 +154,7 @@ class AuthService {
     }
   }
 
-  Future<Future<void>> removeFavorite(String date) async {
-    Fluttertoast.showToast(
-        msg: "Procesando la solicitud, por favor espere...",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        fontSize: 16.0);
+  Future<void> removeFavorite(String date) async {
     final prefs = await SharedPreferences.getInstance();
     String? userUID = prefs.getString('userUID');
 
@@ -202,32 +176,13 @@ class AuthService {
         // La fecha está en los favoritos, la eliminamos
         currentFavorites.remove(date);
 
-        favorites
+        await favorites
             .doc(documentSnapshot.id)
             .update({'images': currentFavorites})
             .then((value) => print("Favorite removed successfully!"))
             .catchError((error) => print("Failed to update favorite: $error"));
-
-        return Fluttertoast.showToast(
-            msg: "La fecha ha sido eliminada de tus favoritos.",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            fontSize: 16.0);
-      } else {
-        // La fecha no está en los favoritos
-        return Fluttertoast.showToast(
-            msg: "La fecha no está en tus favoritos.",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            fontSize: 16.0);
       }
-    } else {
-      // Document doesn't exist
-      return Fluttertoast.showToast(
-          msg: "No hay favoritos para eliminar.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          fontSize: 16.0);
     }
+    return;
   }
 }

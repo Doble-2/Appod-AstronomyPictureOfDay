@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_data.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_description.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_title.dart';
 import 'package:simplytranslate/simplytranslate.dart';
-import 'package:widget_zoom/widget_zoom.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
@@ -76,11 +74,6 @@ class _ApodViewState extends State<ApodView> {
                 explanationLoading = true;
               });
             } else {
-              Fluttertoast.showToast(
-                  msg: "Servicio de traduccion fuera de servicio",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  fontSize: 16.0);
               setState(() {
                 explanationLoading = true;
               });
@@ -95,13 +88,10 @@ class _ApodViewState extends State<ApodView> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(40.0),
-                    child: WidgetZoom(
-                      heroAnimationTag: 'tag',
-                      zoomWidget: Image.network(
-                        state.apodData!['url'],
-                        fit: BoxFit.cover,
-                        width: MediaQuery.of(context).size.width,
-                      ),
+                    child: Image.network(
+                      state.apodData!['url'],
+                      fit: BoxFit.cover,
+                      width: MediaQuery.of(context).size.width,
                     ),
                   ),
                   Positioned(
@@ -128,12 +118,6 @@ class _ApodViewState extends State<ApodView> {
                                         if (_isLogged) {
                                           AuthService().addFavorite(
                                               state.apodData!['date']);
-                                        } else {
-                                          Fluttertoast.showToast(
-                                              msg: " Por favor inicia sesión",
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              fontSize: 16.0);
                                         }
                                       },
                                       mini: true,

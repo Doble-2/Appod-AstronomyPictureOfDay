@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 import 'package:nasa_apod/data/firebase.dart';
@@ -18,14 +17,9 @@ class _OwnNavBarState extends State<OwnNavBar> {
   void initState() {
     super.initState();
     _checkAuthentication();
-
-    // Aquí puedes inicializar la variable _isLogged con el valor correcto
-    // Por ejemplo:
-    // _isLogged = AuthService().isLoggedIn();
   }
 
   Future<void> _checkAuthentication() async {
-    // Replace with your actual authentication logic
     _isLogged = await AuthService().isLoggedIn();
 
     setState(() {
@@ -67,13 +61,7 @@ class _OwnNavBarState extends State<OwnNavBar> {
               onTap: () {
                 if (_isLogged) {
                   Get.offAllNamed('/favorites');
-                } else {
-                  Fluttertoast.showToast(
-                      msg: "Debes iniciar sesion para ver tus favoritos",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      fontSize: 16.0);
-                }
+                } 
               },
               child: Icon(Icons.favorite_border,
                   color: Get.currentRoute == '/favorites'

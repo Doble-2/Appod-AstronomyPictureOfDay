@@ -4,7 +4,7 @@ import 'package:get/route_manager.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 
 class CreateAccount extends StatefulWidget {
-  const CreateAccount({Key? key}) : super(key: key);
+  const CreateAccount({super.key});
 
   @override
   _CreateAccountState createState() => _CreateAccountState();
