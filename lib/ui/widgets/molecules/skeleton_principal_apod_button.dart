@@ -55,7 +55,7 @@ class _SkeletonPrincipalApodButtonState
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(24.0),
-                            color: Theme.of(context).colorScheme.surface,
+                            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
                           ),
                         ),
                       );

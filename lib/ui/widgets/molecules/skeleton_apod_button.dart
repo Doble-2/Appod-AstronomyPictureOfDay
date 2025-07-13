@@ -70,7 +70,7 @@ class SkeletonApodButton extends StatelessWidget {
                 height: 18,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -82,7 +82,7 @@ class SkeletonApodButton extends StatelessWidget {
                 height: 12,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(6),
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                 ),
               ),
             ),

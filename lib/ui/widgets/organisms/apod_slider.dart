@@ -16,6 +16,8 @@ class _ApodSliderState extends State<ApodSlider> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ApodBloc, ApodState>(
+      buildWhen: (previous, current) =>
+          previous.multiplestatus != current.multiplestatus || previous.date != current.date,
       builder: (context, state) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         if (state.multiplestatus == ApodStatus.success && state.multipleApodData.isNotEmpty) {

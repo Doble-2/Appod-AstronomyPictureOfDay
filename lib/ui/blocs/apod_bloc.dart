@@ -152,16 +152,30 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
         emit(state.copyWith(
           date: newDate,
           status: ApodStatus.loading,
+          multiplestatus: ApodStatus.loading,
           errorMessage: errorMessage,
         ));
 
-        final apodData = await _apodUseCase.getApod(newDate);
+        // Fetch both main APOD and slider APODs concurrently
+        final results = await Future.wait([
+          _apodUseCase.getApod(newDate),
+          _apodUseCase.getMultipleApod(newDate),
+        ]);
+
+        final apodData = results[0] as Map<String, dynamic>;
+        final multipleApodData = results[1] as List;
+
         emit(state.copyWith(
           status: ApodStatus.success,
           apodData: apodData,
+          multiplestatus: ApodStatus.success,
+          multipleApodData: multipleApodData,
         ));
       } catch (error) {
-        emit(state.copyWith(status: ApodStatus.failed));
+        emit(state.copyWith(
+          status: ApodStatus.failed,
+          multiplestatus: ApodStatus.failed,
+        ));
       }
     });
   }
