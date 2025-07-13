@@ -24,27 +24,32 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Layout(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 10.0),
-              child: DayPicker(),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(top: 20.0),
-              child: MonthSlider(),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: PrincipalApod(onTap: () {}),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: OtherApod(onTap: () {}),
-            ),
-          ],
+      child: RefreshIndicator(
+        onRefresh: () async {
+          context.read<ApodBloc>().add(FetchMultipleApod());
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 10.0),
+                child: DayPicker(),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 20.0),
+                child: MonthSlider(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: PrincipalApod(onTap: () {}),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: OtherApod(onTap: () {}),
+              ),
+            ],
+          ),
         ),
       ),
     );

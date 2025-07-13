@@ -51,6 +51,8 @@ dependencies:
   firebase_auth: ^5.3.0
   shared_preferences: ^2.3.2
   cloud_firestore: ^5.4.2
+  shimmer: ^3.0.0
+  path_provider: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

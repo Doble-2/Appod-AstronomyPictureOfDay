@@ -13,17 +13,54 @@ class ApodState {
   final List multipleApodData;
   final List favoriteApodData;
   final ApodStatus favoriteApodStatus;
-  String date = formateador.format(DateTime.now());
+  final String date;
+  final String? errorMessage;
 
   ApodState({
     required this.status,
     this.apodData,
-    required this.date,
+    required String date,
     this.multipleApodData = const [],
     this.favoriteApodData = const [],
     required this.favoriteApodStatus,
     required this.multiplestatus,
-  });
+    this.errorMessage,
+  }) : date = _limitToToday(date);
+
+  ApodState copyWith({
+    ApodStatus? status,
+    Map<String, dynamic>? apodData,
+    ApodStatus? multiplestatus,
+    List? multipleApodData,
+    List? favoriteApodData,
+    ApodStatus? favoriteApodStatus,
+    String? date,
+    String? errorMessage,
+  }) {
+    return ApodState(
+      status: status ?? this.status,
+      apodData: apodData ?? this.apodData,
+      multiplestatus: multiplestatus ?? this.multiplestatus,
+      multipleApodData: multipleApodData ?? this.multipleApodData,
+      favoriteApodData: favoriteApodData ?? this.favoriteApodData,
+      favoriteApodStatus: favoriteApodStatus ?? this.favoriteApodStatus,
+      date: date ?? this.date,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+
+  static String _limitToToday(String dateStr) {
+    final DateTime now = DateTime.now();
+    try {
+      final DateTime parsed = DateTime.parse(dateStr);
+      if (parsed.isAfter(now)) {
+        return formateador.format(now);
+      }
+      return formateador.format(parsed);
+    } catch (_) {
+      return formateador.format(now);
+    }
+  }
 }
 
 abstract class ApodEvent {}
@@ -43,9 +80,10 @@ class FetchFavoriteApod extends ApodEvent {
 }
 
 class ChangeDate extends ApodEvent {
-  String date;
+  final String date;
 
-  ChangeDate(this.date);
+  ChangeDate(String date)
+      : date = ApodState._limitToToday(date);
 }
 
 class ApodBloc extends Bloc<ApodEvent, ApodState> {
@@ -55,93 +93,75 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
       : super(ApodState(
             status: ApodStatus.loading,
             multiplestatus: ApodStatus.loading,
-            favoriteApodStatus: ApodStatus.success,
+            favoriteApodStatus: ApodStatus.loading,
             date: DateFormat('yyyy-MM-dd').format(DateTime.now()))) {
     on<FetchApod>((event, emit) async {
       try {
-        final apodData = await _apodUseCase
-            .getApod(state.date); // Aquí usamos la fecha del estado
-        emit(ApodState(
-            status: ApodStatus.success,
-            apodData: apodData,
-            multiplestatus: ApodStatus.loading,
-            favoriteApodStatus: state.favoriteApodStatus,
-            date: state.date,
-            multipleApodData: []));
+        final apodData = await _apodUseCase.getApod(state.date);
+        emit(state.copyWith(
+          status: ApodStatus.success,
+          apodData: apodData,
+        ));
       } catch (error) {
-        emit(ApodState(
-            status: ApodStatus.failed,
-            multiplestatus: ApodStatus.loading,
-            favoriteApodStatus: state.favoriteApodStatus,
-            date: state.date,
-            multipleApodData: []));
+        emit(state.copyWith(status: ApodStatus.failed));
       }
     });
 
     on<FetchMultipleApod>((event, emit) async {
       try {
-        final multipleApodData = await _apodUseCase
-            .getMultipleApod(state.date); // Aquí usamos la fecha del estado
-        emit(ApodState(
-          status: ApodStatus.success,
+        final multipleApodData =
+            await _apodUseCase.getMultipleApod(state.date);
+        emit(state.copyWith(
           multipleApodData: multipleApodData,
           multiplestatus: ApodStatus.success,
-          favoriteApodStatus: state.favoriteApodStatus,
-          date: state.date,
-          apodData: state.apodData,
         ));
       } catch (error) {
-        emit(ApodState(
-            status: ApodStatus.success,
-            multiplestatus: ApodStatus.failed,
-            favoriteApodStatus: state.favoriteApodStatus,
-            date: state.date,
-            apodData: state.apodData));
+        emit(state.copyWith(multiplestatus: ApodStatus.failed));
       }
     });
     on<FetchFavoriteApod>((event, emit) async {
+      emit(state.copyWith(favoriteApodStatus: ApodStatus.loading));
       try {
-        print('object');
-        final favorites = await _apodUseCase
-            .getFavoritesApod(); // Aquí usamos la fecha del estado
+        final favorites = await _apodUseCase.getFavoritesApod();
 
-        print(favorites);
-        emit(ApodState(
-          status: ApodStatus.success,
-          multiplestatus: ApodStatus.success,
-          date: state.date,
+        emit(state.copyWith(
           favoriteApodData: favorites,
           favoriteApodStatus: ApodStatus.success,
-          apodData: state.apodData,
         ));
       } catch (error) {
-        emit(ApodState(
-            status: ApodStatus.success,
-            multiplestatus: ApodStatus.success,
-            favoriteApodStatus: ApodStatus.failed,
-            date: state.date,
-            apodData: state.apodData));
+        emit(state.copyWith(favoriteApodStatus: ApodStatus.failed));
       }
     });
     on<ChangeDate>((event, emit) async {
       try {
-        emit(ApodState(
+        final DateTime now = DateTime.now();
+        DateTime? parsed;
+        String? errorMessage;
+        try {
+          parsed = DateTime.parse(event.date);
+          if (parsed.isAfter(now)) {
+            parsed = now;
+            errorMessage = 'Fecha limitada a hoy.';
+          }
+        } catch (_) {
+          parsed = now;
+          errorMessage = 'Formato de fecha inválido.';
+        }
+        final newDate = formateador.format(parsed);
+
+        emit(state.copyWith(
+          date: newDate,
           status: ApodStatus.loading,
-          multipleApodData: state.multipleApodData,
-          favoriteApodData: state.favoriteApodData,
-          favoriteApodStatus: state.favoriteApodStatus,
-          multiplestatus: ApodStatus.loading,
-          date: event.date,
+          errorMessage: errorMessage,
         ));
-        add(FetchApod());
-        add(FetchMultipleApod());
+
+        final apodData = await _apodUseCase.getApod(newDate);
+        emit(state.copyWith(
+          status: ApodStatus.success,
+          apodData: apodData,
+        ));
       } catch (error) {
-        emit(ApodState(
-            status: state.status,
-            multiplestatus: state.multiplestatus,
-            favoriteApodStatus: state.favoriteApodStatus,
-            date: state.date,
-            apodData: state.apodData));
+        emit(state.copyWith(status: ApodStatus.failed));
       }
     });
   }

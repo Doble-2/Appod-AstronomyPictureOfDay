@@ -112,9 +112,8 @@ class AuthService {
 
         await favorites
             .doc(documentSnapshot.id)
-            .update({'images': currentFavorites})
-            .then((value) => print("Favorite added successfully!"))
-            .catchError((error) => print("Failed to update favorite: $error"));
+            .update({'images': currentFavorites});
+         
       }
     } else {
       // Document doesn't exist, create a new document
@@ -124,9 +123,7 @@ class AuthService {
             'images': [
               date
             ], // Initialize the favorites array with the new date
-          })
-          .then((value) => print("Favorite added successfully!"))
-          .catchError((error) => print("Failed to add favorite: $error"));
+          });
     }
     return;
   }
@@ -178,9 +175,7 @@ class AuthService {
 
         await favorites
             .doc(documentSnapshot.id)
-            .update({'images': currentFavorites})
-            .then((value) => print("Favorite removed successfully!"))
-            .catchError((error) => print("Failed to update favorite: $error"));
+            .update({'images': currentFavorites});
       }
     }
     return;

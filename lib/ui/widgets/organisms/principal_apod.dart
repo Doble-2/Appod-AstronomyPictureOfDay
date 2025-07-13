@@ -25,12 +25,34 @@ class _PrincipalApodState extends State<PrincipalApod> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const TitleArea(text: 'This day in space'),
-        PrincipalApodButton(onTap: widget.onTap),
-      ],
+    return BlocBuilder<ApodBloc, ApodState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+          child: AnimatedOpacity(
+            opacity: 1.0,
+            duration: const Duration(milliseconds: 700),
+            curve: Curves.easeIn,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOutCubic,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const AnimatedSlide(
+                    offset: Offset.zero,
+                    duration: Duration(milliseconds: 600),
+                    curve: Curves.easeOut,
+                    child: TitleArea(text: 'This day in space'),
+                  ),
+                  const SizedBox(height: 16),
+                  PrincipalApodButton(onTap: widget.onTap),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

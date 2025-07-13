@@ -10,19 +10,41 @@ class Layout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight),
-          child: OwnAppBar(),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: OwnAppBar(),
+      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Contenido principal con padding inferior para no ser tapado
+            Positioned.fill(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 90.0),
+                  child: SingleChildScrollView(child: child),
+                ),
+              ),
+            ),
+            // NavBar flotante
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: SizedBox(
+                    width: 420,
+                    child: OwnNavBar(),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        bottomNavigationBar: const OwnNavBar(),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: SingleChildScrollView(child: child),
-          ),
-        )
-
-        // bottomNavigationBar: OwnNavBar(),
-        );
+      ),
+    );
   }
 }

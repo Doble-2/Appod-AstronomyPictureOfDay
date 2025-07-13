@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/data/firebase.dart';
+import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_data.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_description.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_title.dart';
 import 'package:simplytranslate/simplytranslate.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
-import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
@@ -46,219 +46,182 @@ class _ApodViewState extends State<ApodView> {
     final st = SimplyTranslator(EngineType.google);
 
     return Layout(
-        child: BlocBuilder<ApodBloc, ApodState>(builder: (context, state) {
-      if (state.status == ApodStatus.loading) {
-        return const Column(
-          children: [
-            SkeletonPrincipalApodButton(),
-            SkeletonTitle(),
-            SkeletonData(),
-            SkeletonDescription()
-          ],
-        );
-      } else if (state.status == ApodStatus.success && state.apodData != null) {
-        Future<void> translateExplanation(
-            BuildContext context, SimplyTranslator st) async {
-          if (translatedExplanation == null) {
-            setState(() {
-              explanationLoading = false;
-            });
-            bool isWorking = await st.isSimplyInstanceWorking("st.tokhmi.xyz");
-            if (isWorking) {
-              st.setSimplyInstance = "st.tokhmi.xyz";
-
-              final translatedText =
-                  await st.trSimply(state.apodData!['explanation'], "en", 'es');
-              setState(() {
-                translatedExplanation = translatedText;
-                explanationLoading = true;
-              });
-            } else {
-              setState(() {
-                explanationLoading = true;
-              });
-            }
-          }
-        }
-
-        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Stack(
+      child: BlocBuilder<ApodBloc, ApodState>(
+        builder: (context, state) {
+          if (state.status == ApodStatus.loading) {
+            return const SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(40.0),
-                    child: Image.network(
-                      state.apodData!['url'],
-                      fit: BoxFit.cover,
-                      width: MediaQuery.of(context).size.width,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 20.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          _isExpanded
-                              ? Column(
-                                  children: [
-                                    FloatingActionButton(
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                      onPressed: () {
-                                        if (_isLogged) {
-                                          AuthService().addFavorite(
-                                              state.apodData!['date']);
-                                        }
-                                      },
-                                      mini: true,
-                                      child: Icon(
-                                        Icons.favorite,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ), // Icono del botón principal
-                                    ),
-                                    FloatingActionButton(
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                      onPressed: () {
-                                        saveNetworkImage(
-                                            state.apodData!['hdurl'],
-                                            state.apodData!['title']);
-                                      },
-                                      mini: true,
-                                      child: Icon(Icons.download,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary),
-                                    ),
-                                  ],
-                                )
-                              : Container(),
-                          FloatingActionButton(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.onPrimary,
-                            onPressed: () {
-                              setState(() {
-                                _isExpanded = !_isExpanded;
-                              });
-                            },
-                            child: Icon(Icons.add,
-                                color: Theme.of(context).colorScheme.primary),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  SkeletonPrincipalApodButton(),
+                  SkeletonTitle(),
+                  SkeletonData(),
+                  SkeletonDescription(),
                 ],
-              )),
-          Padding(
-              padding: const EdgeInsets.only(top: 30.0, left: 10),
-              child: TitleArea(text: state.apodData!['title'])),
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0, left: 10),
-            child: Row(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(right: 5),
-                      child: Icon(
-                        Icons.calendar_today,
-                        size: 20,
-                      ),
-                    ),
-                    Text(
-                      state.apodData!['date'],
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(right: 5, left: 30),
-                      child: Icon(
-                        Icons.camera_alt_outlined,
-                        size: 20,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 150,
-                      child: Text(
-                        state.apodData!['copyright'] != null
-                            ? state.apodData!['copyright'].replaceAll('\n', '')
-                            : 'Nasa',
-                        overflow: TextOverflow.clip,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
+              ),
+            );
+          } else if (state.status == ApodStatus.success && state.apodData != null) {
+            final apod = state.apodData!;
+            final isImage = apod["media_type"] == "image";
+
+            void translateExplanation() async {
+              if (translatedExplanation != null) return;
+              setState(() => explanationLoading = true);
+              final isWorking = await st.isSimplyInstanceWorking("st.tokhmi.xyz");
+              if (isWorking) {
+                st.setSimplyInstance = "st.tokhmi.xyz";
+                final translatedText = await st.trSimply(apod['explanation'], "en", 'es');
+                if (mounted) {
+                  setState(() {
+                    translatedExplanation = translatedText;
+                    explanationLoading = false;
+                  });
+                }
+              } else {
+                if (mounted) setState(() => explanationLoading = false);
+              }
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- IMAGEN PRINCIPAL Y BOTONES FLOTANTES ---
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(24.0),
+                          child: isImage
+                              ? Image.network(
+                                  apod['url'],
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: 400,
+                                  loadingBuilder: (context, child, progress) =>
+                                      progress == null ? child : const SkeletonPrincipalApodButton(),
+                                  errorBuilder: (context, error, stack) =>
+                                      const Center(child: Text('Error al cargar imagen')),
+                                )
+                              : AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: Container(
+                                    color: Colors.black,
+                                    child: const Center(
+                                      child: Icon(Icons.play_circle_outline, color: Colors.white, size: 60),
+                                    ),
+                                  ),
+                                ),
                         ),
-                      ),
-                    )
-                  ],
-                )
-              ],
-            ),
-          ),
-          explanationLoading == true
-              ? Padding(
-                  padding:
-                      const EdgeInsets.only(top: 20.0, left: 10, bottom: 15),
-                  child: Text(
-                      translatedExplanation ?? state.apodData!['explanation'],
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
-                      )))
-              : const SkeletonDescription(),
-          translatedExplanation == null
-              ? Padding(
-                  padding:
-                      const EdgeInsets.only(top: 5.0, left: 10, bottom: 30),
-                  child: GestureDetector(
-                      onTap: () => translateExplanation(context, st),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Translate',
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Padding(
-                              padding: const EdgeInsets.only(
-                                left: 7,
+                        Positioned(
+                          bottom: 16,
+                          right: 16,
+                          child: Row(
+                            children: [
+                              AnimatedSize(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                child: _isExpanded
+                                    ? Row(
+                                        children: [
+                                          if (isImage)
+                                            Bubble(
+                                              child: IconButton(
+                                                icon: const Icon(Icons.download_rounded),
+                                                tooltip: 'Descargar',
+                                                onPressed: () => saveNetworkImage(context, apod['url'], apod['title']),
+                                              ),
+                                            ),
+                                          const SizedBox(width: 8),
+                                          if (_isLogged)
+                                            Bubble(
+                                              child: IconButton(
+                                                icon: const Icon(Icons.favorite_border_rounded),
+                                                tooltip: 'Guardar en favoritos',
+                                                onPressed: () {
+                                                  // Lógica para favoritos
+                                                },
+                                              ),
+                                            ),
+                                        ],
+                                      )
+                                    : const SizedBox.shrink(),
                               ),
-                              child: Icon(
-                                Icons.g_translate,
-                                color: Theme.of(context).colorScheme.primary,
-                              ))
-                        ],
-                      )),
-                )
-              : Container(),
-        ]);
-      } else {
-        return const Text('Failed to load data');
-      }
-    }));
+                              const SizedBox(width: 8),
+                              FloatingActionButton(
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                                onPressed: () => setState(() => _isExpanded = !_isExpanded),
+                                child: Icon(_isExpanded ? Icons.close_rounded : Icons.more_horiz_rounded),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // --- TÍTULO ---
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24.0, left: 4, right: 4),
+                    child: Text(apod['title'], style: Theme.of(context).textTheme.headlineMedium),
+                  ),
+
+                  // --- FECHA Y AUTOR ---
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0, left: 4, right: 4),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today_rounded, size: 16),
+                        const SizedBox(width: 8),
+                        Text(apod['date'], style: Theme.of(context).textTheme.bodyMedium),
+                        const SizedBox(width: 24),
+                        if (apod['copyright'] != null) ...[
+                          const Icon(Icons.camera_alt_rounded, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              apod['copyright'].replaceAll('\n', ' '),
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
+
+                  // --- EXPLICACIÓN Y TRADUCCIÓN ---
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24.0, left: 4, right: 4, bottom: 16),
+                    child: Text(
+                      translatedExplanation ?? apod['explanation'],
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
+                    ),
+                  ),
+                  if (translatedExplanation == null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 32, right: 4),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: explanationLoading
+                            ? const CircularProgressIndicator()
+                            : TextButton.icon(
+                                onPressed: translateExplanation,
+                                icon: const Icon(Icons.g_translate_rounded),
+                                label: const Text('Traducir'),
+                              ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          } else {
+            return const Center(child: Text('No se pudieron cargar los datos.'));
+          }
+        },
+      ),
+    );
   }
 }

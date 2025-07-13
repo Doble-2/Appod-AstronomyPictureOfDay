@@ -17,33 +17,40 @@ class _ApodSliderState extends State<ApodSlider> {
   Widget build(BuildContext context) {
     return BlocBuilder<ApodBloc, ApodState>(
       builder: (context, state) {
-        if (state.multiplestatus == ApodStatus.success &&
-            state.multipleApodData.isNotEmpty) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        if (state.multiplestatus == ApodStatus.success && state.multipleApodData.isNotEmpty) {
           return SizedBox(
-            height: 200,
-            child: ListView.separated(
-              separatorBuilder: (context, index) => const SizedBox(width: 10),
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                final apodData = state.multipleApodData[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: ApodButton(
-                    image: apodData['url'],
-                    title: apodData['title'],
-                    date: apodData['date'],
-                    author: apodData['copyright'] ?? 'Nasa',
-                  ),
-                );
-              },
-              itemCount: state.multipleApodData.length,
+            height: 210,
+            child: AnimatedOpacity(
+              opacity: 1.0,
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeIn,
+              child: ListView.separated(
+                padding: const EdgeInsets.only(right: 8),
+                separatorBuilder: (context, index) => const SizedBox(width: 14),
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  final apodData = state.multipleApodData[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: ApodButton(
+                      image: apodData['url'],
+                      title: apodData['title'],
+                      date: apodData['date'],
+                      author: apodData['copyright'] ?? 'Nasa',
+                    ),
+                  );
+                },
+                itemCount: state.multipleApodData.length,
+              ),
             ),
           );
         } else if (state.multiplestatus != ApodStatus.failed) {
           return SizedBox(
-            height: 200,
+            height: 210,
             child: ListView.separated(
-              separatorBuilder: (context, index) => const SizedBox(width: 10),
+              padding: const EdgeInsets.only(right: 8),
+              separatorBuilder: (context, index) => const SizedBox(width: 14),
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
                 return const SkeletonApodButton();
@@ -52,95 +59,60 @@ class _ApodSliderState extends State<ApodSlider> {
             ),
           );
         } else {
+          // Error visual moderno
           return SizedBox(
-            height: 200,
+            height: 210,
             child: ListView.separated(
-              separatorBuilder: (context, index) => const SizedBox(width: 10),
+                padding: const EdgeInsets.only(right: 8),
+              separatorBuilder: (context, index) => const SizedBox(width: 14),
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
                 return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.black,
-                      boxShadow: const [],
+                  width: 200,
+                  margin: const EdgeInsets.symmetric(vertical: 18),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      colors: isDark
+                          ? [const Color(0xFF23272F), const Color(0xFF181A20)]
+                          : [const Color(0xFFE3E6EC), const Color(0xFFF5F6FA)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark ? Colors.black : Colors.grey,
+                        blurRadius: 14,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Stack(
-                          children: [
-                            Container(
-                              width: 200,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  gradient: Theme.of(context)
-                                              .colorScheme
-                                              .surface ==
-                                          Colors.black
-                                      ? const LinearGradient(
-                                          colors: [
-                                            Color.fromRGBO(
-                                                107, 107, 107, 0.466),
-                                            Color.fromARGB(22, 126, 125, 125),
-                                          ],
-                                          stops: [0.2, 2],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        )
-                                      : const LinearGradient(
-                                          colors: [
-                                            Color.fromRGBO(61, 61, 61, 0.322),
-                                            Color.fromARGB(22, 126, 125, 125),
-                                          ],
-                                          stops: [0.2, 2],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        )),
-                            ),
-                            const Positioned(
-                              top: 10,
-                              left: 10,
-                              child: Text('Error de conexion'),
-                            )
-                          ],
+                        Icon(Icons.wifi_off_rounded, size: 48, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Error de conexión',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Container(
-                            width: 200,
-                            height: 60,
-                            padding: const EdgeInsets.all(10.0),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                gradient: Theme.of(context)
-                                            .colorScheme
-                                            .surface ==
-                                        Colors.black
-                                    ? const LinearGradient(
-                                        colors: [
-                                          Color.fromRGBO(107, 107, 107, 0.466),
-                                          Color.fromARGB(22, 126, 125, 125),
-                                        ],
-                                        stops: [0.2, 2],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      )
-                                    : const LinearGradient(
-                                        colors: [
-                                          Color.fromRGBO(61, 61, 61, 0.322),
-                                          Color.fromARGB(22, 126, 125, 125),
-                                        ],
-                                        stops: [0.2, 2],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      )),
-                          ),
-                        )
+                        const SizedBox(height: 6),
+                        Text(
+                          'No se pudo cargar el contenido',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                        ),
                       ],
-                    ));
+                    ),
+                  ),
+                );
               },
-              itemCount: 7,
+              itemCount: 3,
             ),
           );
         }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/data/firebase.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Bienvenido de nuevo',
+                  'Crea una cuenta',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
@@ -115,6 +115,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Por favor, introduce tu contraseña';
                     }
+                    if (value.length < 6) {
+                      return 'La contraseña debe tener al menos 6 caracteres';
+                    }
                     return null;
                   },
                 ),
@@ -125,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       : () async {
                           if (_formKey.currentState!.validate()) {
                             setState(() => _isLoading = true);
-                            final message = await AuthService().login(
+                            final message = await AuthService().registration(
                               email: _emailController.text,
                               password: _passwordController.text,
                             );
@@ -161,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
                           : Text(
-                              'Login',
+                              'Registrarse',
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 fontWeight: FontWeight.bold,
@@ -173,9 +176,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/register');
+                    Navigator.pop(context);
                   },
-                  child: const Text('¿No tienes una cuenta? Regístrate'),
+                  child: const Text('¿Ya tienes una cuenta? Inicia sesión'),
                 ),
               ],
             ),

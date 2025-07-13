@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
-import 'package:nasa_apod/ui/pages/create_account.dart';
+import 'package:nasa_apod/ui/pages/register.dart';
 import 'package:nasa_apod/ui/pages/favorites.dart';
 import 'package:nasa_apod/ui/pages/home.dart';
 import 'package:nasa_apod/ui/pages/login.dart';
@@ -29,84 +29,53 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Appod - Astronomy picture of the day',
+            // TEMA CLARO
             theme: ThemeData(
               brightness: Brightness.light,
-              primaryColor: Colors.blue,
+              fontFamily: 'Inter',
+              scaffoldBackgroundColor: const Color(0xFFF5F6FA),
               colorScheme: const ColorScheme.light(
-                primary: Colors.blue,
+                primary: Color(0xFF3391FF),
+                secondary: Color(0xFF00C6B5),
+                surface: Color(0xFFFFFFFF),
                 onPrimary: Colors.white,
-                secondary: Colors.green,
-                onSecondary: Colors.black,
-                surface: Colors.white,
-                onSurface: Colors.black,
-                error: Colors.red,
+                onSecondary: Colors.white,
+                onSurface: Color(0xFF0A0E14),
+                error: Color(0xFFFF4D4D),
                 onError: Colors.white,
               ),
               textTheme: const TextTheme(
-                headlineMedium: TextStyle(
-                  fontSize: 32.0,
-                  fontWeight: FontWeight.bold,
-                ),
-                bodyMedium: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
-                ),
-              ),
-              appBarTheme: const AppBarTheme(
-                color: Colors.blue,
-                iconTheme: IconThemeData(color: Colors.blue),
-              ),
-              iconTheme: const IconThemeData(
-                color: Colors.black,
-                size: 24.0,
-              ),
-              inputDecorationTheme: const InputDecorationTheme(
-                border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-                labelStyle: TextStyle(color: Colors.blue),
+                headlineLarge: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFF0A0E14)),
+                headlineMedium: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFF0A0E14)),
+                headlineSmall: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.w500, color: Color(0xFF0A0E14)),
+                bodyLarge: TextStyle(color: Color(0xFF0A0E14)),
+                bodyMedium: TextStyle(color: Color(0xFF3D4451)),
+                titleMedium: TextStyle(color: Color(0xFF8A94A6), fontSize: 14),
               ),
               useMaterial3: true,
             ),
+            // TEMA OSCURO
             darkTheme: ThemeData(
               brightness: Brightness.dark,
-              primaryColor: Colors.blueGrey,
+              fontFamily: 'Inter',
+              scaffoldBackgroundColor: const Color(0xFF0A0E14),
               colorScheme: const ColorScheme.dark(
-                primary: Colors.blue,
+                primary: Color(0xFF3391FF),
+                secondary: Color(0xFF00C6B5),
+                surface: Color(0xFF1A1F2A),
                 onPrimary: Colors.white,
-                secondary: Colors.teal,
-                onSecondary: Colors.black,
-                surface: Colors.black,
-                onSurface: Colors.white,
-                error: Colors.red,
+                onSecondary: Colors.white,
+                onSurface: Color(0xFFE1E6F0),
+                error: Color(0xFFFF4D4D),
                 onError: Colors.white,
               ),
               textTheme: const TextTheme(
-                headlineMedium: TextStyle(
-                  fontSize: 32.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                bodyMedium: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.white,
-                ),
-              ),
-              appBarTheme: const AppBarTheme(
-                color: Colors.blueGrey,
-                iconTheme: IconThemeData(color: Colors.blue),
-              ),
-              iconTheme: const IconThemeData(
-                color: Colors.white,
-                size: 24.0,
-              ),
-              inputDecorationTheme: const InputDecorationTheme(
-                border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blueGrey),
-                ),
-                labelStyle: TextStyle(color: Colors.blueGrey),
+                headlineLarge: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFFE1E6F0)),
+                headlineMedium: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFFE1E6F0)),
+                headlineSmall: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.w500, color: Color(0xFFE1E6F0)),
+                bodyLarge: TextStyle(color: Color(0xFFE1E6F0)),
+                bodyMedium: TextStyle(color: Color(0xFFE1E6F0)),
+                titleMedium: TextStyle(color: Color(0xFF8A94A6), fontSize: 14),
               ),
               useMaterial3: true,
             ),
@@ -116,7 +85,7 @@ class _MyAppState extends State<MyApp> {
               '/': (context) => const HomeView(),
               '/appod': (context) => const ApodView(),
               '/settings': (context) => SettingsView(authService: AuthService()),
-              '/register': (context) => const CreateAccount(),
+              '/register': (context) => const RegisterScreen(),
               '/login': (context) => const LoginScreen(),
               '/favorites': (context) => FavoritesView(authService: AuthService()),
             },

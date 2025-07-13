@@ -12,34 +12,61 @@ class _SkeletonPrincipalApodButtonState
     extends State<SkeletonPrincipalApodButton> {
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Padding(
-        padding: const EdgeInsets.only(top: 10.0),
-        child: Container(
-          height: 250,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-              gradient: Theme.of(context).colorScheme.surface == Colors.black
-                  ? const LinearGradient(
-                      colors: [
-                        Color.fromRGBO(107, 107, 107, 0.466),
-                        Color.fromARGB(22, 126, 125, 125),
-                      ],
-                      stops: [0.2, 2],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : const LinearGradient(
-                      colors: [
-                        Color.fromRGBO(61, 61, 61, 0.322),
-                        Color.fromARGB(22, 126, 125, 125),
-                      ],
-                      stops: [0.2, 2],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )),
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth > 0 ? constraints.maxWidth : MediaQuery.of(context).size.width - 32;
+          return SizedBox(
+            height: 220,
+            width: width,
+            child: Stack(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24.0),
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+                ),
+                // Efecto shimmer animado
+                Positioned.fill(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: -1, end: 2),
+                    duration: const Duration(seconds: 2),
+                    curve: Curves.easeInOut,
+                    builder: (context, value, child) {
+                      return ShaderMask(
+                        shaderCallback: (rect) {
+                          return LinearGradient(
+                            colors: [
+                              Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+                              Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+                              Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+                           
+                            ],
+                            stops: const [0.1, 0.5, 0.9],
+                            begin: const Alignment(-1, -1),
+                            end: Alignment(value, 1),
+                          ).createShader(rect);
+                        },
+                        blendMode: BlendMode.srcATop,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24.0),
+                            color: Theme.of(context).colorScheme.surface,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
-    ]);
+    );
   }
 }

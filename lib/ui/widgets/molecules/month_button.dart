@@ -20,7 +20,7 @@ class MonthButton extends StatelessWidget {
       child: Container(
         width: 100,
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
           borderRadius: const BorderRadius.all(Radius.circular(12)),
         ),
         child: Center(

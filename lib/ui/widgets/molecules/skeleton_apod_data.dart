@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class SkeletonData extends StatelessWidget {
@@ -6,52 +5,26 @@ class SkeletonData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.only(top: 20, left: 4, right: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-            height: 40,
-            width: 150,
+            height: 24,
+            width: 140,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-              gradient: LinearGradient(
-                colors: isDark
-                    ? [
-                        Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                        Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-                      ]
-                    : [
-                        Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.15),
-                        Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
-                      ],
-                stops: const [0.2, 2],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              borderRadius: BorderRadius.circular(8.0),
+              color: Theme.of(context).colorScheme.surface,
             ),
           ),
+          const SizedBox(width: 24),
           Container(
-            height: 40,
-            width: 150,
+            height: 24,
+            width: 180,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-              gradient: LinearGradient(
-                colors: isDark
-                    ? [
-                        Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                        Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-                      ]
-                    : [
-                        Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.15),
-                        Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
-                      ],
-                stops: const [0.2, 2],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              borderRadius: BorderRadius.circular(8.0),
+              color: Theme.of(context).colorScheme.surface,
             ),
           ),
         ],
