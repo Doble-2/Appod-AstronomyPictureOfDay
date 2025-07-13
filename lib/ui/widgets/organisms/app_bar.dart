@@ -7,18 +7,18 @@ class OwnAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.transparent,
-      //title: SvgPicture.asset('wormLogo.svg', height: 26, width: 30),
-      title: const Text(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      title: Text(
         'APPOD',
-        style: TextStyle(
-          color: Color(0xFFE03C31),
+        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+          color: Theme.of(context).colorScheme.primary,
           fontFamily: 'Nasa',
           fontSize: 30,
           fontWeight: FontWeight.w900,
         ),
       ),
       centerTitle: true,
+      elevation: 0,
     );
   }
 }

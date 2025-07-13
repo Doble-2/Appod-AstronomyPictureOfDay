@@ -1,6 +1,5 @@
+
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
 import 'package:nasa_apod/data/firebase.dart';
 
 class OwnNavBar extends StatefulWidget {
@@ -29,11 +28,11 @@ class _OwnNavBarState extends State<OwnNavBar> {
 
   @override
   Widget build(BuildContext context) {
-    print(Get.currentRoute);
+    final currentRoute = ModalRoute.of(context)?.settings.name;
     return SafeArea(
       child: Container(
         height: 60,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
+        padding: const EdgeInsets.symmetric(vertical:2, horizontal: 40),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.only(
@@ -43,61 +42,51 @@ class _OwnNavBarState extends State<OwnNavBar> {
           boxShadow: [
             BoxShadow(
               color: Theme.of(context).colorScheme.primary.withOpacity(.3),
-              spreadRadius:
-                  Theme.of(context).colorScheme.surface == Colors.black
-                      ? 5
-                      : .5,
-              blurRadius: 5,
-              offset: const Offset(0, .2),
-            )
+              spreadRadius: 1,
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
           ],
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.values[1],
+          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: () {
-                if (_isLogged) {
-                  Get.offAllNamed('/favorites');
-                } 
-              },
-              child: Icon(Icons.favorite_border,
-                  color: Get.currentRoute == '/favorites'
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(.5)),
+            InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
+              child: Icon(
+                Icons.home_filled,
+                color: currentRoute == '/'
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(.5),
+              ),
             ),
-            GestureDetector(
-              onTap: () {
-                Get.offAllNamed("/");
-              },
-              child: Icon(Icons.home_filled,
-                  color: Get.currentRoute == '/'
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(.5)),
+            InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => Navigator.pushNamed(context, '/favorites'),
+              child: Icon(
+                Icons.favorite,
+                color: currentRoute == '/favorites'
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(.5),
+              ),
             ),
-            GestureDetector(
-              onTap: () {
-                Get.offAllNamed("/settings");
-              },
-              child: Icon(Icons.settings_outlined,
-                  color: Get.currentRoute == '/settings'
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(.5)),
-            )
+            InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => Navigator.pushNamedAndRemoveUntil(context, '/settings', (route) => false),
+              child: Icon(
+                Icons.settings_outlined,
+                color: currentRoute == '/settings'
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(.5),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+// ...fin del widget OwnNavBar...
 }

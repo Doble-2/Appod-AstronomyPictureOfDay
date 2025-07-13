@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/route_manager.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
 
@@ -20,11 +19,11 @@ class _SettingsViewState extends State<SettingsView> {
   bool isLoggedIn = false;
   void handleLogout() async {
     await widget.authService.logout();
-    // Clear user data from SharedPreferences (optional)
+    // Clear user data from SharedPreferences (opcional)
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('userUID');
 
-    Get.toNamed('/login');
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   Future<void> _checkAuthentication() async {
@@ -59,7 +58,7 @@ class _SettingsViewState extends State<SettingsView> {
             onPressed: isLoggedIn == true
                 ? handleLogout
                 : () {
-                    Get.toNamed('/login');
+                    Navigator.pushReplacementNamed(context, '/login');
                   },
             child: Text(
               isLoggedIn == true ? 'Logout' : 'Login',

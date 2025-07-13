@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/route_manager.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
@@ -47,7 +46,7 @@ class _FavoritesViewState extends State<FavoritesView> {
                                   ChangeDate(
                                       state.favoriteApodData[index]!['date']),
                                 );
-                            Get.toNamed('/appod');
+                            Navigator.pushNamed(context, '/appod');
                           },
                           child: Stack(
                             children: [

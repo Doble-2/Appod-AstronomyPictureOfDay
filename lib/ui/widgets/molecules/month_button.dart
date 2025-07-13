@@ -14,19 +14,21 @@ class MonthButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: Container(
         width: 100,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF3F7FE) : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Colors.transparent,
           borderRadius: const BorderRadius.all(Radius.circular(12)),
         ),
         child: Center(
           child: Text(
             month,
             style: TextStyle(
-              color: isSelected ? Colors.blue : const Color(0xFFB8B8B8),
+              color: isSelected ? Theme.of(context).colorScheme.primary : const Color(0xFFB8B8B8),
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
         ),

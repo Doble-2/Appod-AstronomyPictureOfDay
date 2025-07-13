@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/data/firebase.dart';
-import 'package:get/route_manager.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -49,7 +48,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 password: _passwordController.text,
               );
               if (message!.contains('Success')) {
-                Get.offAllNamed("/");
+                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
               }
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -64,7 +63,7 @@ class _CreateAccountState extends State<CreateAccount> {
           ),
           TextButton(
             onPressed: () {
-              Get.toNamed('/login');
+              Navigator.pushNamed(context, '/login');
             },
             child: const Text('Login'),
           ),
