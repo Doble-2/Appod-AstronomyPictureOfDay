@@ -91,28 +91,71 @@ class _ApodViewState extends State<ApodView> {
                     padding: const EdgeInsets.only(top: 16.0),
                     child: Stack(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(24.0),
-                          child: isImage
-                              ? Image.network(
-                                  apod['url'],
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: 400,
-                                  loadingBuilder: (context, child, progress) =>
-                                      progress == null ? child : const SkeletonPrincipalApodButton(),
-                                  errorBuilder: (context, error, stack) =>
-                                      const Center(child: Text('Error al cargar imagen')),
-                                )
-                              : AspectRatio(
-                                  aspectRatio: 16 / 9,
-                                  child: Container(
-                                    color: Colors.black,
-                                    child: const Center(
-                                      child: Icon(Icons.play_circle_outline, color: Colors.white, size: 60),
+                        GestureDetector(
+                          onTap: isImage
+                              ? () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Dialog(
+                                        backgroundColor: Colors.transparent,
+                                        insetPadding: const EdgeInsets.all(0),
+                                        child: Stack(
+                                          children: [
+                                            InteractiveViewer(
+                                              panEnabled: true,
+                                              minScale: 0.5,
+                                              maxScale: 4,
+                                              child: Center(
+                                                child: Image.network(
+                                                  apod['hdurl'] ?? apod['url'],
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder: (context, error, stack) => const Center(
+                                                      child: Text('Error al cargar imagen en alta calidad')),
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 16,
+                                              right: 16,
+                                              child: IconButton(
+                                                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                                                onPressed: () => Navigator.of(context).pop(),
+                                                style: IconButton.styleFrom(
+                                                  backgroundColor: Colors.black.withValues(alpha: 0.5),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }
+                              : null,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24.0),
+                            child: isImage
+                                ? Image.network(
+                                    apod['url'],
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: 400,
+                                    loadingBuilder: (context, child, progress) =>
+                                        progress == null ? child : const SkeletonPrincipalApodButton(),
+                                    errorBuilder: (context, error, stack) =>
+                                        const Center(child: Text('Error al cargar imagen')),
+                                  )
+                                : AspectRatio(
+                                    aspectRatio: 16 / 9,
+                                    child: Container(
+                                      color: Colors.black,
+                                      child: const Center(
+                                        child: Icon(Icons.play_circle_outline, color: Colors.white, size: 60),
+                                      ),
                                     ),
                                   ),
-                                ),
+                          ),
                         ),
                         Positioned(
                           bottom: 16,
