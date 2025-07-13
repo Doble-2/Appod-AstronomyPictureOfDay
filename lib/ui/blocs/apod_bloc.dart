@@ -79,6 +79,8 @@ class FetchFavoriteApod extends ApodEvent {
   FetchFavoriteApod();
 }
 
+class RefreshData extends ApodEvent {}
+
 class ChangeDate extends ApodEvent {
   final String date;
 
@@ -130,6 +132,34 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
         ));
       } catch (error) {
         emit(state.copyWith(favoriteApodStatus: ApodStatus.failed));
+      }
+    });
+    on<RefreshData>((event, emit) async {
+      try {
+        emit(state.copyWith(
+          status: ApodStatus.loading,
+          multiplestatus: ApodStatus.loading,
+        ));
+
+        final results = await Future.wait([
+          _apodUseCase.getApod(state.date),
+          _apodUseCase.getMultipleApod(state.date),
+        ]);
+
+        final apodData = results[0] as Map<String, dynamic>;
+        final multipleApodData = results[1] as List;
+
+        emit(state.copyWith(
+          status: ApodStatus.success,
+          apodData: apodData,
+          multiplestatus: ApodStatus.success,
+          multipleApodData: multipleApodData,
+        ));
+      } catch (error) {
+        emit(state.copyWith(
+          status: ApodStatus.failed,
+          multiplestatus: ApodStatus.failed,
+        ));
       }
     });
     on<ChangeDate>((event, emit) async {

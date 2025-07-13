@@ -18,7 +18,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    context.read<ApodBloc>().add(FetchMultipleApod());
+    context.read<ApodBloc>().add(RefreshData());
   }
 
   @override
@@ -26,9 +26,10 @@ class _HomeViewState extends State<HomeView> {
     return Layout(
       child: RefreshIndicator(
         onRefresh: () async {
-          context.read<ApodBloc>().add(FetchMultipleApod());
+          context.read<ApodBloc>().add(RefreshData());
         },
         child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
