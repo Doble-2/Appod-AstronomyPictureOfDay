@@ -5,7 +5,7 @@ class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
 
   @override
-  _CreateAccountState createState() => _CreateAccountState();
+  State<CreateAccount> createState() => _CreateAccountState();
 }
 
 class _CreateAccountState extends State<CreateAccount> {
@@ -140,6 +140,8 @@ class _CreateAccountState extends State<CreateAccount> {
                       : () async {
                           if (_formKey.currentState!.validate()) {
                             setState(() => _isLoading = true);
+                            final navigator = Navigator.of(context);
+                            final scaffoldMessenger = ScaffoldMessenger.of(context);
                             final message = await AuthService().registration(
                               email: _emailController.text,
                               password: _passwordController.text,
@@ -148,10 +150,10 @@ class _CreateAccountState extends State<CreateAccount> {
                             setState(() => _isLoading = false);
 
                             if (message!.contains('Success')) {
-                              Navigator.pushNamedAndRemoveUntil(
-                                  context, '/', (route) => false);
+                              navigator.pushNamedAndRemoveUntil(
+                                  '/', (route) => false);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              scaffoldMessenger.showSnackBar(
                                 SnackBar(
                                   content: Text(message),
                                   backgroundColor: Colors.red,

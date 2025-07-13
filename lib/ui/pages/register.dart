@@ -5,7 +5,7 @@ class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
@@ -128,6 +128,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       : () async {
                           if (_formKey.currentState!.validate()) {
                             setState(() => _isLoading = true);
+                            final navigator = Navigator.of(context);
+                            final scaffoldMessenger = ScaffoldMessenger.of(context);
                             final message = await AuthService().registration(
                               email: _emailController.text,
                               password: _passwordController.text,
@@ -136,10 +138,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             setState(() => _isLoading = false);
 
                             if (message!.contains('Success')) {
-                              Navigator.pushNamedAndRemoveUntil(
-                                  context, '/', (route) => false);
+                              navigator.pushNamedAndRemoveUntil(
+                                  '/', (route) => false);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              scaffoldMessenger.showSnackBar(
                                 SnackBar(
                                   content: Text(message),
                                   backgroundColor: Colors.red,

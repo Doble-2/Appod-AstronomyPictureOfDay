@@ -15,7 +15,7 @@ class ApodView extends StatefulWidget {
   const ApodView({super.key});
 
   @override
-  _ApodViewState createState() => _ApodViewState();
+  State<ApodView> createState() => _ApodViewState();
 }
 
 class _ApodViewState extends State<ApodView> {

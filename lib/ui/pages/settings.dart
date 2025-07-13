@@ -12,18 +12,19 @@ class SettingsView extends StatefulWidget {
   const SettingsView({super.key, required this.authService});
 
   @override
-  _SettingsViewState createState() => _SettingsViewState();
+  State<SettingsView> createState() => _SettingsViewState();
 }
 
 class _SettingsViewState extends State<SettingsView> {
   bool isLoggedIn = false;
   void handleLogout() async {
+    final navigator = Navigator.of(context);
     await widget.authService.logout();
     // Clear user data from SharedPreferences (opcional)
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('userUID');
-
-    Navigator.pushNamed(context, '/login');
+    if (!mounted) return;
+    navigator.pushNamed('/login');
   }
 
   Future<void> _checkAuthentication() async {

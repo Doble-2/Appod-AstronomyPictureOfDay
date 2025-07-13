@@ -13,10 +13,10 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key, apodUseCase});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   final String _initialRoute = '/';
 
   @override

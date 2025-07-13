@@ -5,7 +5,7 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -125,6 +125,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       : () async {
                           if (_formKey.currentState!.validate()) {
                             setState(() => _isLoading = true);
+                            final navigator = Navigator.of(context);
+                            final scaffoldMessenger = ScaffoldMessenger.of(context);
                             final message = await AuthService().login(
                               email: _emailController.text,
                               password: _passwordController.text,
@@ -133,10 +135,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             setState(() => _isLoading = false);
 
                             if (message!.contains('Success')) {
-                              Navigator.pushNamedAndRemoveUntil(
-                                  context, '/', (route) => false);
+                              navigator.pushNamedAndRemoveUntil(
+                                  '/', (route) => false);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              scaffoldMessenger.showSnackBar(
                                 SnackBar(
                                   content: Text(message),
                                   backgroundColor: Colors.red,

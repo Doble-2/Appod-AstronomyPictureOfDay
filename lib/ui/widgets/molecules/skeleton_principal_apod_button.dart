@@ -4,7 +4,7 @@ class SkeletonPrincipalApodButton extends StatefulWidget {
   const SkeletonPrincipalApodButton({super.key});
 
   @override
-  _SkeletonPrincipalApodButtonState createState() =>
+  State<SkeletonPrincipalApodButton> createState() =>
       _SkeletonPrincipalApodButtonState();
 }
 

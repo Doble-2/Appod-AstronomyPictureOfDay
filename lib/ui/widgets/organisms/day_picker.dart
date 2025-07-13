@@ -7,7 +7,7 @@ class DayPicker extends StatefulWidget {
   const DayPicker({super.key});
 
   @override
-  _DayPickerState createState() => _DayPickerState();
+  State<DayPicker> createState() => _DayPickerState();
 }
 
 class _DayPickerState extends State<DayPicker> {
@@ -26,6 +26,7 @@ class _DayPickerState extends State<DayPicker> {
   }
 
   Future<void> _selectDate(DateTime? currentDate) async {
+    final apodBloc = context.read<ApodBloc>();
     final DateTime initialDate = currentDate ?? DateTime.now();
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -42,7 +43,7 @@ class _DayPickerState extends State<DayPicker> {
       },
     );
     if (picked != null) {
-      context.read<ApodBloc>().add(ChangeDate(DateFormat('yyyy-MM-dd').format(picked)));
+      apodBloc.add(ChangeDate(DateFormat('yyyy-MM-dd').format(picked)));
     }
   }
 

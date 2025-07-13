@@ -13,7 +13,7 @@ class PrincipalApod extends StatefulWidget {
   });
 
   @override
-  _PrincipalApodState createState() => _PrincipalApodState();
+  State<PrincipalApod> createState() => _PrincipalApodState();
 }
 
 class _PrincipalApodState extends State<PrincipalApod> {

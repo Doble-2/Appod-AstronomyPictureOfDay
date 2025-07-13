@@ -12,7 +12,7 @@ class FavoritesView extends StatefulWidget {
   const FavoritesView({super.key, required this.authService});
 
   @override
-  _FavoritesViewState createState() => _FavoritesViewState();
+  State<FavoritesView> createState() => _FavoritesViewState();
 }
 
 class _FavoritesViewState extends State<FavoritesView> {
@@ -79,14 +79,16 @@ class _FavoritesViewState extends State<FavoritesView> {
                     image: apod['url'] ?? '',
                     showRemoveButton: true,
                     onRemove: () async {
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+                      final apodBloc = context.read<ApodBloc>();
                       await widget.authService.removeFavorite(apod['date']);
                       if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      scaffoldMessenger.showSnackBar(
                         const SnackBar(
                           content: Text('Favorito eliminado con éxito'),
                         ),
                       );
-                      context.read<ApodBloc>().add(FetchFavoriteApod());
+                      apodBloc.add(FetchFavoriteApod());
                     },
                   );
                 },

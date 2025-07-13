@@ -6,7 +6,7 @@ class OwnNavBar extends StatefulWidget {
   const OwnNavBar({super.key});
 
   @override
-  _OwnNavBarState createState() => _OwnNavBarState();
+  State<OwnNavBar> createState() => _OwnNavBarState();
 }
 
 class _OwnNavBarState extends State<OwnNavBar> {
@@ -37,7 +37,7 @@ class _OwnNavBarState extends State<OwnNavBar> {
           height: 60,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(36),
-            color: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
             boxShadow:  [
               BoxShadow(
                 color: Colors.black.withValues(alpha : 0.1),

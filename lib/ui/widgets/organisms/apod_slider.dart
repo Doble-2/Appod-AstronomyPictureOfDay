@@ -9,7 +9,7 @@ class ApodSlider extends StatefulWidget {
   const ApodSlider({super.key});
 
   @override
-  _ApodSliderState createState() => _ApodSliderState();
+  State<ApodSlider> createState() => _ApodSliderState();
 }
 
 class _ApodSliderState extends State<ApodSlider> {

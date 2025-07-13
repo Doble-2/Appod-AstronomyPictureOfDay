@@ -22,7 +22,7 @@ class Layout extends StatelessWidget {
             Positioned.fill(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 90.0),
+                  padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 40.0),
                   child: SingleChildScrollView(child: child),
                 ),
               ),
