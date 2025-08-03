@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
-import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,8 +46,7 @@ class _SettingsViewState extends State<SettingsView> {
     final themeProvider = context.watch<ThemeProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Layout(
-      child: SingleChildScrollView(
+    return  SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -102,9 +100,8 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             const SizedBox(height: 24),
           ],
-        ),
-      ),
-    );
+        ))
+        ;
   }
 }
 

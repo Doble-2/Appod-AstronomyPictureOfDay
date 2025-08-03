@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:nasa_apod/ui/widgets/organisms/app_bar.dart';
 import 'package:nasa_apod/ui/widgets/organisms/nav_bar.dart';
 
-class Layout extends StatelessWidget {
-  const Layout({super.key, required this.child});
 
+class Layout extends StatelessWidget {
   final Widget child;
+  final int currentIndex;
+  final ValueChanged<int> onNavTap;
+  final bool hideNavBar;
+  const Layout({super.key, required this.child, required this.currentIndex, required this.onNavTap, this.hideNavBar = false});
 
   @override
   Widget build(BuildContext context) {
@@ -28,16 +31,20 @@ class Layout extends StatelessWidget {
               ),
             ),
             // NavBar flotante
-            const Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 8.0),
+            if (!hideNavBar)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Center(
+                  child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
                   child: SizedBox(
                     width: 420,
-                    child: OwnNavBar(),
+                    child: OwnNavBar(
+                      currentIndex: currentIndex,
+                      onTap: onNavTap,
+                    ),
                   ),
                 ),
               ),

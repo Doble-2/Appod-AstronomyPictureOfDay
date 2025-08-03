@@ -52,7 +52,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                           context.read<ApodBloc>().add(
                             ChangeDate(state.apodData!['date']),
                           );
-                          Navigator.pushNamed(context, '/appod');
+                          widget.onTap();
                         },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 350),

@@ -21,12 +21,12 @@ class SkeletonApodButton extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surface,
                 boxShadow: [
                   BoxShadow(
-                    color: isDark
-                        ? Colors.black
-                        : Colors.black,
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
+                        color: isDark
+                            ? Colors.black.withValues(alpha: 0.1)
+                            : Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
                 ],
               ),
             ),

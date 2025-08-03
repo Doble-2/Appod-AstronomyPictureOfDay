@@ -44,9 +44,19 @@ class _ApodViewState extends State<ApodView> {
   @override
   Widget build(BuildContext context) {
     final st = SimplyTranslator(EngineType.google);
+    int currentIndex = 0;
+    void onNavTap(int value) {
+      setState(() {
+        currentIndex = value;
+      });
+    }
 
     return Layout(
-      child: BlocBuilder<ApodBloc, ApodState>(
+      hideNavBar: true,
+      currentIndex: currentIndex, 
+      onNavTap: onNavTap,
+      child:
+    BlocBuilder<ApodBloc, ApodState>(
         builder: (context, state) {
           if (state.status == ApodStatus.loading) {
             return const SingleChildScrollView(
@@ -264,7 +274,7 @@ class _ApodViewState extends State<ApodView> {
             return const Center(child: Text('No se pudieron cargar los datos.'));
           }
         },
-      ),
-    );
+      
+    ),);
   }
 }

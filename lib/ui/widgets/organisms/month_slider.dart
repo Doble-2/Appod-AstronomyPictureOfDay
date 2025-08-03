@@ -22,9 +22,10 @@ class _MonthSliderState extends State<MonthSlider> {
   void _scrollToSelected(int selectedIndex) {
     // Centra el mes seleccionado en el slider
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      const double itemWidth = 70.0;
+      const double itemWidth = 80.0;
       final double screenWidth = MediaQuery.of(context).size.width;
-      final double offset = (selectedIndex * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
+      final double offset =
+          (selectedIndex * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
       _scrollController.animateTo(
         offset.clamp(0, _scrollController.position.maxScrollExtent),
         duration: const Duration(milliseconds: 350),
@@ -36,7 +37,9 @@ class _MonthSliderState extends State<MonthSlider> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<ApodBloc, ApodState>(
-      listenWhen: (prev, curr) => prev.errorMessage != curr.errorMessage && (curr.errorMessage?.isNotEmpty == true),
+      listenWhen: (prev, curr) =>
+          prev.errorMessage != curr.errorMessage &&
+          (curr.errorMessage?.isNotEmpty == true),
       listener: (context, state) {
         if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -64,33 +67,42 @@ class _MonthSliderState extends State<MonthSlider> {
             child: ListView.builder(
               controller: _scrollController,
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only( right: 16),
+              padding: const EdgeInsets.only(right: 16),
               itemCount: 12,
               itemBuilder: (context, index) {
                 final isSelected = selectedDate.month == index + 1;
                 final monthName = toBeginningOfSentenceCase(
-                  DateFormat.MMMM('es').format(DateTime(selectedDate.year, index + 1)),
+                  DateFormat.MMMM('es')
+                      .format(DateTime(selectedDate.year, index + 1)),
                 );
                 return GestureDetector(
                   onTap: () {
-                    final newDate = DateTime(selectedDate.year, index + 1, selectedDate.day);
-                    context.read<ApodBloc>().add(ChangeDate(DateFormat('yyyy-MM-dd').format(newDate)));
+                    final newDate = DateTime(
+                        selectedDate.year, index + 1, selectedDate.day);
+                    context.read<ApodBloc>().add(
+                        ChangeDate(DateFormat('yyyy-MM-dd').format(newDate)));
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                     margin: const EdgeInsets.symmetric(horizontal: 6),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
-                      color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Center(
                       child: Text(
                         monthName,
                         style: TextStyle(
-                          color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.onPrimary
+                              : Theme.of(context).colorScheme.onSurface,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                     ),

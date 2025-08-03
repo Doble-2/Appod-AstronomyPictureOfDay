@@ -16,7 +16,9 @@ class _SkeletonPrincipalApodButtonState
       padding: const EdgeInsets.only(top: 10.0),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final width = constraints.maxWidth > 0 ? constraints.maxWidth : MediaQuery.of(context).size.width - 32;
+          final width = constraints.maxWidth > 0
+              ? constraints.maxWidth
+              : MediaQuery.of(context).size.width - 32;
           return SizedBox(
             height: 220,
             width: width,
@@ -41,10 +43,18 @@ class _SkeletonPrincipalApodButtonState
                         shaderCallback: (rect) {
                           return LinearGradient(
                             colors: [
-                              Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-                              Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
-                              Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
-                           
+                              Theme.of(context)
+                                  .colorScheme
+                                  .surface
+                                  .withValues(alpha: 0.8),
+                              Theme.of(context)
+                                  .colorScheme
+                                  .surface
+                                  .withValues(alpha: 0.6),
+                              Theme.of(context)
+                                  .colorScheme
+                                  .surface
+                                  .withValues(alpha: 0.4),
                             ],
                             stops: const [0.1, 0.5, 0.9],
                             begin: const Alignment(-1, -1),
@@ -55,7 +65,10 @@ class _SkeletonPrincipalApodButtonState
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(24.0),
-                            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withValues(alpha: 0.5),
                           ),
                         ),
                       );

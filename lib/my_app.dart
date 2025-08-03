@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
+import 'package:nasa_apod/ui/main_screen.dart';
+import 'package:nasa_apod/provider/main_screen_controller.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
 import 'package:nasa_apod/ui/pages/register.dart';
-import 'package:nasa_apod/ui/pages/favorites.dart';
-import 'package:nasa_apod/ui/pages/home.dart';
 import 'package:nasa_apod/ui/pages/login.dart';
-import 'package:nasa_apod/ui/pages/settings.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatefulWidget {
@@ -22,8 +20,11 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     // Gestión de estado solo con Provider, navegación con MaterialApp
-    return ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => MainScreenController()),
+      ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
@@ -82,12 +83,10 @@ class MyAppState extends State<MyApp> {
             themeMode: themeProvider.themeMode,
             initialRoute: _initialRoute,
             routes: {
-              '/': (context) => const HomeView(),
+              '/': (context) => const MainScreen(),
               '/appod': (context) => const ApodView(),
-              '/settings': (context) => SettingsView(authService: AuthService()),
               '/register': (context) => const RegisterScreen(),
               '/login': (context) => const LoginScreen(),
-              '/favorites': (context) => FavoritesView(authService: AuthService()),
             },
           );
         },

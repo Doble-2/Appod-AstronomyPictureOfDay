@@ -35,12 +35,13 @@ class _ApodSliderState extends State<ApodSlider> {
                   final apodData = state.multipleApodData[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: ApodButton(
+                    
+                    child:apodData["url"] != null? ApodButton(
                       image: apodData['url'],
                       title: apodData['title'],
                       date: apodData['date'],
                       author: apodData['copyright'] ?? 'Nasa',
-                    ),
+                    ): const SkeletonApodButton(),
                   );
                 },
                 itemCount: state.multipleApodData.length,

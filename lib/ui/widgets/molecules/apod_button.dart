@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
+import 'package:provider/provider.dart';
+import 'package:nasa_apod/provider/main_screen_controller.dart';
 
 class ApodButton extends StatefulWidget {
   final String title;
@@ -45,21 +47,22 @@ class _ApodButtonState extends State<ApodButton> {
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(24),
               elevation: 0,
-              shadowColor: isDark
-                  ? Colors.black
-                  : Colors.grey,
+              shadowColor: isDark ? Colors.black : Colors.grey,
               child: InkWell(
                 borderRadius: BorderRadius.circular(24),
                 splashColor: Theme.of(context).colorScheme.primary,
                 highlightColor: Theme.of(context).colorScheme.primary,
-                onTap: () {
+                onTap: () async {
                   if (widget.showRemoveButton && _isExpanded) {
                     setState(() => _isExpanded = false);
                     return;
                   }
                   context.read<ApodBloc>().add(ChangeDate(widget.date));
-                  Navigator.pushNamed(context, '/appod');
+              
+                                          Navigator.pushNamed(context, '/appod');
+
                 },
+                
                 onLongPress: widget.showRemoveButton
                     ? () => setState(() => _isExpanded = !_isExpanded)
                     : null,
@@ -89,10 +92,13 @@ class _ApodButtonState extends State<ApodButton> {
                           height: 220,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
-                              const Center(child: Icon(Icons.error_outline, color: Colors.red)),
+                              const Center(
+                                  child: Icon(Icons.error_outline,
+                                      color: Colors.red)),
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                                child: CircularProgressIndicator());
                           },
                         ),
                       ),
@@ -103,8 +109,9 @@ class _ApodButtonState extends State<ApodButton> {
                         bottom: 0,
                         height: 120,
                         child: Container(
-                          decoration:  BoxDecoration(
-                            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.vertical(
+                                bottom: Radius.circular(24)),
                             gradient: LinearGradient(
                               colors: [
                                 Colors.black.withValues(alpha: 0.1),
@@ -126,7 +133,10 @@ class _ApodButtonState extends State<ApodButton> {
                           children: [
                             Text(
                               widget.title,
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
                                     color: Colors.white.withValues(alpha: 0.8),
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -136,7 +146,10 @@ class _ApodButtonState extends State<ApodButton> {
                             const SizedBox(height: 4),
                             Text(
                               widget.date,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
                                     color: Colors.white,
                                   ),
                             ),
