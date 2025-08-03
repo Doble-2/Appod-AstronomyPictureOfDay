@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
@@ -26,6 +27,8 @@ class _PrincipalApodState extends State<PrincipalApod> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return BlocBuilder<ApodBloc, ApodState>(
       builder: (context, state) {
         return Padding(
@@ -40,11 +43,11 @@ class _PrincipalApodState extends State<PrincipalApod> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const AnimatedSlide(
+                  AnimatedSlide(
                     offset: Offset.zero,
-                    duration: Duration(milliseconds: 600),
+                    duration: const Duration(milliseconds: 600),
                     curve: Curves.easeOut,
-                    child: TitleArea(text: 'This day in space'),
+                    child: TitleArea(text:    l10n.apodToday,),
                   ),
                   const SizedBox(height: 16),
                   PrincipalApodButton(

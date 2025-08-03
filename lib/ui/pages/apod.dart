@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/data/firebase.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_data.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_description.dart';
@@ -43,6 +44,8 @@ class _ApodViewState extends State<ApodView> {
 
   @override
   Widget build(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+
     final st = SimplyTranslator(EngineType.google);
     int currentIndex = 0;
     void onNavTap(int value) {
@@ -182,7 +185,7 @@ class _ApodViewState extends State<ApodView> {
                                             Bubble(
                                               child: IconButton(
                                                 icon: const Icon(Icons.download_rounded),
-                                                tooltip: 'Descargar',
+                                                tooltip: i10n.downloadApod,
                                                 onPressed: () => saveNetworkImage(context, apod['url'], apod['title']),
                                               ),
                                             ),
@@ -191,7 +194,7 @@ class _ApodViewState extends State<ApodView> {
                                             Bubble(
                                               child: IconButton(
                                                 icon: const Icon(Icons.favorite_border_rounded),
-                                                tooltip: 'Guardar en favoritos',
+                                                tooltip: i10n.addToFavorites,
                                                 onPressed: () {
                                                   // Lógica para favoritos
                                                 },

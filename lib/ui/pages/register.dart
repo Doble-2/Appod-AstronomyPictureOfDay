@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/data/firebase.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,6 +18,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -41,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Crea una cuenta',
+                  i10n.register,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
@@ -53,7 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                     constraints: const BoxConstraints(maxHeight: 56),
                     fillColor: Theme.of(context).colorScheme.surface,
-                    hintText: 'Email',
+                    hintText: i10n.email,
                     hintStyle: Theme.of(context).textTheme.titleMedium,
                     filled: true,
                     prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).colorScheme.primary),
@@ -70,10 +73,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, introduce tu email';
+                      return  i10n.pleaseInterEmail;
                     }
                     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Por favor, introduce un email válido';
+                      return i10n.pleaseInterValidEmail;
                     }
                     return null;
                   },
@@ -87,7 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                     constraints: const BoxConstraints(maxHeight: 56),
                     fillColor: Theme.of(context).colorScheme.surface,
-                    hintText: 'Contraseña',
+                    hintText: i10n.password,
                     hintStyle: Theme.of(context).textTheme.titleMedium,
                     filled: true,
                     prefixIcon: Icon(Icons.lock_outline, color: Theme.of(context).colorScheme.primary),
@@ -113,10 +116,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, introduce tu contraseña';
+                      return i10n.pleaseInterPassword;
                     }
                     if (value.length < 6) {
-                      return 'La contraseña debe tener al menos 6 caracteres';
+                      return i10n.digitsPass;
                     }
                     return null;
                   },
@@ -166,7 +169,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
                           : Text(
-                              'Registrarse',
+                              i10n.register,
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 fontWeight: FontWeight.bold,
@@ -180,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text('¿Ya tienes una cuenta? Inicia sesión'),
+                  child: Text(i10n.yetHaveAccount),
                 ),
               ],
             ),

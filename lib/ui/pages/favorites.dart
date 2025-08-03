@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/data/firebase.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/apod_button.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
@@ -36,7 +37,7 @@ class _FavoritesViewState extends State<FavoritesView> {
 
   @override
   Widget build(BuildContext context) {
-
+    final i10n = AppLocalizations.of(context)!;
     return BlocBuilder<ApodBloc, ApodState>(
         builder: isLoggedIn ?(context, state) {
           if (state.favoriteApodStatus == ApodStatus.loading) {
@@ -119,10 +120,10 @@ class _FavoritesViewState extends State<FavoritesView> {
           }
         }: 
         (context, state) {
-          return const Center(
+          return Center(
             child: Text(
-              'Por favor, inicia sesión para ver tus favoritos.',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+              i10n.pleaseLoginToSeeFavorites,
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
             ),
           );
         }

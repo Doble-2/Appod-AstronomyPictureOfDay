@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:nasa_apod/provider/locale_provider.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
+import 'package:provider/provider.dart';
 
 class MonthSlider extends StatefulWidget {
   const MonthSlider({super.key});
@@ -36,6 +38,10 @@ class _MonthSliderState extends State<MonthSlider> {
 
   @override
   Widget build(BuildContext context) {
+        final localeProvider = Provider.of<LocaleProvider>(context);
+
+        final currentLanguage = localeProvider.selectedLanguage;
+
     return BlocListener<ApodBloc, ApodState>(
       listenWhen: (prev, curr) =>
           prev.errorMessage != curr.errorMessage &&
@@ -72,7 +78,7 @@ class _MonthSliderState extends State<MonthSlider> {
               itemBuilder: (context, index) {
                 final isSelected = selectedDate.month == index + 1;
                 final monthName = toBeginningOfSentenceCase(
-                  DateFormat.MMMM('es')
+                  DateFormat.MMMM(currentLanguage.languageCode)
                       .format(DateTime(selectedDate.year, index + 1)),
                 );
                 return GestureDetector(

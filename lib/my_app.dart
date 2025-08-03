@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
+import 'package:nasa_apod/provider/locale_provider.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
 import 'package:nasa_apod/ui/main_screen.dart';
 import 'package:nasa_apod/provider/main_screen_controller.dart';
@@ -24,11 +26,17 @@ class MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => MainScreenController()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
+          final localeProvider = Provider.of<LocaleProvider>(context);
+
           return MaterialApp(
             debugShowCheckedModeBanner: false,
+            locale: localeProvider.selectedLanguage,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
             title: 'Appod - Astronomy picture of the day',
             // TEMA CLARO
             theme: ThemeData(
