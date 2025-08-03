@@ -15,9 +15,22 @@ class FavoritesView extends StatefulWidget {
 }
 
 class _FavoritesViewState extends State<FavoritesView> {
+  bool isLoggedIn = false;
+
+
+  Future<void> _checkAuthentication() async {
+    // Replace with your actual authentication logic
+    isLoggedIn = await AuthService().isLoggedIn();
+
+    setState(() {
+      isLoggedIn = isLoggedIn;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+      _checkAuthentication();
     context.read<ApodBloc>().add(FetchFavoriteApod());
   }
 
@@ -25,7 +38,7 @@ class _FavoritesViewState extends State<FavoritesView> {
   Widget build(BuildContext context) {
 
     return BlocBuilder<ApodBloc, ApodState>(
-        builder: (context, state) {
+        builder: isLoggedIn ?(context, state) {
           if (state.favoriteApodStatus == ApodStatus.loading) {
             return Expanded(
               child: GridView.builder(
@@ -104,7 +117,15 @@ class _FavoritesViewState extends State<FavoritesView> {
           } else {
             return const SizedBox.shrink(); // Estado inicial o no manejado
           }
-        },
+        }: 
+        (context, state) {
+          return const Center(
+            child: Text(
+              'Por favor, inicia sesión para ver tus favoritos.',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          );
+        }
       );
     
   }

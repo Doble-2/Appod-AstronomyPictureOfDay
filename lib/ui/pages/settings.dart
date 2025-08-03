@@ -80,6 +80,8 @@ class _SettingsViewState extends State<SettingsView> {
                     : () => Navigator.pushNamed(context, '/login'),
               ),
             ),
+            const SizedBox(height: 12),
+         
             const SizedBox(height: 32),
             const TitleArea(text: 'Extras'),
             const SizedBox(height: 16),
