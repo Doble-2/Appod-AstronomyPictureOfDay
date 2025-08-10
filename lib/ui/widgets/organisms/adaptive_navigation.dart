@@ -31,7 +31,7 @@ class _SideRail extends StatelessWidget {
       child: Container(
         width: 80,
         decoration: BoxDecoration(
-          
+          color: theme.colorScheme.surface,
           border: Border(
             right: BorderSide(color: theme.dividerColor.withValues(alpha: 0.1)),
           ),

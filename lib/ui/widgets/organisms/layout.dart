@@ -16,9 +16,10 @@ class Layout extends StatelessWidget {
     final isDesktop = context.isDesktop;
     final bodyContent = MaxWidthContainer(child: child);
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
-        child:  OwnAppBar(),
+        child: OwnAppBar(),
       ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -29,7 +30,7 @@ class Layout extends StatelessWidget {
                   if (!hideNavBar) AdaptiveNavigation(currentIndex: currentIndex, onTap: onNavTap),
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.only(bottom: 32, top: 16),
+                      padding: const EdgeInsets.only(bottom: 32, top: 32),
                       child: bodyContent,
                     ),
                   ),
@@ -39,7 +40,7 @@ class Layout extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(6, 0, 6, 100),
+                      padding: EdgeInsets.fromLTRB(6, kToolbarHeight + 12, 6, 100),
                       child: bodyContent,
                     ),
                   ),

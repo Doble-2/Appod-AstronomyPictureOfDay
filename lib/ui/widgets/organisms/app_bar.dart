@@ -6,11 +6,14 @@ class OwnAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+        final theme = Theme.of(context);
+
     return AppBar(
       flexibleSpace: Container(
         decoration: BoxDecoration(
+          color: Colors.transparent,
           border: Border(
-            right: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
+            bottom: BorderSide(color: theme.dividerColor.withValues(alpha: 0.1)),
           ),
         ),
       ),
