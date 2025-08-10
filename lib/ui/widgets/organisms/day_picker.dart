@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:nasa_apod/provider/locale_provider.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class DayPicker extends StatefulWidget {
   const DayPicker({super.key});
@@ -36,7 +38,8 @@ class _DayPickerState extends State<DayPicker> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            dialogTheme: DialogThemeData(backgroundColor: Theme.of(context).colorScheme.surface),
+            dialogTheme: DialogThemeData(
+                backgroundColor: Theme.of(context).colorScheme.surface),
           ),
           child: child!,
         );
@@ -47,11 +50,12 @@ class _DayPickerState extends State<DayPicker> {
     }
   }
 
-  String _formatDate(String date) {
+  String _formatDate(String date, Locale currentLanguage) {
     if (date.isEmpty) return '';
     try {
       final DateTime dt = DateTime.parse(date);
-      return DateFormat('d \'de\' MMMM, yyyy', 'es').format(dt);
+      return DateFormat('d \'de\' MMMM, yyyy', currentLanguage.languageCode)
+          .format(dt);
     } catch (_) {
       return date;
     }
@@ -59,8 +63,12 @@ class _DayPickerState extends State<DayPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+
+    final currentLanguage = localeProvider.selectedLanguage;
     return BlocListener<ApodBloc, ApodState>(
-      listenWhen: (prev, curr) => prev.errorMessage != curr.errorMessage && curr.errorMessage != null,
+      listenWhen: (prev, curr) =>
+          prev.errorMessage != curr.errorMessage && curr.errorMessage != null,
       listener: (context, state) {
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -75,7 +83,7 @@ class _DayPickerState extends State<DayPicker> {
       child: BlocBuilder<ApodBloc, ApodState>(
         buildWhen: (prev, curr) => prev.date != curr.date,
         builder: (context, state) {
-          final String formattedDate = _formatDate(state.date);
+          final String formattedDate = _formatDate(state.date, currentLanguage);
           _controller.text = formattedDate;
           return Material(
             elevation: 0,
@@ -85,26 +93,32 @@ class _DayPickerState extends State<DayPicker> {
               controller: _controller,
               style: Theme.of(context).textTheme.bodyLarge,
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                 constraints: const BoxConstraints(maxHeight: 56),
                 fillColor: Theme.of(context).colorScheme.surface,
                 hintText: 'Elige una fecha',
                 hintStyle: Theme.of(context).textTheme.titleMedium,
                 filled: true,
-                prefixIcon: Icon(Icons.calendar_today_rounded, color: Theme.of(context).colorScheme.primary),
-                prefixIconConstraints: const BoxConstraints(minWidth: 60, minHeight: 32),
+                prefixIcon: Icon(Icons.calendar_today_rounded,
+                    color: Theme.of(context).colorScheme.primary),
+                prefixIconConstraints:
+                    const BoxConstraints(minWidth: 60, minHeight: 32),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary, width: 2),
                 ),
               ),
               readOnly: true,
               onTap: () {
-                _selectDate(state.date.isNotEmpty ? DateTime.tryParse(state.date) : null);
+                _selectDate(state.date.isNotEmpty
+                    ? DateTime.tryParse(state.date)
+                    : null);
               },
               cursorColor: Theme.of(context).colorScheme.primary,
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/data/firebase.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,12 +18,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back,
+              color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -41,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Bienvenido de nuevo',
+                  i10n.welcomeBack,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
@@ -50,30 +54,35 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _emailController,
                   style: Theme.of(context).textTheme.bodyLarge,
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 20),
                     constraints: const BoxConstraints(maxHeight: 56),
                     fillColor: Theme.of(context).colorScheme.surface,
-                    hintText: 'Email',
+                    hintText: i10n.email,
                     hintStyle: Theme.of(context).textTheme.titleMedium,
                     filled: true,
-                    prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).colorScheme.primary),
-                    prefixIconConstraints: const BoxConstraints(minWidth: 60, minHeight: 32),
+                    prefixIcon: Icon(Icons.email_outlined,
+                        color: Theme.of(context).colorScheme.primary),
+                    prefixIconConstraints:
+                        const BoxConstraints(minWidth: 60, minHeight: 32),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2),
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, introduce tu email';
+                      return i10n.pleaseInterEmail;
                     }
                     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Por favor, introduce un email válido';
+                      return i10n.pleaseInterValidEmail;
                     }
                     return null;
                   },
@@ -84,21 +93,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: _obscureText,
                   style: Theme.of(context).textTheme.bodyLarge,
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 20),
                     constraints: const BoxConstraints(maxHeight: 56),
                     fillColor: Theme.of(context).colorScheme.surface,
-                    hintText: 'Contraseña',
+                    hintText: i10n.password,
                     hintStyle: Theme.of(context).textTheme.titleMedium,
                     filled: true,
-                    prefixIcon: Icon(Icons.lock_outline, color: Theme.of(context).colorScheme.primary),
-                    prefixIconConstraints: const BoxConstraints(minWidth: 60, minHeight: 32),
+                    prefixIcon: Icon(Icons.lock_outline,
+                        color: Theme.of(context).colorScheme.primary),
+                    prefixIconConstraints:
+                        const BoxConstraints(minWidth: 60, minHeight: 32),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2),
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -113,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, introduce tu contraseña';
+                      return i10n.pleaseInterPassword;
                     }
                     return null;
                   },
@@ -126,7 +140,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (_formKey.currentState!.validate()) {
                             setState(() => _isLoading = true);
                             final navigator = Navigator.of(context);
-                            final scaffoldMessenger = ScaffoldMessenger.of(context);
+                            final scaffoldMessenger =
+                                ScaffoldMessenger.of(context);
                             final message = await AuthService().login(
                               email: _emailController.text,
                               password: _passwordController.text,
@@ -160,10 +175,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
                             )
                           : Text(
-                              'Login',
+                              i10n.login,
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 fontWeight: FontWeight.bold,
@@ -174,14 +190,59 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/register');
-                  },
-                  child: const Text('¿No tienes una cuenta? Regístrate'),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/register');
+                    },
+                    child: Text(i10n.notHaveAccount)),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: null, // Deshabilitado hasta que esté disponible
+                    icon: Icon(Icons.lock_reset_rounded,
+                        color: Theme.of(context).colorScheme.onSurface),
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(i10n.resetPassword,
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onSurface)),
+                        const SizedBox(width: 8),
+                        const _ComingSoonChip(),
+                      ],
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.onSurface,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ComingSoonChip extends StatelessWidget {
+  const _ComingSoonChip();
+
+  @override
+  Widget build(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        i10n.soon,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
         ),
       ),
     );
