@@ -5,6 +5,7 @@ import 'package:nasa_apod/ui/widgets/organisms/day_picker.dart';
 import 'package:nasa_apod/ui/widgets/organisms/month_slider.dart';
 import 'package:nasa_apod/ui/widgets/organisms/other_apod.dart';
 import 'package:nasa_apod/ui/widgets/organisms/principal_apod.dart';
+import 'package:nasa_apod/ui/responsive/responsive.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -22,32 +23,88 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = context.isDesktop;
 
+    // Layout contract:
+    // Mobile: Column (DayPicker, MonthSlider, Principal, Other)
+    // Desktop: Row for filters (DayPicker expanded + MonthSlider to right), then spaced sections with larger vertical rhythm.
+
+    Widget filtersSection;
+    if (isDesktop) {
+      filtersSection = Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Container(
+              margin: const EdgeInsets.only(right: 12),
+              child: const DayPicker(),
+            ),
+          ),
+            Expanded(
+              flex: 2,
+              child: Container(
+                margin: const EdgeInsets.only(left: 12),
+                child: const MonthSlider(),
+              ),
+            ),
+        ],
+      );
+    } else {
+      filtersSection = const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 10.0),
+            child: DayPicker(),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 20.0),
+            child: MonthSlider(),
+          ),
+        ],
+      );
+    }
+
+    final desktopBody = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        filtersSection,
+        const SizedBox(height: 28),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 7,
+              child: PrincipalApod(onTap: () {}),
+            ),
+            const SizedBox(width: 40),
+            Expanded(
+              flex: 5,
+              child: OtherApod(onTap: () {}, embedded: true),
+            ),
+          ],
+        ),
+        const SizedBox(height: 56),
+      ],
+    );
+
+    final mobileBody = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        filtersSection,
+        const SizedBox(height: 28),
+        PrincipalApod(onTap: () {}),
+        const SizedBox(height: 32),
+        OtherApod(onTap: () {}),
+        const SizedBox(height: 40),
+      ],
+    );
 
     return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 10.0),
-                child: DayPicker(),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 20.0),
-                child: MonthSlider(),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: PrincipalApod(onTap: () {}),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: OtherApod(onTap: () {}),
-              ),
-            ],
-          ),
-        );
-
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: MaxWidthContainer(
+        child: isDesktop ? desktopBody : mobileBody,
+      ),
+    );
   }
 }

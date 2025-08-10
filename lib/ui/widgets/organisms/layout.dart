@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/ui/widgets/organisms/app_bar.dart';
-import 'package:nasa_apod/ui/widgets/organisms/nav_bar.dart';
+import 'package:nasa_apod/ui/widgets/organisms/adaptive_navigation.dart';
+import 'package:nasa_apod/ui/responsive/responsive.dart';
 
 
 class Layout extends StatelessWidget {
@@ -12,45 +13,53 @@ class Layout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = context.isDesktop;
+    final bodyContent = MaxWidthContainer(child: child);
     return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: OwnAppBar(),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: isDesktop ? const SizedBox.shrink() : const OwnAppBar(),
       ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Stack(
-          children: [
-            // Contenido principal con padding inferior para no ser tapado
-            Positioned.fill(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 40.0),
-                  child: SingleChildScrollView(child: child),
-                ),
-              ),
-            ),
-            // NavBar flotante
-            if (!hideNavBar)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Center(
-                  child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: SizedBox(
-                    width: 420,
-                    child: OwnNavBar(
-                      currentIndex: currentIndex,
-                      onTap: onNavTap,
+        child: isDesktop
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!hideNavBar) AdaptiveNavigation(currentIndex: currentIndex, onTap: onNavTap),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(bottom: 32, top: 16),
+                      child: bodyContent,
                     ),
                   ),
-                ),
+                ],
+              )
+            : Stack(
+                children: [
+                  Positioned.fill(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
+                      child: bodyContent,
+                    ),
+                  ),
+                  if (!hideNavBar)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: SizedBox(
+                          width: 420,
+                          child: AdaptiveNavigation(
+                            currentIndex: currentIndex,
+                            onTap: onNavTap,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

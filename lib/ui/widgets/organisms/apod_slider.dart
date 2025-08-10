@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/apod_button.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_button.dart';
-// Asegúrate de importar tu bloc
+// LEGACY: Este slider se mantiene para experiencia móvil horizontal.
+// En escritorio / pantallas anchas se utiliza ahora ApodCollection (grid adaptativo).
 
 class ApodSlider extends StatefulWidget {
   const ApodSlider({super.key});
@@ -35,13 +36,14 @@ class _ApodSliderState extends State<ApodSlider> {
                   final apodData = state.multipleApodData[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    
-                    child:apodData["url"] != null? ApodButton(
-                      image: apodData['url'],
-                      title: apodData['title'],
-                      date: apodData['date'],
-                      author: apodData['copyright'] ?? 'Nasa',
-                    ): const SkeletonApodButton(),
+                    child: apodData["url"] != null
+                        ? ApodButton(
+                            image: apodData['url'],
+                            title: apodData['title'],
+                            date: apodData['date'],
+                            author: apodData['copyright'] ?? 'Nasa',
+                          )
+                        : const SkeletonApodButton(),
                   );
                 },
                 itemCount: state.multipleApodData.length,
@@ -62,11 +64,11 @@ class _ApodSliderState extends State<ApodSlider> {
             ),
           );
         } else {
-          // Error visual moderno
+          // Error visual
           return SizedBox(
             height: 210,
             child: ListView.separated(
-                padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.only(right: 8),
               separatorBuilder: (context, index) => const SizedBox(width: 14),
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {

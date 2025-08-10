@@ -8,6 +8,7 @@ import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nasa_apod/utils/language.dart';
+import 'package:nasa_apod/ui/responsive/responsive.dart';
 
 class SettingsView extends StatefulWidget {
   final AuthService authService;
@@ -53,38 +54,46 @@ class _SettingsViewState extends State<SettingsView> {
     final i10n = AppLocalizations.of(context)!;
     final currentLanguage = localeProvider.selectedLanguage;
 
-    return  SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            TitleArea(text: i10n.appeareance),
-            const SizedBox(height: 16),
-            _SettingsCard(
-              child: ListTile(
-                leading: Icon(isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, color: Theme.of(context).colorScheme.primary),
-                title: Text(i10n.darkMode),
-                trailing: Switch(
-                  value: isDark,
-                  onChanged: (value) {
-                    themeProvider.toggleTheme();
-                  },
-                  inactiveThumbColor: Theme.of(context).colorScheme.primary.withAlpha(77),
-                  activeColor: Theme.of(context).colorScheme.primary,
-                ),
+    return SingleChildScrollView(
+        child: MaxWidthContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          TitleArea(text: i10n.appeareance),
+          const SizedBox(height: 16),
+          _SettingsCard(
+            child: ListTile(
+              leading: Icon(
+                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                  color: Theme.of(context).colorScheme.primary),
+              title: Text(i10n.darkMode),
+              trailing: Switch(
+                value: isDark,
+                onChanged: (value) {
+                  themeProvider.toggleTheme();
+                },
+                inactiveThumbColor: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withAlpha(77),
+                activeColor: Theme.of(context).colorScheme.primary,
               ),
             ),
-            const SizedBox(height: 32),
-            TitleArea(text: i10n.language),
+          ),
+          const SizedBox(height: 32),
+          TitleArea(text: i10n.language),
             const SizedBox(height: 16),
-            _SettingsCard(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: Language.values.map((lang) {
-                    final isSelected = lang.localeValue == currentLanguage;
-                    return GestureDetector(
+          _SettingsCard(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: Language.values.map((lang) {
+                  final isSelected = lang.localeValue == currentLanguage;
+                  return MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
                       onTap: () {
                         if (!isSelected) {
                           localeProvider.setLocale(lang.localeValue);
@@ -92,67 +101,95 @@ class _SettingsViewState extends State<SettingsView> {
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.15) : Colors.transparent,
+                          color: isSelected
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.15)
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.withOpacity(0.3),
+                            color: isSelected
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.grey.withOpacity(0.3),
                             width: isSelected ? 2 : 1,
                           ),
                         ),
                         child: Row(
                           children: [
-                            Text(lang.flag, style: const TextStyle(fontSize: 20)),
+                            Text(lang.flag,
+                                style: const TextStyle(fontSize: 20)),
                             const SizedBox(width: 8),
-                            Text(lang.name, style: TextStyle(
-                              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            )),
+                            Text(lang.name,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                )),
                           ],
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
-            const SizedBox(height: 32),
-            TitleArea(text: i10n.account),
-            const SizedBox(height: 16),
-            _SettingsCard(
-              child: ListTile(
-                leading: Icon(isLoggedIn ? Icons.logout_rounded : Icons.login_rounded, color: Theme.of(context).colorScheme.primary),
-                title: Text(isLoggedIn ? i10n.logout : i10n.login),
-                onTap: isLoggedIn
-                    ? handleLogout
-                    : () => Navigator.pushNamed(context, '/login'),
-              ),
+          ),
+          const SizedBox(height: 32),
+          TitleArea(text: i10n.account),
+          const SizedBox(height: 16),
+          _SettingsCard(
+            child: ListTile(
+              leading: Icon(
+                  isLoggedIn
+                      ? Icons.logout_rounded
+                      : Icons.login_rounded,
+                  color: Theme.of(context).colorScheme.primary),
+              title: Text(isLoggedIn ? i10n.logout : i10n.login),
+              onTap: isLoggedIn
+                  ? handleLogout
+                  : () => Navigator.pushNamed(context, '/login'),
             ),
-            const SizedBox(height: 12),
-         
-            const SizedBox(height: 32),
-            TitleArea(text: i10n.extras),
-            const SizedBox(height: 16),
-            _SettingsCard(
-              child: ListTile(
-                leading: Icon(Icons.notifications_active_rounded, color: Theme.of(context).colorScheme.onSurface),
-                title: Text(i10n.diariesNotification, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                trailing: const _ComingSoonChip(),
-              ),
+          ),
+          const SizedBox(height: 12),
+          const SizedBox(height: 32),
+          TitleArea(text: i10n.extras),
+          const SizedBox(height: 16),
+          _SettingsCard(
+            child: ListTile(
+              leading: Icon(Icons.notifications_active_rounded,
+                  color: Theme.of(context).colorScheme.onSurface),
+              title: Text(i10n.diariesNotification,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface)),
+              trailing: const _ComingSoonChip(),
             ),
-            const SizedBox(height: 16),
-            _SettingsCard(
-              child: ListTile(
-                    leading: Icon(Icons.download_for_offline_rounded, color: Theme.of(context).colorScheme.onSurface),
-                    title: Text(i10n.qualityDownload, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                trailing: const _ComingSoonChip(),
-              ),
+          ),
+          const SizedBox(height: 16),
+          _SettingsCard(
+            child: ListTile(
+              leading: Icon(Icons.download_for_offline_rounded,
+                  color: Theme.of(context).colorScheme.onSurface),
+              title: Text(i10n.qualityDownload,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface)),
+              trailing: const _ComingSoonChip(),
             ),
-            const SizedBox(height: 24),
-          ],
-        ))
-        ;
+          ),
+          const SizedBox(height: 40),
+        ],
+      ),
+    ));
   }
 }
 
