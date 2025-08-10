@@ -1,35 +1,26 @@
 {
-    "name": "flutter_application_1",
-    "short_name": "flutter_application_1",
+    "name": "APPOD - Astronomy Picture of the Day",
+    "short_name": "APPOD",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0A0E14",
+    "theme_color": "#1A1F2A",
+    "description": "APPOD: Explora la Imagen Astronómica del Día (APOD) de la NASA con historial, favoritos y experiencia rápida.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
-        {
-            "src": "icons/Icon-192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/Icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/Icon-maskable-192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "maskable"
-        },
-        {
-            "src": "icons/Icon-maskable-512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-        }
+        { "src": "icons/appod-48.png", "sizes": "48x48", "type": "image/png" },
+        { "src": "icons/appod-72.png", "sizes": "72x72", "type": "image/png" },
+        { "src": "icons/appod-96.png", "sizes": "96x96", "type": "image/png" },
+        { "src": "icons/appod-128.png", "sizes": "128x128", "type": "image/png" },
+        { "src": "icons/appod-144.png", "sizes": "144x144", "type": "image/png" },
+        { "src": "icons/appod-152.png", "sizes": "152x152", "type": "image/png" },
+        { "src": "icons/appod-180.png", "sizes": "180x180", "type": "image/png" },
+        { "src": "icons/appod-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "icons/appod-256.png", "sizes": "256x256", "type": "image/png" },
+        { "src": "icons/appod-384.png", "sizes": "384x384", "type": "image/png" },
+        { "src": "icons/appod-512.png", "sizes": "512x512", "type": "image/png" },
+        { "src": "icons/appod-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "icons/appod-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
     ]
 }

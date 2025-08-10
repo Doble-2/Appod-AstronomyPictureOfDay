@@ -1,6 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
+<!DOCTYPE html><html><head>
+  <link rel="preload" href="/assets/fonts/nasalization%20rg.ttf" as="font" type="font/ttf" crossorigin="">
+  <link rel="canonical" href="/">
+  <meta name="theme-color" content="#111111">
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
@@ -18,21 +19,76 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Astro Photography of the Day">
+  <meta name="description" content="APOD no oficial: Explora la Imagen Astronómica del Día de la NASA con traducción, historial y favoritos.">
+  <meta name="keywords" content="NASA, APOD, astronomía, espacio, imagen del día, cosmos, telescopio, galaxia, estrellas">
+  <meta name="author" content="APPOD">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="APPOD - Astronomy Picture of the Day">
+  <meta property="og:description" content="Explora y guarda la Imagen Astronómica del Día (APOD) con una experiencia optimizada para web y móvil.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/icons/Icon-512.png">
+  <meta property="og:url" content="/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="APPOD - Astronomy Picture of the Day">
+  <meta name="twitter:description" content="Explora la Imagen Astronómica del Día de la NASA: historial, favoritos y más.">
+  <meta name="twitter:image" content="/icons/Icon-512.png">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Astro Photography of the Day">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="preconnect" href="https://api.nasa.gov" crossorigin="">
+  <link rel="preconnect" href="https://images-api.nasa.gov" crossorigin="">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="/wormLogo.png">
+  <link rel="icon" type="image/svg+xml" href="/wormLogo.svg">
+  <link rel="alternate" href="/" hreflang="es">
 
-  <title>APPOD</title>
+  <title>APPOD | NASA Astronomy Picture of the Day en Español</title>
   <link rel="manifest" href="manifest.json">
+  <style id="splash-screen-style">
+    html, body { height:100%; margin:0; }
+    body { background:#F5F6FA; font-family: 'Inter', system-ui, Arial, sans-serif; }
+    @media (prefers-color-scheme: dark){ body { background:#0A0E14; } }
+    .splash { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:9999; overflow:hidden; background:linear-gradient(135deg,#F5F6FA 0%,#E6E9F0 100%); }
+    @media (prefers-color-scheme: dark){ .splash { background:radial-gradient(circle at 30% 30%,#1A1F2A 0%,#0A0E14 70%); } }
+    .splash.fade-out { opacity:0; transition:opacity .45s ease; }
+    .splash-content { text-align:center; animation:fadeIn .6s ease both, float 5s ease-in-out infinite; }
+    .splash-content .logo { width:min(180px,40vw); height:auto; filter:drop-shadow(0 4px 12px rgba(0,0,0,.25)); animation:scaleIn .7s cubic-bezier(.4,0,.2,1) both; }
+  .tagline { margin:1.2rem 0 .75rem; font-size:clamp(1.05rem,2.2vw,1.35rem); letter-spacing:.5px; font-weight:500; background:linear-gradient(90deg,#3391FF,#00C6B5); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .loader { width:54px; height:4px; border-radius:2px; background:rgba(0,0,0,0.08); margin:0 auto; position:relative; overflow:hidden; }
+    .loader::before { content:""; position:absolute; inset:0; width:30%; background:linear-gradient(90deg,#3391FF,#00C6B5); animation:loader 1.1s ease-in-out infinite; }
+    @media (prefers-color-scheme: dark){ .loader { background:rgba(255,255,255,0.12);} }
+    @keyframes loader { 0%{transform:translateX(-10%);} 50%{transform:translateX(260%);} 100%{transform:translateX(-10%);} }
+    @keyframes fadeIn { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+    @keyframes scaleIn { 0%{transform:scale(.88); opacity:0;} 60%{transform:scale(1.04);} 100%{transform:scale(1); opacity:1;} }
+    @keyframes float { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
+    .no-motion * { animation:none!important; }
+    @media (prefers-reduced-motion: reduce){ .splash-content, .loader::before { animation:none!important; } }
+  </style>
+  <script id="splash-screen-script">
+    function removeSplashFromWeb(){
+      const s=document.getElementById('custom-splash');
+      if(!s) return;
+      s.classList.add('fade-out');
+      setTimeout(()=>{ s.remove(); },480);
+    }
+    // Fallback si Flutter tarda demasiado
+    setTimeout(()=>{ removeSplashFromWeb(); }, 8000);
+  </script>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
 </head>
 <body>
+  <div id="custom-splash" class="splash">
+    <div class="splash-content">
+      <img src="/assets/wormLogo.svg" alt="APPOD" class="logo" onerror="this.onerror=null;this.src='/wormLogo.png'"/>
+      <h1 class="tagline">Explorando el Universo Diario</h1>
+      <div class="loader" aria-label="Cargando"></div>
+    </div>
+  </div>
   <script src="flutter_bootstrap.js" async></script>
-</body>
-</html>
+
+
+</body></html>
