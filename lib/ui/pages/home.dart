@@ -74,7 +74,7 @@ class _HomeViewState extends State<HomeView> {
         const SizedBox(height: 40),
         // Otros APODs debajo, usando estilo embebido (GlassPanel)
         OtherApod(onTap: () {}, embedded: true),
-        const SizedBox(height: 56),
+        const SizedBox(height: 120),
       ],
     );
 
