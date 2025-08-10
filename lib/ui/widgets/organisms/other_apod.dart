@@ -48,7 +48,7 @@ class OtherApod extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      padding: context.isDesktop ? const EdgeInsets.symmetric(vertical: 40) : EdgeInsets.zero,
       child: content,
     );
   }

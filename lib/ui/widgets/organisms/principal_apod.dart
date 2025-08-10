@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
+import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
@@ -32,7 +33,7 @@ class _PrincipalApodState extends State<PrincipalApod> {
     return BlocBuilder<ApodBloc, ApodState>(
       builder: (context, state) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+          padding: context.isDesktop ? const EdgeInsets.symmetric(vertical: 40.0) : EdgeInsets.zero,
           child: AnimatedOpacity(
             opacity: 1.0,
             duration: const Duration(milliseconds: 700),

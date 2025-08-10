@@ -55,7 +55,7 @@ class _HomeViewState extends State<HomeView> {
           children: [
             DayPicker(),
           Padding(
-            padding: EdgeInsets.only(top: 20.0),
+            padding:  EdgeInsets.symmetric(vertical: 20.0),
             child: MonthSlider(),
           ),
         ],
@@ -68,13 +68,10 @@ class _HomeViewState extends State<HomeView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         filtersSection,
-        const SizedBox(height: 28),
         // APOD principal grande centrado
         PrincipalApod(onTap: () {}),
-        const SizedBox(height: 40),
         // Otros APODs debajo, usando estilo embebido (GlassPanel)
         OtherApod(onTap: () {}, embedded: true),
-        const SizedBox(height: 120),
       ],
     );
 
