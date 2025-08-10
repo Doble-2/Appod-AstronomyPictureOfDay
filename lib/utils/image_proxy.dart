@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:nasa_apod/data/nasa.dart';
 
 /// Utilidad para mitigar problemas CORS en Flutter Web con imágenes remotas.
 ///
@@ -20,13 +21,30 @@ import 'package:flutter/foundation.dart';
 /// ```
 ///
 /// Si no se define IMAGE_PROXY o no estamos en web, se retorna la URL original.
-const String _kImageProxy = String.fromEnvironment('IMAGE_PROXY', defaultValue: '');
+// Variable de entorno esperada: IMAGE_PROXY_BASE_URL
+// Ej: --dart-define=IMAGE_PROXY_BASE_URL=https://proxycp.onrender.com/proxy-img?url=
+// Se prioriza la variable compile-time directa y como respaldo ApiConstants.imageProxyBaseUrl
+const String _envImageProxy = String.fromEnvironment('IMAGE_PROXY_BASE_URL', defaultValue: '');
+
+String get _kImageProxyBase {
+  // Si se pasó por --dart-define gana esa.
+  if (_envImageProxy.isNotEmpty) return _envImageProxy;
+  // Respaldo (no debería cambiar en runtime)
+  return ApiConstants.imageProxyBaseUrl;
+}
 
 String proxiedImageUrl(String url) {
   if (!kIsWeb) return url;
-  if (_kImageProxy.isEmpty) return url;
-  if (_kImageProxy.contains('?')) {
-    return '$_kImageProxy${Uri.encodeComponent(url)}';
+  final base = _kImageProxyBase;
+  if (base.isEmpty) return url;
+  // Si termina en '=' (caso ?url=) concatenamos la URL codificada
+  if (base.endsWith('=')) {
+    return '$base${Uri.encodeComponent(url)}';
   }
-  return '$_kImageProxy${Uri.encodeFull(url)}';
+  // Si contiene '?' pero no termina en '=' asumimos que el backend espera URI codificada al final
+  if (base.contains('?')) {
+    return '$base${Uri.encodeComponent(url)}';
+  }
+  // Caso base: simple concatenación (asegurar slash si falta)
+  return '$base${base.endsWith('/') ? '' : '/'}${Uri.encodeFull(url)}';
 }
