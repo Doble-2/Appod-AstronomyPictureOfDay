@@ -21,12 +21,21 @@ class ApodView extends StatefulWidget {
 
 class _ApodViewState extends State<ApodView> {
   bool _isLogged = false;
+  List<String> _favoriteDates = [];
+
+  Future<void> _loadFavorites() async {
+    final favs = await AuthService().getFavorites();
+    setState(() {
+      _favoriteDates = List<String>.from(favs);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     context.read<ApodBloc>().add(FetchApod());
     _checkAuthentication();
+    _loadFavorites();
   }
 
   Future<void> _checkAuthentication() async {
@@ -76,6 +85,7 @@ class _ApodViewState extends State<ApodView> {
           } else if (state.status == ApodStatus.success && state.apodData != null) {
             final apod = state.apodData!;
             final isImage = apod["media_type"] == "image";
+            final isFavorite = _favoriteDates.contains(apod['date']);
 
             void translateExplanation() async {
               if (translatedExplanation != null) return;
@@ -193,10 +203,41 @@ class _ApodViewState extends State<ApodView> {
                                           if (_isLogged)
                                             Bubble(
                                               child: IconButton(
-                                                icon: const Icon(Icons.favorite_border_rounded),
-                                                tooltip: i10n.addToFavorites,
-                                                onPressed: () {
-                                                  // Lógica para favoritos
+                                                icon: Icon(
+                                                  isFavorite
+                                                      ? Icons.favorite_rounded
+                                                      : Icons.favorite_border_rounded,
+                                                  color: isFavorite ? Colors.red : null,
+                                                ),
+                                                tooltip: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
+                                                onPressed: () async {
+                                                  if (isFavorite) {
+                                                    await AuthService().removeFavorite(apod['date']);
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        _favoriteDates.remove(apod['date']);
+                                                      });
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(i10n.removeFromFavorites),
+                                                          duration: const Duration(seconds: 2),
+                                                        ),
+                                                      );
+                                                    }
+                                                  } else {
+                                                    await AuthService().addFavorite(apod['date']);
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        _favoriteDates.add(apod['date']);
+                                                      });
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(i10n.addToFavorites),
+                                                          duration: const Duration(seconds: 2),
+                                                        ),
+                                                      );
+                                                    }
+                                                  }
                                                 },
                                               ),
                                             ),
