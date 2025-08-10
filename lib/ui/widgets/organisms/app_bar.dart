@@ -7,7 +7,13 @@ class OwnAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.transparent,
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            right: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
+          ),
+        ),
+      ),
       title: Text(
         'APPOD',
         style: Theme.of(context).textTheme.headlineMedium?.copyWith(

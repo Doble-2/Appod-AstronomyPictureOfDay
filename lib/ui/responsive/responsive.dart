@@ -27,10 +27,10 @@ class MaxWidthContainer extends StatelessWidget {
   const MaxWidthContainer({super.key, required this.child, this.maxWidth = 1200, this.alignment = Alignment.topCenter});
 
   EdgeInsets _horizontalPadding(double width) {
-    if (width < AppBreakpoints.sm) return const EdgeInsets.symmetric(horizontal: 16);
-    if (width < AppBreakpoints.md) return const EdgeInsets.symmetric(horizontal: 24);
-    if (width < AppBreakpoints.lg) return const EdgeInsets.symmetric(horizontal: 32);
-    return const EdgeInsets.symmetric(horizontal: 48);
+    if (width < AppBreakpoints.sm) return const EdgeInsets.symmetric(horizontal: 8);
+    if (width < AppBreakpoints.md) return const EdgeInsets.symmetric(horizontal: 12);
+    if (width < AppBreakpoints.lg) return const EdgeInsets.symmetric(horizontal: 16);
+    return const EdgeInsets.symmetric(horizontal: 24);
   }
 
   @override

@@ -16,9 +16,9 @@ class Layout extends StatelessWidget {
     final isDesktop = context.isDesktop;
     final bodyContent = MaxWidthContainer(child: child);
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: isDesktop ? const SizedBox.shrink() : const OwnAppBar(),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child:  OwnAppBar(),
       ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(

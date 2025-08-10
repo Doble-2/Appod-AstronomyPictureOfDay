@@ -6,7 +6,6 @@ import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_data.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_description.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_title.dart';
-import 'package:simplytranslate/simplytranslate.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
@@ -57,7 +56,6 @@ class _ApodViewState extends State<ApodView> {
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
 
-    final st = SimplyTranslator(EngineType.google);
     int currentIndex = 0;
     void onNavTap(int value) {
       setState(() {
@@ -72,14 +70,19 @@ class _ApodViewState extends State<ApodView> {
       child: BlocBuilder<ApodBloc, ApodState>(
         builder: (context, state) {
           if (state.status == ApodStatus.loading) {
-            return const SingleChildScrollView(
+            return const _CenteredScrollable(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 16),
                   SkeletonPrincipalApodButton(),
+                  SizedBox(height: 24),
                   SkeletonTitle(),
+                  SizedBox(height: 12),
                   SkeletonData(),
+                  SizedBox(height: 24),
                   SkeletonDescription(),
+                  SizedBox(height: 40),
                 ],
               ),
             );
@@ -89,31 +92,13 @@ class _ApodViewState extends State<ApodView> {
             final isImage = apod["media_type"] == "image";
             final isFavorite = _favoriteDates.contains(apod['date']);
 
-            void translateExplanation() async {
-              if (translatedExplanation != null) return;
-              setState(() => explanationLoading = true);
-              final isWorking =
-                  await st.isSimplyInstanceWorking("st.tokhmi.xyz");
-              if (isWorking) {
-                st.setSimplyInstance = "st.tokhmi.xyz";
-                final translatedText =
-                    await st.trSimply(apod['explanation'], "en", 'es');
-                if (mounted) {
-                  setState(() {
-                    translatedExplanation = translatedText;
-                    explanationLoading = false;
-                  });
-                }
-              } else {
-                if (mounted) setState(() => explanationLoading = false);
-              }
-            }
+            // Traducción diferida eliminada (no se llamaba). Se puede reintroducir bajo demanda.
 
             return LayoutBuilder(
               builder: (context, constraints) {
-                final isWide = constraints.maxWidth >= AppBreakpoints.md;
+                final isWide = constraints.maxWidth >= AppBreakpoints.md; // se mantiene solo para cálculo de altura
                 final imageWidget = Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
+                  padding: const EdgeInsets.only(top: 24.0),
                   child: Stack(
                     children: [
                       GestureDetector(
@@ -167,35 +152,28 @@ class _ApodViewState extends State<ApodView> {
                               }
                             : null,
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(24.0),
-                          child: isImage
-                              ? Image.network(
-                                  proxiedImageUrl(apod['url']),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: isWide
-                                      ? (constraints.maxWidth * 0.45 / (16 / 9))
-                                          .clamp(260, 520)
-                                      : 400,
-                                  loadingBuilder: (context, child, progress) =>
-                                      progress == null
-                                          ? child
-                                          : const SkeletonPrincipalApodButton(),
-                                  errorBuilder: (context, error, stack) =>
-                                      const Center(
-                                          child:
-                                              Text('Error al cargar imagen')),
-                                )
-                              : AspectRatio(
-                                  aspectRatio: 16 / 9,
-                                  child: Container(
+                          borderRadius: BorderRadius.circular(28.0),
+                          child: AspectRatio(
+                            aspectRatio: 6 / 3, // más cuadrado
+                            child: isImage
+                                ? Image.network(
+                                    proxiedImageUrl(apod['url']),
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    loadingBuilder: (context, child, progress) =>
+                                        progress == null
+                                            ? child
+                                            : const SkeletonPrincipalApodButton(),
+                                    errorBuilder: (context, error, stack) =>
+                                        const Center(child: Text('Error al cargar imagen')),
+                                  )
+                                : Container(
                                     color: Colors.black,
                                     child: const Center(
-                                      child: Icon(Icons.play_circle_outline,
-                                          color: Colors.white, size: 60),
+                                      child: Icon(Icons.play_circle_outline, color: Colors.white, size: 60),
                                     ),
                                   ),
-                                ),
+                          ),
                         ),
                       ),
                       Positioned(
@@ -322,32 +300,39 @@ class _ApodViewState extends State<ApodView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(
-                          top: isWide ? 0 : 24.0, left: 4, right: 4),
-                      child: Text(apod['title'],
-                          style: Theme.of(context).textTheme.headlineMedium),
+            padding: const EdgeInsets.only(
+              top: 24.0, left: 4, right: 4),
+                      child: Text(
+                        apod['title'],
+                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              height: 1.1,
+                            ),
+                      ),
                     ),
                     Padding(
                       padding:
                           const EdgeInsets.only(top: 16.0, left: 4, right: 4),
-                      child: Row(
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 14,
+                        runSpacing: 10,
                         children: [
-                          const Icon(Icons.calendar_today_rounded, size: 16),
-                          const SizedBox(width: 8),
-                          Text(apod['date'],
-                              style: Theme.of(context).textTheme.bodyMedium),
-                          const SizedBox(width: 24),
-                          if (apod['copyright'] != null) ...[
-                            const Icon(Icons.camera_alt_rounded, size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                apod['copyright'].replaceAll('\n', ' '),
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                          _MetaChip(
+                            icon: Icons.calendar_today_rounded,
+                            label: apod['date'],
+                          ),
+                          if (apod['copyright'] != null)
+                            _MetaChip(
+                              icon: Icons.camera_alt_rounded,
+                              label: apod['copyright'].replaceAll('\n', ' '),
+                              maxWidth: 240,
                             ),
-                          ]
+                          if (apod['media_type'] != null)
+                            _MetaChip(
+                              icon: Icons.category_rounded,
+                              label: apod['media_type'],
+                            ),
                         ],
                       ),
                     ),
@@ -355,13 +340,13 @@ class _ApodViewState extends State<ApodView> {
                       padding: const EdgeInsets.only(
                           top: 24.0, left: 4, right: 4, bottom: 16),
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 720),
+                        constraints: const BoxConstraints(maxWidth: 800),
                         child: Text(
                           translatedExplanation ?? apod['explanation'],
                           style: Theme.of(context)
                               .textTheme
                               .bodyLarge
-                              ?.copyWith(height: 1.5),
+                              ?.copyWith(height: 1.6, fontSize: 17),
                         ),
                       ),
                     ),
@@ -417,24 +402,13 @@ class _ApodViewState extends State<ApodView> {
                       ),
                   ],
                 );
-                if (isWide) {
-                  return SingleChildScrollView(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(flex: 5, child: imageWidget),
-                        const SizedBox(width: 32),
-                        Flexible(flex: 5, child: metaAndDescription),
-                      ],
-                    ),
-                  );
-                }
-                return SingleChildScrollView(
+                return _CenteredScrollable(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       imageWidget,
                       metaAndDescription,
+                      const SizedBox(height: 48),
                     ],
                   ),
                 );
@@ -446,6 +420,73 @@ class _ApodViewState extends State<ApodView> {
           }
         },
       ),
+    );
+  }
+}
+
+class _MetaChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final double? maxWidth;
+  const _MetaChip({required this.icon, required this.label, this.maxWidth});
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Text(
+      label,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+    );
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16),
+        const SizedBox(width: 6),
+        Flexible(child: text),
+      ],
+    );
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth ?? 180),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.55),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: content,
+      ),
+    );
+  }
+}
+
+class _CenteredScrollable extends StatelessWidget {
+  final Widget child;
+  const _CenteredScrollable({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const maxWidth = 1100.0;
+        final horizontalPadding = constraints.maxWidth > maxWidth ? 32.0 : 16.0;
+        return SingleChildScrollView(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: maxWidth),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
