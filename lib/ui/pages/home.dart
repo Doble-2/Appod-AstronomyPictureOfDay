@@ -50,21 +50,16 @@ class _HomeViewState extends State<HomeView> {
         ],
       );
     } else {
-      filtersSection = const Padding(
-        padding: EdgeInsets.only(bottom: 16.0),
-        child: Column(
+      filtersSection = const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.only(top: 10.0),
-              child: DayPicker(),
-          ),
+            DayPicker(),
           Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: MonthSlider(),
           ),
         ],
-      ),
+      
       );
     }
 

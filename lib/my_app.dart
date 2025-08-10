@@ -51,7 +51,7 @@ class MyAppState extends State<MyApp> {
               colorScheme: const ColorScheme.light(
                 primary: Color(0xFF3391FF),
                 secondary: Color(0xFF00C6B5),
-                surface: Color(0xFFF5F6FA),
+                surface: Color(0xFFFFFFFF),
                 onSecondary: Colors.white,
                 onSurface: Color(0xFF0A0E14),
                 error: Color(0xFFFF4D4D),
