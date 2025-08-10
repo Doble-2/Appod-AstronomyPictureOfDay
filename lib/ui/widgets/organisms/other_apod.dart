@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:nasa_apod/ui/widgets/organisms/apod_collection.dart';
-import 'package:nasa_apod/ui/widgets/atoms/glass_panel.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 
 class OtherApod extends StatelessWidget {
@@ -32,15 +31,24 @@ class OtherApod extends StatelessWidget {
       ),
     );
 
+    // Glassmorphism eliminado: usar contenedor plano opcional en desktop
     if (embedded && context.isDesktop) {
-      return GlassPanel(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
+      return Container(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.15),
+            width: 1,
+          ),
+        ),
         child: content,
       );
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: content,
     );
   }

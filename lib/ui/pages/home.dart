@@ -65,25 +65,17 @@ class _HomeViewState extends State<HomeView> {
       );
     }
 
+    // Desktop ahora adopta un layout vertical similar a mobile para dar más protagonismo al APOD principal.
     final desktopBody = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         filtersSection,
         const SizedBox(height: 28),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 7,
-              child: PrincipalApod(onTap: () {}),
-            ),
-            const SizedBox(width: 40),
-            Expanded(
-              flex: 5,
-              child: OtherApod(onTap: () {}, embedded: true),
-            ),
-          ],
-        ),
+        // APOD principal grande centrado
+        PrincipalApod(onTap: () {}),
+        const SizedBox(height: 40),
+        // Otros APODs debajo, usando estilo embebido (GlassPanel)
+        OtherApod(onTap: () {}, embedded: true),
         const SizedBox(height: 56),
       ],
     );

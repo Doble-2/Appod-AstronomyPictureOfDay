@@ -83,7 +83,8 @@ class _ApodViewState extends State<ApodView> {
                 ],
               ),
             );
-          } else if (state.status == ApodStatus.success && state.apodData != null) {
+          } else if (state.status == ApodStatus.success &&
+              state.apodData != null) {
             final apod = state.apodData!;
             final isImage = apod["media_type"] == "image";
             final isFavorite = _favoriteDates.contains(apod['date']);
@@ -91,10 +92,12 @@ class _ApodViewState extends State<ApodView> {
             void translateExplanation() async {
               if (translatedExplanation != null) return;
               setState(() => explanationLoading = true);
-              final isWorking = await st.isSimplyInstanceWorking("st.tokhmi.xyz");
+              final isWorking =
+                  await st.isSimplyInstanceWorking("st.tokhmi.xyz");
               if (isWorking) {
                 st.setSimplyInstance = "st.tokhmi.xyz";
-                final translatedText = await st.trSimply(apod['explanation'], "en", 'es');
+                final translatedText =
+                    await st.trSimply(apod['explanation'], "en", 'es');
                 if (mounted) {
                   setState(() {
                     translatedExplanation = translatedText;
@@ -130,10 +133,14 @@ class _ApodViewState extends State<ApodView> {
                                             maxScale: 4,
                                             child: Center(
                                               child: Image.network(
-                                                proxiedImageUrl(apod['hdurl'] ?? apod['url']),
+                                                proxiedImageUrl(apod['hdurl'] ??
+                                                    apod['url']),
                                                 fit: BoxFit.contain,
-                                                errorBuilder: (context, error, stack) => const Center(
-                                                    child: Text('Error al cargar imagen en alta calidad')),
+                                                errorBuilder: (context, error,
+                                                        stack) =>
+                                                    const Center(
+                                                        child: Text(
+                                                            'Error al cargar imagen en alta calidad')),
                                               ),
                                             ),
                                           ),
@@ -141,10 +148,14 @@ class _ApodViewState extends State<ApodView> {
                                             top: 16,
                                             right: 16,
                                             child: IconButton(
-                                              icon: const Icon(Icons.close, color: Colors.white, size: 30),
-                                              onPressed: () => Navigator.of(context).pop(),
+                                              icon: const Icon(Icons.close,
+                                                  color: Colors.white,
+                                                  size: 30),
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
                                               style: IconButton.styleFrom(
-                                                backgroundColor: Colors.black.withValues(alpha: 0.5),
+                                                backgroundColor: Colors.black
+                                                    .withValues(alpha: 0.5),
                                               ),
                                             ),
                                           ),
@@ -162,18 +173,26 @@ class _ApodViewState extends State<ApodView> {
                                   proxiedImageUrl(apod['url']),
                                   fit: BoxFit.cover,
                                   width: double.infinity,
-                                  height: isWide ? (constraints.maxWidth * 0.45 / (16 / 9)).clamp(260, 520) : 400,
+                                  height: isWide
+                                      ? (constraints.maxWidth * 0.45 / (16 / 9))
+                                          .clamp(260, 520)
+                                      : 400,
                                   loadingBuilder: (context, child, progress) =>
-                                      progress == null ? child : const SkeletonPrincipalApodButton(),
+                                      progress == null
+                                          ? child
+                                          : const SkeletonPrincipalApodButton(),
                                   errorBuilder: (context, error, stack) =>
-                                      const Center(child: Text('Error al cargar imagen')),
+                                      const Center(
+                                          child:
+                                              Text('Error al cargar imagen')),
                                 )
                               : AspectRatio(
                                   aspectRatio: 16 / 9,
                                   child: Container(
                                     color: Colors.black,
                                     child: const Center(
-                                      child: Icon(Icons.play_circle_outline, color: Colors.white, size: 60),
+                                      child: Icon(Icons.play_circle_outline,
+                                          color: Colors.white, size: 60),
                                     ),
                                   ),
                                 ),
@@ -196,9 +215,14 @@ class _ApodViewState extends State<ApodView> {
                                               label: i10n.downloadApod,
                                               button: true,
                                               child: IconButton(
-                                                icon: const Icon(Icons.download_rounded),
+                                                icon: const Icon(
+                                                    Icons.download_rounded),
                                                 tooltip: i10n.downloadApod,
-                                                onPressed: () => saveNetworkImage(context, apod['url'], apod['title']),
+                                                onPressed: () =>
+                                                    saveNetworkImage(
+                                                        context,
+                                                        apod['url'],
+                                                        apod['title']),
                                               ),
                                             ),
                                           ),
@@ -206,42 +230,63 @@ class _ApodViewState extends State<ApodView> {
                                         if (_isLogged)
                                           Bubble(
                                             child: Semantics(
-                                              label: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
+                                              label: isFavorite
+                                                  ? i10n.removeFromFavorites
+                                                  : i10n.addToFavorites,
                                               button: true,
                                               child: IconButton(
                                                 icon: Icon(
                                                   isFavorite
                                                       ? Icons.favorite_rounded
-                                                      : Icons.favorite_border_rounded,
-                                                  color: isFavorite ? Colors.red : null,
+                                                      : Icons
+                                                          .favorite_border_rounded,
+                                                  color: isFavorite
+                                                      ? Colors.red
+                                                      : null,
                                                 ),
                                                 tooltip: isFavorite
                                                     ? i10n.removeFromFavorites
                                                     : i10n.addToFavorites,
                                                 onPressed: () async {
                                                   if (isFavorite) {
-                                                    await AuthService().removeFavorite(apod['date']);
+                                                    await AuthService()
+                                                        .removeFavorite(
+                                                            apod['date']);
                                                     if (mounted) {
                                                       setState(() {
-                                                        _favoriteDates.remove(apod['date']);
+                                                        _favoriteDates.remove(
+                                                            apod['date']);
                                                       });
-                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
                                                         SnackBar(
-                                                          content: Text(i10n.removeFromFavorites),
-                                                          duration: const Duration(seconds: 2),
+                                                          content: Text(i10n
+                                                              .removeFromFavorites),
+                                                          duration:
+                                                              const Duration(
+                                                                  seconds: 2),
                                                         ),
                                                       );
                                                     }
                                                   } else {
-                                                    await AuthService().addFavorite(apod['date']);
+                                                    await AuthService()
+                                                        .addFavorite(
+                                                            apod['date']);
                                                     if (mounted) {
                                                       setState(() {
-                                                        _favoriteDates.add(apod['date']);
+                                                        _favoriteDates
+                                                            .add(apod['date']);
                                                       });
-                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
                                                         SnackBar(
-                                                          content: Text(i10n.addToFavorites),
-                                                          duration: const Duration(seconds: 2),
+                                                          content: Text(i10n
+                                                              .addToFavorites),
+                                                          duration:
+                                                              const Duration(
+                                                                  seconds: 2),
                                                         ),
                                                       );
                                                     }
@@ -256,12 +301,16 @@ class _ApodViewState extends State<ApodView> {
                             ),
                             const SizedBox(width: 8),
                             FloatingActionButton(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
                               tooltip: _isExpanded ? 'Cerrar' : 'Más opciones',
-                              onPressed: () => setState(() => _isExpanded = !_isExpanded),
-                              child: Icon(
-                                  _isExpanded ? Icons.close_rounded : Icons.more_horiz_rounded),
+                              onPressed: () =>
+                                  setState(() => _isExpanded = !_isExpanded),
+                              child: Icon(_isExpanded
+                                  ? Icons.close_rounded
+                                  : Icons.more_horiz_rounded),
                             ),
                           ],
                         ),
@@ -273,16 +322,20 @@ class _ApodViewState extends State<ApodView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(top: isWide ? 0 : 24.0, left: 4, right: 4),
-                      child: Text(apod['title'], style: Theme.of(context).textTheme.headlineMedium),
+                      padding: EdgeInsets.only(
+                          top: isWide ? 0 : 24.0, left: 4, right: 4),
+                      child: Text(apod['title'],
+                          style: Theme.of(context).textTheme.headlineMedium),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 16.0, left: 4, right: 4),
+                      padding:
+                          const EdgeInsets.only(top: 16.0, left: 4, right: 4),
                       child: Row(
                         children: [
                           const Icon(Icons.calendar_today_rounded, size: 16),
                           const SizedBox(width: 8),
-                          Text(apod['date'], style: Theme.of(context).textTheme.bodyMedium),
+                          Text(apod['date'],
+                              style: Theme.of(context).textTheme.bodyMedium),
                           const SizedBox(width: 24),
                           if (apod['copyright'] != null) ...[
                             const Icon(Icons.camera_alt_rounded, size: 16),
@@ -299,27 +352,67 @@ class _ApodViewState extends State<ApodView> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 24.0, left: 4, right: 4, bottom: 16),
+                      padding: const EdgeInsets.only(
+                          top: 24.0, left: 4, right: 4, bottom: 16),
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 720),
                         child: Text(
                           translatedExplanation ?? apod['explanation'],
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(height: 1.5),
                         ),
                       ),
                     ),
                     if (translatedExplanation == null)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 32, right: 4),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: explanationLoading
-                              ? const CircularProgressIndicator()
-                              : TextButton.icon(
-                                  onPressed: translateExplanation,
-                                  icon: const Icon(Icons.g_translate_rounded),
-                                  label: const Text('Traducir'),
-                                ),
+                        padding: const EdgeInsets.only( right: 4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.4),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.g_translate_rounded,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(width: 6),
+                              Builder(builder: (context) {
+                                final code = Localizations.localeOf(context).languageCode;
+                                final text = code == 'es'
+                                    ? 'Traducción automática de la descripción próximamente'
+                                    : 'Description auto-translation coming soon';
+                                return Text(
+                                  text,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11.5,
+                                    height: 1.2,
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
                         ),
                       ),
                   ],
@@ -348,7 +441,8 @@ class _ApodViewState extends State<ApodView> {
               },
             );
           } else {
-            return const Center(child: Text('No se pudieron cargar los datos.'));
+            return const Center(
+                child: Text('No se pudieron cargar los datos.'));
           }
         },
       ),

@@ -39,7 +39,7 @@ class Layout extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
+                      padding: const EdgeInsets.fromLTRB(6, 0, 6, 100),
                       child: bodyContent,
                     ),
                   ),

@@ -10,7 +10,9 @@ import 'package:nasa_apod/ui/pages/login.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key, apodUseCase});
+  final ThemeMode? initialThemeMode;
+  final Locale? initialLocale;
+  const MyApp({super.key, apodUseCase, this.initialThemeMode, this.initialLocale});
 
   @override
   State<MyApp> createState() => MyAppState();
@@ -24,13 +26,16 @@ class MyAppState extends State<MyApp> {
     // Gestión de estado solo con Provider, navegación con MaterialApp
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+  ChangeNotifierProvider(create: (_) => ThemeProvider(initial: widget.initialThemeMode)),
         ChangeNotifierProvider(create: (_) => MainScreenController()),
-        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+  ChangeNotifierProvider(create: (_) => LocaleProvider(initial: widget.initialLocale)),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           final localeProvider = Provider.of<LocaleProvider>(context);
+
+          // Espera a que ambos providers hayan cargado persistencia.
+          // Ya se inyectaron valores iniciales, no se requiere espera.
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,

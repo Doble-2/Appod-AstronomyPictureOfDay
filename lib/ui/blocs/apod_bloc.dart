@@ -20,7 +20,7 @@ class ApodState {
     required this.status,
     this.apodData,
     required String date,
-    this.multipleApodData = const [],
+  this.multipleApodData = const [],
     this.favoriteApodData = const [],
     required this.favoriteApodStatus,
     required this.multiplestatus,
@@ -75,6 +75,13 @@ class FetchMultipleApod extends ApodEvent {
   FetchMultipleApod();
 }
 
+class FetchMultipleApodSized extends ApodEvent {
+  final int count;
+  FetchMultipleApodSized(this.count);
+}
+
+// Evento de paginación eliminado
+
 class FetchFavoriteApod extends ApodEvent {
   FetchFavoriteApod();
 }
@@ -113,6 +120,17 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
       try {
         final multipleApodData =
             await _apodUseCase.getMultipleApod(state.date);
+        emit(state.copyWith(
+          multipleApodData: multipleApodData,
+          multiplestatus: ApodStatus.success,
+        ));
+      } catch (error) {
+        emit(state.copyWith(multiplestatus: ApodStatus.failed));
+      }
+    });
+    on<FetchMultipleApodSized>((event, emit) async {
+      try {
+        final multipleApodData = await _apodUseCase.getMultipleApod(state.date, count: event.count);
         emit(state.copyWith(
           multipleApodData: multipleApodData,
           multiplestatus: ApodStatus.success,
@@ -208,5 +226,6 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
         ));
       }
     });
+    // Handler de paginación eliminado
   }
 }

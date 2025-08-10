@@ -15,6 +15,7 @@ class MonthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      mouseCursor: SystemMouseCursors.click,
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: Container(

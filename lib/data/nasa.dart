@@ -32,4 +32,22 @@ class NetworkService {
     var responseData = jsonDecode(response.body);
     return responseData;
   }
+
+  Future<List<dynamic>> getApodRange(DateTime start, DateTime end) async {
+    final queryParameters = {
+      ApiConstants.keyParameter: ApiConstants.nasaKey,
+      'start_date': start.toIso8601String().split('T').first,
+      'end_date': end.toIso8601String().split('T').first,
+    };
+    final url = Uri.https(ApiConstants.nasaEndpoint, '/planetary/apod', queryParameters);
+    final response = await http.get(url, headers: {
+      HttpHeaders.accessControlAllowOriginHeader: '*',
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.acceptHeader: '*/*',
+    });
+    final body = jsonDecode(response.body);
+    if (body is List) return body;
+    // Si la API retornó un objeto (error), devolvemos lista vacía para no romper UI.
+    return [];
+  }
 }
