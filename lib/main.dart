@@ -7,7 +7,6 @@ import 'package:nasa_apod/ui/blocs/locale_bloc/locale_bloc.dart';
 import 'my_app.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 void main() async {
@@ -15,7 +14,6 @@ void main() async {
       .ensureInitialized(); // Asegúrate de que los widgets estén inicializados
   await initializeDateFormatting(); // Inicializa los datos de formato de fecha
   final networkService = NetworkService();
-  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

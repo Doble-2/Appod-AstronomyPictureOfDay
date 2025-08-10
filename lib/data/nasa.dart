@@ -2,11 +2,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// dotenv eliminado: se usarán constantes en tiempo de compilación via --dart-define
 
 class ApiConstants {
   static String nasaEndpoint = 'api.nasa.gov';
-  static String? nasaKey = dotenv.env['nasaKey'];
+  static const String nasaKey = String.fromEnvironment('NASA_KEY', defaultValue: 'DEMO_KEY');
+  static const String imageProxyBaseUrl = String.fromEnvironment('IMAGE_PROXY_BASE_URL', defaultValue: '');
   static String keyParameter = 'api_key';
   static String dateParameter = 'date';
 }

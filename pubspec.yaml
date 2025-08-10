@@ -39,7 +39,7 @@ dependencies:
   http: ^1.1.0
   flutter_bloc: ^9.1.1
   intl: any
-  flutter_dotenv: ^5.1.0
+  # flutter_dotenv eliminado: usaremos --dart-define en build web
   rive: ^0.13.13
   google_fonts: ^6.1.0
   dio: ^5.4.0
@@ -91,7 +91,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - .env
     - assets/
   #   - images/a_dot_ham.jpeg
 
