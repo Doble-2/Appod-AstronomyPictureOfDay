@@ -46,15 +46,15 @@ class _SkeletonPrincipalApodButtonState
                               Theme.of(context)
                                   .colorScheme
                                   .surface
-                                  .withValues(alpha: 0.8),
+                                  .withOpacity(0.8),
                               Theme.of(context)
                                   .colorScheme
                                   .surface
-                                  .withValues(alpha: 0.6),
+                                  .withOpacity(0.6),
                               Theme.of(context)
                                   .colorScheme
                                   .surface
-                                  .withValues(alpha: 0.4),
+                                  .withOpacity(0.4),
                             ],
                             stops: const [0.1, 0.5, 0.9],
                             begin: const Alignment(-1, -1),
@@ -68,7 +68,7 @@ class _SkeletonPrincipalApodButtonState
                             color: Theme.of(context)
                                 .colorScheme
                                 .surface
-                                .withValues(alpha: 0.5),
+                                .withOpacity(0.5),
                           ),
                         ),
                       );

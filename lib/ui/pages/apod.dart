@@ -10,7 +10,6 @@ import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
-import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/utils/image_proxy.dart';
 
 class ApodView extends StatefulWidget {
@@ -96,7 +95,6 @@ class _ApodViewState extends State<ApodView> {
 
             return LayoutBuilder(
               builder: (context, constraints) {
-                final isWide = constraints.maxWidth >= AppBreakpoints.md; // se mantiene solo para cálculo de altura
                 final imageWidget = Padding(
                   padding: const EdgeInsets.only(top: 24.0),
                   child: Stack(
@@ -139,8 +137,8 @@ class _ApodViewState extends State<ApodView> {
                                               onPressed: () =>
                                                   Navigator.of(context).pop(),
                                               style: IconButton.styleFrom(
-                                                backgroundColor: Colors.black
-                                                    .withValues(alpha: 0.5),
+                        backgroundColor: Colors.black
+                          .withOpacity(0.5),
                                               ),
                                             ),
                                           ),
@@ -359,16 +357,16 @@ class _ApodViewState extends State<ApodView> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: 0.1),
+              color: Theme.of(context)
+                .colorScheme
+                .primary
+                .withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withValues(alpha: 0.4),
+                color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withOpacity(0.4),
                               width: 1,
                             ),
                           ),

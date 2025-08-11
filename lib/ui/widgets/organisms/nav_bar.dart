@@ -19,10 +19,10 @@ class OwnNavBar extends StatelessWidget {
           height: 60,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(36),
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
+                color: Colors.black.withOpacity(0.1),
                 blurRadius: 1,
                 offset: const Offset(0, -4),
               ),
@@ -121,7 +121,7 @@ class _NavBarIconState extends State<_NavBarIcon> with SingleTickerProviderState
   Widget build(BuildContext context) {
     final color = widget.selected
         ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
+  : Theme.of(context).colorScheme.onSurface.withOpacity(0.5);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hover = true),

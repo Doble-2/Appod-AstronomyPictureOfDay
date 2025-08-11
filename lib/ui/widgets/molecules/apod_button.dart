@@ -89,8 +89,8 @@ class _ApodButtonState extends State<ApodButton> {
                       boxShadow: [
                         BoxShadow(
                           color: isDark
-                              ? Colors.black.withValues(alpha: 0.1)
-                              : Colors.black.withValues(alpha: 0.08),
+                              ? Colors.black.withOpacity(0.1)
+                              : Colors.black.withOpacity(0.08),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -131,8 +131,8 @@ class _ApodButtonState extends State<ApodButton> {
                                   borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
                                   gradient: LinearGradient(
                                     colors: [
-                                      Colors.black.withValues(alpha: 0.1),
-                                      Colors.black.withValues(alpha: 0.85),
+                                      Colors.black.withOpacity(0.1),
+                                      Colors.black.withOpacity(0.85),
                                     ],
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
@@ -150,7 +150,7 @@ class _ApodButtonState extends State<ApodButton> {
                                   Text(
                                     widget.title,
                                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                          color: Colors.white.withValues(alpha: 0.9),
+                                          color: Colors.white.withOpacity(0.9),
                                           fontWeight: FontWeight.bold,
                                         ),
                                     maxLines: 2,
