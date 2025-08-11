@@ -79,9 +79,7 @@ class _HomeViewState extends State<HomeView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         filtersSection,
-        const SizedBox(height: 28),
         PrincipalApod(onTap: () {}),
-        const SizedBox(height: 32),
         OtherApod(onTap: () {}),
       ],
     );
