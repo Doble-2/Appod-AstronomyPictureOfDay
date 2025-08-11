@@ -87,11 +87,11 @@ class _HomeViewState extends State<HomeView> {
       ],
     );
 
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      child: MaxWidthContainer(
-        child: isDesktop ? desktopBody : mobileBody,
-      ),
+    // IMPORTANTE: No envolver en otro SingleChildScrollView porque el Layout
+    // superior ya provee scroll vertical. El doble scroll en web móvil estaba
+    // capturando eventos e impidiendo el desplazamiento.
+    return MaxWidthContainer(
+      child: isDesktop ? desktopBody : mobileBody,
     );
   }
 }
