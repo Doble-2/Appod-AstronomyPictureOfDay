@@ -382,8 +382,8 @@ class _ApodViewState extends State<ApodView> {
                               Builder(builder: (context) {
                                 final code = Localizations.localeOf(context).languageCode;
                                 final text = code == 'es'
-                                    ? 'Traducción automática de la descripción próximamente'
-                                    : 'Description auto-translation coming soon';
+                                    ? 'Próximamente traducción automática de la descripción '
+                                    : 'Coming soon description auto-translation ';
                                 return Text(
                                   text,
                                   style: TextStyle(
