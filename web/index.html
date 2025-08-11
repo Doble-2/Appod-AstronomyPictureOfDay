@@ -48,6 +48,17 @@
 
   <title>APPOD | NASA Astronomy Picture of the Day en Español</title>
   <link rel="manifest" href="manifest.json">
+  <!-- Google Analytics (gTag) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-L3RE329RJF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-L3RE329RJF', {
+      page_path: window.location.pathname,
+      page_title: document.title
+    }); // Reemplaza por tu ID real
+  </script>
   <style id="splash-screen-style">
     html, body { height:100%; margin:0; }
     body { background:#F5F6FA; font-family: 'Inter', system-ui, Arial, sans-serif; }
@@ -103,7 +114,7 @@
   <div id="custom-splash" class="splash">
     <div class="splash-content">
       <div class="splash-logo">
-        <img src="assets/assets/Appod.png" alt="APPOD" class="logo" onerror="this.onerror=null;this.src='assets/assets/Appod.png'"/>
+  <img src="assets/Appod.png" alt="APPOD" class="logo" width="170" height="170" decoding="async" fetchpriority="high" onerror="this.onerror=null;this.src='assets/wormLogo.png'"/>
       </div>
       <div class="splash-center">
         <div class="loader" aria-label="Cargando"></div>
