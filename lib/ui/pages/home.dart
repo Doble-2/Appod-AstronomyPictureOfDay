@@ -83,7 +83,6 @@ class _HomeViewState extends State<HomeView> {
         PrincipalApod(onTap: () {}),
         const SizedBox(height: 32),
         OtherApod(onTap: () {}),
-        const SizedBox(height: 40),
       ],
     );
 
