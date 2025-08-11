@@ -25,7 +25,6 @@ class OtherApod extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TitleArea(text: i10n.otherApods),
-          const SizedBox(height: 10),
           const ApodCollection(),
         ],
       ),
