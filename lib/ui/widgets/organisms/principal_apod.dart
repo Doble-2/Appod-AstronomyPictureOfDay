@@ -50,7 +50,7 @@ class _PrincipalApodState extends State<PrincipalApod> {
                     curve: Curves.easeOut,
                     child: TitleArea(text:    l10n.apodToday,),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
                   PrincipalApodButton(
                     onTap: () {
                       Navigator.pushNamed(context, '/appod');

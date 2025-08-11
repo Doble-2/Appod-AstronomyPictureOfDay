@@ -25,7 +25,7 @@ class OtherApod extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TitleArea(text: i10n.otherApods),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           const ApodCollection(),
         ],
       ),
@@ -48,7 +48,7 @@ class OtherApod extends StatelessWidget {
     }
 
     return Padding(
-      padding: context.isDesktop ? const EdgeInsets.symmetric(vertical: 40) : EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(vertical: 20) ,
       child: content,
     );
   }
