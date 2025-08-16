@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:nasa_apod/provider/main_screen_controller.dart';
 
@@ -57,6 +58,13 @@ class OwnNavBar extends StatelessWidget {
                     onTap: () => Provider.of<MainScreenController>(context, listen: false)
                         .goTo(2, animation: MainScreenTransition.fade),
                   ),
+                  if (kIsWeb)
+                    _NavBarIcon(
+                      icon: Icons.download_rounded,
+                      label: 'Descargar',
+                      selected: false,
+                      onTap: () => Navigator.of(context).pushNamed('/get-app'),
+                    ),
                 ],
               ),
             ),

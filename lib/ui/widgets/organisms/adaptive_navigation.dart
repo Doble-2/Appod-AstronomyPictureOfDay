@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/ui/widgets/organisms/nav_bar.dart';
 
@@ -25,7 +27,8 @@ class _SideRail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Semantics(
+  final i10n = AppLocalizations.of(context)!;
+  return Semantics(
       label: 'Barra de navegación lateral',
       container: true,
       child: Container(
@@ -57,6 +60,13 @@ class _SideRail extends StatelessWidget {
               selected: currentIndex == 2,
               onTap: () => onTap(2),
             ),
+            if (kIsWeb)
+              _SideIcon(
+                icon: Icons.download_rounded,
+                label: i10n.getApp,
+                selected: false,
+                onTap: () => Navigator.of(context).pushNamed('/get-app'),
+              ),
             const Spacer(),
           ],
         ),

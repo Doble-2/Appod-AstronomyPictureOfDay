@@ -1,4 +1,5 @@
 {
+  "@@locale": "en",
   "apodToday": "Image of the Day",
   "otherApods": "Other Images",
   "downloadApod": "Download Image",
@@ -34,5 +35,11 @@
   "pleaseInterPassword": "Please enter your password",
   "pleaseInterValidEmail": "Please enter a valid email",
   "digitsPass": "Password must be at least 6 characters",
-  "emailAlreadyInUse": "Email is already in use"
+  "emailAlreadyInUse": "Email is already in use",
+  "getApp": "Get the app",
+  "getAppTitle": "We recommend the app",
+  "getAppIntro": "This website was originally built as an app. We recommend installing the app for the full experience.",
+  "getAppNotInPlay": "Not available on Play Store yet; coming soon.",
+  "getAppAndroidOnly": "Android only",
+  "getAppAction": "Coming soon"
 }

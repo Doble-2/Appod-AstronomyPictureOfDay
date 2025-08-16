@@ -117,4 +117,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get emailAlreadyInUse => 'El correo electrónico ya está en uso';
+
+  @override
+  String get getApp => 'Descargar app';
+
+  @override
+  String get getAppTitle => 'Recomendamos la app';
+
+  @override
+  String get getAppIntro =>
+      'Este sitio fue creado originalmente como una app. Te recomendamos instalar la app para una experiencia completa.';
+
+  @override
+  String get getAppNotInPlay =>
+      'Aún no está disponible en Play Store; estará pronto.';
+
+  @override
+  String get getAppAndroidOnly => 'Solo Android';
+
+  @override
+  String get getAppAction => 'Pronto';
 }

@@ -313,6 +313,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Email is already in use'**
   String get emailAlreadyInUse;
+
+  /// No description provided for @getApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Get the app'**
+  String get getApp;
+
+  /// No description provided for @getAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We recommend the app'**
+  String get getAppTitle;
+
+  /// No description provided for @getAppIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This website was originally built as an app. We recommend installing the app for the full experience.'**
+  String get getAppIntro;
+
+  /// No description provided for @getAppNotInPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available on Play Store yet; coming soon.'**
+  String get getAppNotInPlay;
+
+  /// No description provided for @getAppAndroidOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Android only'**
+  String get getAppAndroidOnly;
+
+  /// No description provided for @getAppAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get getAppAction;
 }
 
 class _AppLocalizationsDelegate

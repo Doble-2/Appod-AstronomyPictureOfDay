@@ -7,6 +7,7 @@ import 'package:nasa_apod/provider/main_screen_controller.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
 import 'package:nasa_apod/ui/pages/register.dart';
 import 'package:nasa_apod/ui/pages/login.dart';
+import 'package:nasa_apod/ui/pages/get_app_web.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatefulWidget {
@@ -99,6 +100,7 @@ class MyAppState extends State<MyApp> {
               '/appod': (context) => const ApodView(),
               '/register': (context) => const RegisterScreen(),
               '/login': (context) => const LoginScreen(),
+              '/get-app': (context) => const GetAppWebPage(),
             },
           );
         },

@@ -1,4 +1,5 @@
 {
+  "@@locale": "es",
   "apodToday": "Imagen del día",
   "otherApods": "Otras imágenes",
   "downloadApod": "Descargar imagen",
@@ -34,5 +35,11 @@
   "pleaseInterPassword": "Por favor, introduce tu contraseña",
   "pleaseInterValidEmail": "Por favor, introduce un correo electrónico válido",
   "digitsPass": "La contraseña debe tener al menos 6 caracteres",
-  "emailAlreadyInUse": "El correo electrónico ya está en uso"
+  "emailAlreadyInUse": "El correo electrónico ya está en uso",
+  "getApp": "Descargar app",
+  "getAppTitle": "Recomendamos la app",
+  "getAppIntro": "Este sitio fue creado originalmente como una app. Te recomendamos instalar la app para una experiencia completa.",
+  "getAppNotInPlay": "Aún no está disponible en Play Store; estará pronto.",
+  "getAppAndroidOnly": "Solo Android",
+  "getAppAction": "Pronto"
 }
