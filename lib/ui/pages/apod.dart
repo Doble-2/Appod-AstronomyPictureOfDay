@@ -137,8 +137,7 @@ class _ApodViewState extends State<ApodView> {
                                               onPressed: () =>
                                                   Navigator.of(context).pop(),
                                               style: IconButton.styleFrom(
-                        backgroundColor: Colors.black
-                          .withOpacity(0.5),
+                        backgroundColor: Colors.black.withValues(alpha: 0.5),
                                               ),
                                             ),
                                           ),
@@ -360,13 +359,13 @@ class _ApodViewState extends State<ApodView> {
               color: Theme.of(context)
                 .colorScheme
                 .primary
-                .withOpacity(0.1),
+                .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                 color: Theme.of(context)
                   .colorScheme
                   .primary
-                  .withOpacity(0.4),
+                  .withValues(alpha: 0.4),
                               width: 1,
                             ),
                           ),
@@ -450,10 +449,10 @@ class _MetaChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.55),
+          color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
             width: 1,
           ),
         ),

@@ -230,8 +230,8 @@ class _EdgeFadeButton extends StatelessWidget {
                 begin: alignment == Alignment.centerLeft ? Alignment.centerLeft : Alignment.centerRight,
                 end: alignment == Alignment.centerLeft ? Alignment.centerRight : Alignment.centerLeft,
                 colors: [
-                  (isDark ? Colors.black : Colors.white).withOpacity(0.85),
-                  (isDark ? Colors.black : Colors.white).withOpacity(0.0),
+                  (isDark ? Colors.black : Colors.white).withValues(alpha: 0.85),
+                  (isDark ? Colors.black : Colors.white).withValues(alpha: 0.0),
                 ],
               ),
             ),
@@ -239,11 +239,11 @@ class _EdgeFadeButton extends StatelessWidget {
               alignment: alignment,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),

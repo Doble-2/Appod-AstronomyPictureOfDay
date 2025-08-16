@@ -64,8 +64,8 @@ class _ApodButtonState extends State<ApodButton> {
                 shadowColor: isDark ? Colors.black : Colors.grey,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(24),
-                  splashColor: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  highlightColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                  splashColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                  highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                   onTap: () async {
                     if (widget.showRemoveButton && _isExpanded) {
                       setState(() => _isExpanded = false);
@@ -89,18 +89,18 @@ class _ApodButtonState extends State<ApodButton> {
                       boxShadow: [
                         BoxShadow(
                           color: isDark
-                              ? Colors.black.withOpacity(0.1)
-                              : Colors.black.withOpacity(0.08),
+                              ? Colors.black.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.08),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
                       ],
                       border: _hover && !isDark
                           ? Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.4),
+                color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withValues(alpha: 0.4),
                               width: 1.5,
                             )
                           : null,
@@ -131,8 +131,8 @@ class _ApodButtonState extends State<ApodButton> {
                                   borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
                                   gradient: LinearGradient(
                                     colors: [
-                                      Colors.black.withOpacity(0.1),
-                                      Colors.black.withOpacity(0.85),
+                                      Colors.black.withValues(alpha: 0.1),
+                                      Colors.black.withValues(alpha: 0.85),
                                     ],
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
@@ -149,8 +149,8 @@ class _ApodButtonState extends State<ApodButton> {
                                 children: [
                                   Text(
                                     widget.title,
-                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                          color: Colors.white.withOpacity(0.9),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Colors.white.withValues(alpha: 0.9),
                                           fontWeight: FontWeight.bold,
                                         ),
                                     maxLines: 2,

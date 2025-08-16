@@ -62,8 +62,8 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                             shadowColor: Theme.of(context).colorScheme.primary,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(24),
-                              splashColor: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                              highlightColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                              splashColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                              highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                               onTap: () {
                                 FocusScope.of(context).unfocus();
                                 context.read<ApodBloc>().add(
@@ -85,8 +85,8 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
                                     ),
                                   ],
                                   border: _hover && context.isDesktop
-                                      ? Border.all(
-                                          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    ? Border.all(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
                                           width: 1.2,
                                         )
                                       : null,

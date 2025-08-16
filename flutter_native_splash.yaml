@@ -23,13 +23,15 @@ flutter_native_splash:
 
   # The image parameter allows you to specify an image used in the splash screen.  It must be a
   # png file and should be sized for 4x pixel density.
-  image: assets/splash.png
-  image_dark: assets/splash.png
+  # Usar versión con margen para que no recorte en splash nativo
+  image: assets/Appod.png
+  image_dark: assets/Appod.png
 
   # The branding property allows you to specify an image used as branding in the splash screen.
   # It must be a png file. It is supported for Android, iOS and the Web.  For Android 12,
   # see the Android 12 section below.
-  branding: assets/wormLogo.png
+  # Quitar branding para que el splash nativo sea igual al de web (sólo logo centrado)
+  #branding: assets/wormLogo.png
 
   # To position the branding image at the bottom of the screen you can use bottom, bottomRight,
   # and bottomLeft. The default values is bottom if not specified or specified something else.
@@ -43,7 +45,7 @@ flutter_native_splash:
   #color_dark: "#042a49"
   #background_image_dark: "assets/dark-background.png"
   #image_dark: assets/splash-invert.png
-  branding_dark: assets/wormLogo.png
+  #branding_dark: assets/wormLogo.png
 
   # From Android 12 onwards, the splash screen is handled differently than in previous versions.
   # Please visit https://developer.android.com/guide/topics/ui/splash-screen
@@ -60,18 +62,20 @@ flutter_native_splash:
   color_dark_web: "#0A0E14"
 
   android_12:
-    image: assets/wormLogo.png
-    icon_background_color: "#F5F6FA"
-    image_dark: assets/wormLogo.png
-    icon_background_color_dark: "#1A1F2A"
+    image: assets/AppodMargin.png
+    image_dark: assets/AppodMargin.png
+  # Quitar fondo circular para que no recorte el logo en Android 12+
+  # icon_background_color: "#F5F6FA"
+  # icon_background_color_dark: "#0A0E14"
     #color_dark: "#042a49"
     #icon_background_color_dark: "#eeeeee"
 
   # The android, ios and web parameters can be used to disable generating a splash screen on a given
   # platform.
-  #android: false
-  #ios: false
-  #web: false
+  # No tocar Web (mantenemos splash personalizado en index.html)
+  #android: true
+  #ios: true
+  web: false
 
   # Platform specific images can be specified with the following parameters, which will override
   # the respective parameter.  You may specify all, selected, or none of these parameters:
@@ -107,13 +111,13 @@ flutter_native_splash:
   # https://developer.android.com/reference/android/view/Gravity): bottom, center,
   # center_horizontal, center_vertical, clip_horizontal, clip_vertical, end, fill, fill_horizontal,
   # fill_vertical, left, right, start, or top.
-  #android_gravity: center
+  android_gravity: center
   #
   # ios_content_mode can be one of the following iOS UIView.ContentMode (see
   # https://developer.apple.com/documentation/uikit/uiview/contentmode): scaleToFill,
   # scaleAspectFit, scaleAspectFill, center, top, bottom, left, right, topLeft, topRight,
   # bottomLeft, or bottomRight.
-  #ios_content_mode: center
+  ios_content_mode: scaleAspectFit
   #
   # web_image_mode can be one of the following modes: center, contain, stretch, and cover.
   web_image_mode: contain

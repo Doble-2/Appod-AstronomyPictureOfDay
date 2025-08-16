@@ -6,7 +6,7 @@
       href="/assets/fonts/nasalization%20rg.ttf"
       as="font"
       type="font/ttf"
-      crossorigin=""
+      crossorigin
     />
     <link rel="canonical" href="/" />
     <meta name="theme-color" content="#111111" />
@@ -43,7 +43,7 @@
       content="Explora y guarda la Imagen Astronómica del Día (APOD) con una experiencia optimizada para web y móvil."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/icons/Icon-512.png" />
+    <meta property="og:image" content="/icons/appod-512.png" />
     <meta property="og:url" content="/" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="APPOD - Astronomy Picture of the Day" />
@@ -51,7 +51,7 @@
       name="twitter:description"
       content="Explora la Imagen Astronómica del Día de la NASA: historial, favoritos y más."
     />
-    <meta name="twitter:image" content="/icons/Icon-512.png" />
+    <meta name="twitter:image" content="/icons/appod-512.png" />
 
     <!-- iOS meta tags & icons -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -60,13 +60,13 @@
       name="apple-mobile-web-app-title"
       content="Astro Photography of the Day"
     />
-    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
-    <link rel="preconnect" href="https://api.nasa.gov" crossorigin="" />
-    <link rel="preconnect" href="https://images-api.nasa.gov" crossorigin="" />
+    <link rel="apple-touch-icon" href="icons/appod-192.png" />
+    <link rel="preconnect" href="https://api.nasa.gov" crossorigin />
+    <link rel="preconnect" href="https://images-api.nasa.gov" crossorigin />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/wormLogo.png" />
-    <link rel="icon" type="image/svg+xml" href="/wormLogo.svg" />
+    <link rel="icon" type="image/png" href="/appod.png" />
+    <link rel="icon" type="image/svg+xml" href="/appod.svg" />
     <link rel="alternate" href="/" hreflang="es" />
 
     <title>APPOD | NASA Astronomy Picture of the Day en Español</title>
@@ -201,9 +201,6 @@
           box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.6);
         }
       }
-      .tagline::before {
-        display: none;
-      }
       .tagline .by-badge {
         font-size: 0.55em;
         letter-spacing: 0.9px;
@@ -337,14 +334,14 @@
       <div class="splash-content">
         <div class="splash-logo">
           <img
-            src="assets/assets/Appod.png"
+            src="assets/Appod.png"
             alt="APPOD"
             class="logo"
             width="170"
             height="170"
             decoding="async"
             fetchpriority="high"
-            onerror="this.onerror=null;this.src='assets/assets/wormLogo.png'"
+            onerror="this.onerror=null;this.src='/appod.png'"
           />
         </div>
         <div class="splash-center">

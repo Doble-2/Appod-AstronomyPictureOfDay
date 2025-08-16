@@ -104,17 +104,17 @@ class _SettingsViewState extends State<SettingsView> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.15)
+              color: isSelected
+                ? Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withValues(alpha: 0.15)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.grey.withOpacity(0.3),
+              color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.grey.withValues(alpha: 0.3),
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -218,7 +218,7 @@ class _ComingSoonChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

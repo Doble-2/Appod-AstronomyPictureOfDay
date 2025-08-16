@@ -94,7 +94,7 @@ class _FavoritesViewState extends State<FavoritesView> {
                   const SizedBox(height: 16),
                   Text(
                     'Aún no tienes favoritos',
-                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                   ),
                 ],
               ),

@@ -25,26 +25,26 @@ class GlassPanel extends StatelessWidget {
       borderRadius: radius,
       gradient: LinearGradient(
         colors: [
-          theme.colorScheme.surface.withOpacity(0.12),
-          theme.colorScheme.surfaceVariant.withOpacity(0.07),
+          theme.colorScheme.surface.withValues(alpha: 0.12),
+          theme.colorScheme.surfaceVariant.withValues(alpha: 0.07),
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
       border: Border.all(
         width: 1.2,
-        color: Colors.white.withOpacity(0.08),
+  color: Colors.white.withValues(alpha: 0.08),
         strokeAlign: BorderSide.strokeAlignOutside,
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.35),
+          color: Colors.black.withValues(alpha: 0.35),
             blurRadius: 40,
             spreadRadius: -8,
             offset: const Offset(0, 16),
         ),
         BoxShadow(
-          color: theme.colorScheme.primary.withOpacity(0.10),
+          color: theme.colorScheme.primary.withValues(alpha: 0.10),
           blurRadius: 32,
           spreadRadius: -12,
           offset: const Offset(0, 4),
@@ -63,7 +63,7 @@ class GlassPanel extends StatelessWidget {
         margin: margin,
         decoration: BoxDecoration(
           borderRadius: radius,
-          color: theme.colorScheme.surface.withOpacity(0.5),
+          color: theme.colorScheme.surface.withValues(alpha: 0.5),
         ),
         child: panel,
       );
