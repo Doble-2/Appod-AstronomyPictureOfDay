@@ -26,6 +26,9 @@ class ApodView extends StatefulWidget {
 class _ApodViewState extends State<ApodView> {
   bool _isLogged = false;
   List<String> _favoriteDates = [];
+  // Mantiene el aspect ratio real de la imagen (ancho/alto) para ajustar el contenedor en desktop
+  double? _imageAspectRatio;
+  String? _lastImageUrl;
 
   Future<void> _loadFavorites() async {
     final favs = await AuthService().getFavorites();
@@ -44,6 +47,26 @@ class _ApodViewState extends State<ApodView> {
     }
     _checkAuthentication();
     _loadFavorites();
+  }
+
+  void _ensureImageAspectRatio(String url) {
+    if (_lastImageUrl == url && _imageAspectRatio != null) return;
+    _lastImageUrl = url;
+    final stream = Image.network(url).image.resolve(const ImageConfiguration());
+    ImageStreamListener? listener;
+    listener = ImageStreamListener((info, _) {
+      final w = info.image.width.toDouble();
+      final h = info.image.height.toDouble();
+      if (w > 0 && h > 0) {
+        setState(() {
+          _imageAspectRatio = w / h;
+        });
+      }
+      stream.removeListener(listener!);
+    }, onError: (error, stackTrace) {
+      stream.removeListener(listener!);
+    });
+    stream.addListener(listener);
   }
 
   Future<void> _checkAuthentication() async {
@@ -98,6 +121,13 @@ class _ApodViewState extends State<ApodView> {
             final apod = state.apodData!;
             final isImage = apod["media_type"] == "image";
             final isFavorite = _favoriteDates.contains(apod['date']);
+            if (isImage) {
+              final imgUrl = proxiedImageUrl(apod['url']);
+              _ensureImageAspectRatio(imgUrl);
+            } else {
+              _imageAspectRatio = null; // no mantener ratio cuando es video
+              _lastImageUrl = null;
+            }
 
             // Traducción diferida eliminada (no se llamaba). Se puede reintroducir bajo demanda.
 
@@ -157,14 +187,17 @@ class _ApodViewState extends State<ApodView> {
                                 );
                               }
                             : null,
-                        child: ClipRRect(
+            child: ClipRRect(
                           borderRadius: BorderRadius.circular(28.0),
                           child: AspectRatio(
-                            aspectRatio: isDesktop ? 16 / 9 : 6 / 3,
+              aspectRatio: isDesktop
+                ? (_imageAspectRatio ?? 16 / 9)
+                : 6 / 3,
                             child: isImage
                                 ? Image.network(
-                                    proxiedImageUrl(apod['url']),
-                                    fit: BoxFit.cover,
+                  proxiedImageUrl(apod['url']),
+                  // Preferimos contener para evitar recortes si el ratio aún no está calculado
+                  fit: BoxFit.cover,
                                     width: double.infinity,
                                     loadingBuilder: (context, child, progress) =>
                                         progress == null
