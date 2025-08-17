@@ -168,7 +168,7 @@ class ApodRepositoryImpl implements ApodRepository {
     for (int i = 0; i < favoriteDates.length; i++) {
       final String date = favoriteDates[i];
       // Aquí puedes agregar la lógica para obtener los datos de APOD para cada fecha
-      final Map<String, dynamic> apodData = await _networkService.getApod(date);
+  final Map<String, dynamic> apodData = await _networkService.getApod(date);
       favoriteApodData.add(apodData);
     }
     favoriteApodData = favoriteApodData.reversed.toList();

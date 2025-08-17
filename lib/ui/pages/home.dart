@@ -6,6 +6,7 @@ import 'package:nasa_apod/ui/widgets/organisms/month_slider.dart';
 import 'package:nasa_apod/ui/widgets/organisms/other_apod.dart';
 import 'package:nasa_apod/ui/widgets/organisms/principal_apod.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -23,6 +24,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+  final i10n = AppLocalizations.of(context)!;
     final isDesktop = context.isDesktop;
 
     // Layout contract:
@@ -67,6 +69,39 @@ class _HomeViewState extends State<HomeView> {
     final desktopBody = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        BlocBuilder<ApodBloc, ApodState>(builder: (context, state) {
+          if (state.status != ApodStatus.failed && state.multiplestatus != ApodStatus.failed) {
+            return const SizedBox.shrink();
+          }
+          final isNasaDown = state.errorCode == 504;
+          return Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off_rounded, color: Theme.of(context).colorScheme.onErrorContainer),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isNasaDown ? i10n.nasaDownTitle : i10n.genericError,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => context.read<ApodBloc>().add(RefreshData()),
+                  child: Text(i10n.retry),
+                ),
+              ],
+            ),
+          );
+        }),
         filtersSection,
         // APOD principal grande centrado
         PrincipalApod(onTap: () {}),
@@ -78,6 +113,39 @@ class _HomeViewState extends State<HomeView> {
     final mobileBody = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        BlocBuilder<ApodBloc, ApodState>(builder: (context, state) {
+          if (state.status != ApodStatus.failed && state.multiplestatus != ApodStatus.failed) {
+            return const SizedBox.shrink();
+          }
+          final isNasaDown = state.errorCode == 504;
+          return Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off_rounded, color: Theme.of(context).colorScheme.onErrorContainer),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isNasaDown ? i10n.nasaDownTitle : i10n.genericError,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => context.read<ApodBloc>().add(RefreshData()),
+                  child: Text(i10n.retry),
+                ),
+              ],
+            ),
+          );
+        }),
         filtersSection,
         PrincipalApod(onTap: () {}),
         OtherApod(onTap: () {}),

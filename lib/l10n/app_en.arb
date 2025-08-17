@@ -41,5 +41,9 @@
   "getAppIntro": "This website was originally built as an app. We recommend installing the app for the full experience.",
   "getAppNotInPlay": "Not available on Play Store yet; coming soon.",
   "getAppAndroidOnly": "Android only",
-  "getAppAction": "Coming soon"
+  "getAppAction": "Coming soon",
+  "nasaDownTitle": "NASA service issues",
+  "nasaDownBody": "We can't load content because NASA services are failing (error {code}). This is outside our control. Please try again later.",
+  "retry": "Retry",
+  "genericError": "Couldn't load data."
 }

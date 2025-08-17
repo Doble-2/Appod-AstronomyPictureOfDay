@@ -137,4 +137,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get getAppAction => 'Pronto';
+
+  @override
+  String get nasaDownTitle => 'Servicio de NASA con problemas';
+
+  @override
+  String nasaDownBody(Object code) {
+    return 'No podemos cargar los contenidos porque los servicios de la NASA están fallando (error $code). Esto no depende de nosotros. Inténtalo de nuevo más tarde.';
+  }
+
+  @override
+  String get retry => 'Reintentar';
+
+  @override
+  String get genericError => 'No se pudieron cargar los datos.';
 }

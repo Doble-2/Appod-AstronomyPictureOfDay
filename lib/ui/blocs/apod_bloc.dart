@@ -15,6 +15,7 @@ class ApodState {
   final ApodStatus favoriteApodStatus;
   final String date;
   final String? errorMessage;
+  final int? errorCode;
 
   ApodState({
     required this.status,
@@ -25,6 +26,7 @@ class ApodState {
     required this.favoriteApodStatus,
     required this.multiplestatus,
     this.errorMessage,
+  this.errorCode,
   }) : date = _limitToToday(date);
 
   ApodState copyWith({
@@ -36,6 +38,7 @@ class ApodState {
     ApodStatus? favoriteApodStatus,
     String? date,
     String? errorMessage,
+    int? errorCode,
   }) {
     return ApodState(
       status: status ?? this.status,
@@ -46,6 +49,7 @@ class ApodState {
       favoriteApodStatus: favoriteApodStatus ?? this.favoriteApodStatus,
       date: date ?? this.date,
       errorMessage: errorMessage ?? this.errorMessage,
+      errorCode: errorCode ?? this.errorCode,
     );
   }
 
@@ -110,9 +114,24 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
         emit(state.copyWith(
           status: ApodStatus.success,
           apodData: apodData,
+          errorMessage: null,
+          errorCode: null,
         ));
       } catch (error) {
-        emit(state.copyWith(status: ApodStatus.failed));
+        int? code;
+        String? msg;
+        try {
+          // compatible con NetworkService.NasaApiException
+          // ignore: avoid_dynamic_calls
+          code = (error as dynamic).statusCode as int?;
+          // ignore: avoid_dynamic_calls
+          msg = (error as dynamic).message as String?;
+        } catch (_) {}
+        emit(state.copyWith(
+          status: ApodStatus.failed,
+          errorMessage: msg ?? 'Error al obtener datos',
+          errorCode: code,
+        ));
       }
     });
 
@@ -123,9 +142,21 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
         emit(state.copyWith(
           multipleApodData: multipleApodData,
           multiplestatus: ApodStatus.success,
+          errorMessage: null,
+          errorCode: null,
         ));
       } catch (error) {
-        emit(state.copyWith(multiplestatus: ApodStatus.failed));
+        int? code;
+        String? msg;
+        try {
+          code = (error as dynamic).statusCode as int?;
+          msg = (error as dynamic).message as String?;
+        } catch (_) {}
+        emit(state.copyWith(
+          multiplestatus: ApodStatus.failed,
+          errorMessage: msg ?? 'Error al obtener contenidos',
+          errorCode: code,
+        ));
       }
     });
     on<FetchMultipleApodSized>((event, emit) async {
@@ -136,7 +167,17 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           multiplestatus: ApodStatus.success,
         ));
       } catch (error) {
-        emit(state.copyWith(multiplestatus: ApodStatus.failed));
+        int? code;
+        String? msg;
+        try {
+          code = (error as dynamic).statusCode as int?;
+          msg = (error as dynamic).message as String?;
+        } catch (_) {}
+        emit(state.copyWith(
+          multiplestatus: ApodStatus.failed,
+          errorMessage: msg ?? 'Error al obtener contenidos',
+          errorCode: code,
+        ));
       }
     });
     on<FetchFavoriteApod>((event, emit) async {
@@ -149,7 +190,17 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           favoriteApodStatus: ApodStatus.success,
         ));
       } catch (error) {
-        emit(state.copyWith(favoriteApodStatus: ApodStatus.failed));
+        int? code;
+        String? msg;
+        try {
+          code = (error as dynamic).statusCode as int?;
+          msg = (error as dynamic).message as String?;
+        } catch (_) {}
+        emit(state.copyWith(
+          favoriteApodStatus: ApodStatus.failed,
+          errorMessage: msg ?? 'Error al cargar favoritos',
+          errorCode: code,
+        ));
       }
     });
     on<RefreshData>((event, emit) async {
@@ -174,9 +225,17 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           multipleApodData: multipleApodData,
         ));
       } catch (error) {
+        int? code;
+        String? msg;
+        try {
+          code = (error as dynamic).statusCode as int?;
+          msg = (error as dynamic).message as String?;
+        } catch (_) {}
         emit(state.copyWith(
           status: ApodStatus.failed,
           multiplestatus: ApodStatus.failed,
+          errorMessage: msg ?? 'Error al actualizar datos',
+          errorCode: code,
         ));
       }
     });
@@ -220,9 +279,17 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           multipleApodData: multipleApodData,
         ));
       } catch (error) {
+        int? code;
+        String? msg;
+        try {
+          code = (error as dynamic).statusCode as int?;
+          msg = (error as dynamic).message as String?;
+        } catch (_) {}
         emit(state.copyWith(
           status: ApodStatus.failed,
           multiplestatus: ApodStatus.failed,
+          errorMessage: msg ?? 'Error al cambiar de fecha',
+          errorCode: code,
         ));
       }
     });

@@ -412,8 +412,50 @@ class _ApodViewState extends State<ApodView> {
               },
             );
           } else {
-            return const Center(
-                child: Text('No se pudieron cargar los datos.'));
+            final isNasaDown = state.errorCode == 504;
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.cloud_off_rounded,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.error),
+                      const SizedBox(height: 12),
+                      Text(
+                        isNasaDown
+                            ? i10n.nasaDownTitle
+                            : i10n.genericError,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        isNasaDown
+                            ? i10n.nasaDownBody(state.errorCode ?? 504)
+                            : (state.errorMessage ?? i10n.genericError),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        onPressed: () {
+                          context.read<ApodBloc>().add(FetchApod());
+                        },
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: Text(i10n.retry),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
           }
         },
       ),

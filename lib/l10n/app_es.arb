@@ -41,5 +41,9 @@
   "getAppIntro": "Este sitio fue creado originalmente como una app. Te recomendamos instalar la app para una experiencia completa.",
   "getAppNotInPlay": "Aún no está disponible en Play Store; estará pronto.",
   "getAppAndroidOnly": "Solo Android",
-  "getAppAction": "Pronto"
+  "getAppAction": "Pronto",
+  "nasaDownTitle": "Servicio de NASA con problemas",
+  "nasaDownBody": "No podemos cargar los contenidos porque los servicios de la NASA están fallando (error {code}). Esto no depende de nosotros. Inténtalo de nuevo más tarde.",
+  "retry": "Reintentar",
+  "genericError": "No se pudieron cargar los datos."
 }

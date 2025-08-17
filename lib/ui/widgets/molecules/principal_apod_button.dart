@@ -4,6 +4,7 @@ import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/utils/image_proxy.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 
 class PrincipalApodButton extends StatefulWidget {
   final VoidCallback onTap;
@@ -22,6 +23,7 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
 
   @override
   Widget build(BuildContext context) {
+  final i10n = AppLocalizations.of(context)!;
     return BlocBuilder<ApodBloc, ApodState>(
       builder: (context, state) {
         if (state.status == ApodStatus.loading) {
@@ -180,13 +182,40 @@ class _PrincipalApodState extends State<PrincipalApodButton> {
             ),
           );
         } else {
+          final isNasaDown = state.errorCode == 504;
           return Container(
             height: 220,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
               color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+                width: 1,
+              ),
             ),
-            child: const Center(child: Text('No data available')),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cloud_off_rounded, color: Theme.of(context).colorScheme.error),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      isNasaDown ? i10n.nasaDownTitle : i10n.genericError,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextButton.icon(
+                    onPressed: () => context.read<ApodBloc>().add(FetchApod()),
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(i10n.retry),
+                  ),
+                ],
+              ),
+            ),
           );
         }
       },

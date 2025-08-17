@@ -349,6 +349,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coming soon'**
   String get getAppAction;
+
+  /// No description provided for @nasaDownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NASA service issues'**
+  String get nasaDownTitle;
+
+  /// No description provided for @nasaDownBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We can\'t load content because NASA services are failing (error {code}). This is outside our control. Please try again later.'**
+  String nasaDownBody(Object code);
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @genericError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load data.'**
+  String get genericError;
 }
 
 class _AppLocalizationsDelegate

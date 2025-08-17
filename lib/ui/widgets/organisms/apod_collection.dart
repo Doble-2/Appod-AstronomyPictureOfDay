@@ -5,6 +5,7 @@ import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/ui/widgets/molecules/apod_button.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_button.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 
 /// Colección adaptativa de APODs: lista horizontal en mobile, grid en desktop.
 class ApodCollection extends StatelessWidget {
@@ -12,6 +13,7 @@ class ApodCollection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  final i10n = AppLocalizations.of(context)!;
     return LayoutBuilder(builder: (context, constraints) {
       return BlocBuilder<ApodBloc, ApodState>(
     buildWhen: (p, c) =>
@@ -92,12 +94,27 @@ class ApodCollection extends StatelessWidget {
               ),
             );
           }
-          return Text(
-            'Error al cargar contenidos',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Theme.of(context).colorScheme.error),
+          final isNasaDown = state.errorCode == 504;
+          return Row(
+            children: [
+              Icon(Icons.cloud_off_rounded, color: Theme.of(context).colorScheme.error),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isNasaDown ? i10n.nasaDownTitle : i10n.genericError,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+              const SizedBox(width: 8),
+              TextButton.icon(
+                onPressed: () => context.read<ApodBloc>().add(FetchMultipleApod()),
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(i10n.retry),
+              ),
+            ],
           );
         },
       );

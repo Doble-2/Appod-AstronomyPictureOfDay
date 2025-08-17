@@ -134,4 +134,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get getAppAction => 'Coming soon';
+
+  @override
+  String get nasaDownTitle => 'NASA service issues';
+
+  @override
+  String nasaDownBody(Object code) {
+    return 'We can\'t load content because NASA services are failing (error $code). This is outside our control. Please try again later.';
+  }
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get genericError => 'Couldn\'t load data.';
 }
