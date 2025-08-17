@@ -61,6 +61,8 @@ dependencies:
     sdk: flutter
   equatable: ^2.0.7
   flutter_native_splash: ^2.4.6
+  youtube_player_iframe: ^5.1.2
+  url_launcher: ^6.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

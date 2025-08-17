@@ -11,6 +11,9 @@ import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 import 'package:nasa_apod/utils/image_proxy.dart';
+import 'package:nasa_apod/ui/responsive/responsive.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:url_launcher/url_launcher.dart' as ul;
 
 class ApodView extends StatefulWidget {
   final String? date; // yyyy-MM-dd, opcional
@@ -100,7 +103,8 @@ class _ApodViewState extends State<ApodView> {
 
             return LayoutBuilder(
               builder: (context, constraints) {
-                final imageWidget = Padding(
+                final isDesktop = context.isDesktop;
+                final mediaWidget = Padding(
                   padding: const EdgeInsets.only(top: 24.0),
                   child: Stack(
                     children: [
@@ -156,7 +160,7 @@ class _ApodViewState extends State<ApodView> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(28.0),
                           child: AspectRatio(
-                            aspectRatio: 6 / 3, // más cuadrado
+                            aspectRatio: isDesktop ? 16 / 9 : 6 / 3,
                             child: isImage
                                 ? Image.network(
                                     proxiedImageUrl(apod['url']),
@@ -169,131 +173,141 @@ class _ApodViewState extends State<ApodView> {
                                     errorBuilder: (context, error, stack) =>
                                         const Center(child: Text('Error al cargar imagen')),
                                   )
-                                : Container(
-                                    color: Colors.black,
-                                    child: const Center(
-                                      child: Icon(Icons.play_circle_outline, color: Colors.white, size: 60),
-                                    ),
-                                  ),
+                                : _ApodVideo(url: apod['url']),
                           ),
                         ),
                       ),
+                      // Acciones: en desktop se muestran siempre; en mobile se expanden con FAB
                       Positioned(
                         bottom: 16,
                         right: 16,
-                        child: Row(
-                          children: [
-                            AnimatedSize(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              child: _isExpanded
-                                  ? Row(
-                                      children: [
-                                        if (isImage)
-                                          Bubble(
-                                            child: Semantics(
-                                              label: i10n.downloadApod,
-                                              button: true,
-                                              child: IconButton(
-                                                icon: const Icon(
-                                                    Icons.download_rounded),
-                                                tooltip: i10n.downloadApod,
-                                                onPressed: () =>
-                                                    saveNetworkImage(
-                                                        context,
-                                                        apod['url'],
-                                                        apod['title']),
-                                              ),
-                                            ),
+                        child: isDesktop
+                            ? Row(
+                                children: [
+                                  if (isImage)
+                                    Bubble(
+                                      child: Semantics(
+                                        label: i10n.downloadApod,
+                                        button: true,
+                                        child: IconButton(
+                                          icon: const Icon(Icons.download_rounded),
+                                          tooltip: i10n.downloadApod,
+                                          onPressed: () => saveNetworkImage(context, apod['url'], apod['title']),
+                                        ),
+                                      ),
+                                    ),
+                                  const SizedBox(width: 8),
+                                  if (_isLogged)
+                                    Bubble(
+                                      child: Semantics(
+                                        label: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
+                                        button: true,
+                                        child: IconButton(
+                                          icon: Icon(
+                                            isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                            color: isFavorite ? Colors.red : null,
                                           ),
-                                        const SizedBox(width: 8),
-                                        if (_isLogged)
-                                          Bubble(
-                                            child: Semantics(
-                                              label: isFavorite
-                                                  ? i10n.removeFromFavorites
-                                                  : i10n.addToFavorites,
-                                              button: true,
-                                              child: IconButton(
-                                                icon: Icon(
-                                                  isFavorite
-                                                      ? Icons.favorite_rounded
-                                                      : Icons
-                                                          .favorite_border_rounded,
-                                                  color: isFavorite
-                                                      ? Colors.red
-                                                      : null,
+                                          tooltip: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
+                                          onPressed: () async {
+                                            if (isFavorite) {
+                                              await AuthService().removeFavorite(apod['date']);
+                                              if (mounted) {
+                                                setState(() {
+                                                  _favoriteDates.remove(apod['date']);
+                                                });
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text(i10n.removeFromFavorites), duration: const Duration(seconds: 2)),
+                                                );
+                                              }
+                                            } else {
+                                              await AuthService().addFavorite(apod['date']);
+                                              if (mounted) {
+                                                setState(() {
+                                                  _favoriteDates.add(apod['date']);
+                                                });
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text(i10n.addToFavorites), duration: const Duration(seconds: 2)),
+                                                );
+                                              }
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  AnimatedSize(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    child: _isExpanded
+                                        ? Row(
+                                            children: [
+                                              if (isImage)
+                                                Bubble(
+                                                  child: Semantics(
+                                                    label: i10n.downloadApod,
+                                                    button: true,
+                                                    child: IconButton(
+                                                      icon: const Icon(Icons.download_rounded),
+                                                      tooltip: i10n.downloadApod,
+                                                      onPressed: () => saveNetworkImage(context, apod['url'], apod['title']),
+                                                    ),
+                                                  ),
                                                 ),
-                                                tooltip: isFavorite
-                                                    ? i10n.removeFromFavorites
-                                                    : i10n.addToFavorites,
-                                                onPressed: () async {
-                                                  if (isFavorite) {
-                                                    await AuthService()
-                                                        .removeFavorite(
-                                                            apod['date']);
-                                                    if (mounted) {
-                                                      setState(() {
-                                                        _favoriteDates.remove(
-                                                            apod['date']);
-                                                      });
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(i10n
-                                                              .removeFromFavorites),
-                                                          duration:
-                                                              const Duration(
-                                                                  seconds: 2),
-                                                        ),
-                                                      );
-                                                    }
-                                                  } else {
-                                                    await AuthService()
-                                                        .addFavorite(
-                                                            apod['date']);
-                                                    if (mounted) {
-                                                      setState(() {
-                                                        _favoriteDates
-                                                            .add(apod['date']);
-                                                      });
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(i10n
-                                                              .addToFavorites),
-                                                          duration:
-                                                              const Duration(
-                                                                  seconds: 2),
-                                                        ),
-                                                      );
-                                                    }
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    )
-                                  : const SizedBox.shrink(),
-                            ),
-                            const SizedBox(width: 8),
-                            FloatingActionButton(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                              tooltip: _isExpanded ? 'Cerrar' : 'Más opciones',
-                              onPressed: () =>
-                                  setState(() => _isExpanded = !_isExpanded),
-                              child: Icon(_isExpanded
-                                  ? Icons.close_rounded
-                                  : Icons.more_horiz_rounded),
-                            ),
-                          ],
-                        ),
+                                              const SizedBox(width: 8),
+                                              if (_isLogged)
+                                                Bubble(
+                                                  child: Semantics(
+                                                    label: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
+                                                    button: true,
+                                                    child: IconButton(
+                                                      icon: Icon(
+                                                        isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                                        color: isFavorite ? Colors.red : null,
+                                                      ),
+                                                      tooltip: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
+                                                      onPressed: () async {
+                                                        if (isFavorite) {
+                                                          await AuthService().removeFavorite(apod['date']);
+                                                          if (mounted) {
+                                                            setState(() {
+                                                              _favoriteDates.remove(apod['date']);
+                                                            });
+                                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                              SnackBar(content: Text(i10n.removeFromFavorites), duration: const Duration(seconds: 2)),
+                                                            );
+                                                          }
+                                                        } else {
+                                                          await AuthService().addFavorite(apod['date']);
+                                                          if (mounted) {
+                                                            setState(() {
+                                                              _favoriteDates.add(apod['date']);
+                                                            });
+                                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                              SnackBar(content: Text(i10n.addToFavorites), duration: const Duration(seconds: 2)),
+                                                            );
+                                                          }
+                                                        }
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          )
+                                        : const SizedBox.shrink(),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  FloatingActionButton(
+                                    backgroundColor: Theme.of(context).colorScheme.primary,
+                                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                                    tooltip: _isExpanded ? 'Cerrar' : 'Más opciones',
+                                    onPressed: () => setState(() => _isExpanded = !_isExpanded),
+                                    child: Icon(_isExpanded ? Icons.close_rounded : Icons.more_horiz_rounded),
+                                  ),
+                                ],
+                              ),
                       ),
                     ],
                   ),
@@ -338,6 +352,47 @@ class _ApodViewState extends State<ApodView> {
                         ],
                       ),
                     ),
+                    if (isDesktop)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 14.0, left: 4, right: 4),
+                        child: Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            if (isImage)
+                              FilledButton.icon(
+                                onPressed: () => saveNetworkImage(context, apod['url'], apod['title']),
+                                icon: const Icon(Icons.download_rounded),
+                                label: Text(i10n.downloadApod),
+                              ),
+                            if (_isLogged)
+                              OutlinedButton.icon(
+                                onPressed: () async {
+                                  final favored = isFavorite;
+                                  if (favored) {
+                                    await AuthService().removeFavorite(apod['date']);
+                                    if (mounted) {
+                                      setState(() => _favoriteDates.remove(apod['date']));
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(i10n.removeFromFavorites), duration: const Duration(seconds: 2)),
+                                      );
+                                    }
+                                  } else {
+                                    await AuthService().addFavorite(apod['date']);
+                                    if (mounted) {
+                                      setState(() => _favoriteDates.add(apod['date']));
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(i10n.addToFavorites), duration: const Duration(seconds: 2)),
+                                      );
+                                    }
+                                  }
+                                },
+                                icon: Icon(isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded),
+                                label: Text(isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites),
+                              ),
+                          ],
+                        ),
+                      ),
                     Padding(
                       padding: const EdgeInsets.only(
                           top: 24.0, left: 4, right: 4, bottom: 16),
@@ -405,14 +460,23 @@ class _ApodViewState extends State<ApodView> {
                   ],
                 );
                 return _CenteredScrollable(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      imageWidget,
-                      metaAndDescription,
-                      const SizedBox(height: 48),
-                    ],
-                  ),
+                  child: isDesktop
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 7, child: mediaWidget),
+                            const SizedBox(width: 28),
+                            Expanded(flex: 5, child: metaAndDescription),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            mediaWidget,
+                            metaAndDescription,
+                            const SizedBox(height: 48),
+                          ],
+                        ),
                 );
               },
             );
@@ -491,12 +555,12 @@ class _MetaChip extends StatelessWidget {
         Flexible(child: text),
       ],
     );
-    return ConstrainedBox(
+  return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: maxWidth ?? 180),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.55),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
             color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
@@ -531,6 +595,84 @@ class _CenteredScrollable extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _ApodVideo extends StatefulWidget {
+  final String url;
+  const _ApodVideo({required this.url});
+
+  @override
+  State<_ApodVideo> createState() => _ApodVideoState();
+}
+
+class _ApodVideoState extends State<_ApodVideo> {
+  late final String _url = widget.url;
+  YoutubePlayerController? _ytController;
+
+  String? _extractYouTubeId(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return null;
+    if (uri.host.contains('youtu.be')) {
+      return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+    }
+    if (uri.host.contains('youtube.com')) {
+      // watch?v=ID
+      final v = uri.queryParameters['v'];
+      if (v != null && v.isNotEmpty) return v;
+      // embed/ID
+      final idx = uri.pathSegments.indexOf('embed');
+      if (idx != -1 && uri.pathSegments.length > idx + 1) {
+        return uri.pathSegments[idx + 1];
+      }
+    }
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final ytId = _extractYouTubeId(_url);
+    if (ytId != null) {
+      _ytController = YoutubePlayerController.fromVideoId(
+        videoId: ytId,
+        params: const YoutubePlayerParams(
+          showFullscreenButton: true,
+          showControls: true,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _ytController?.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_ytController != null) {
+      return YoutubePlayer(controller: _ytController!);
+    }
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(color: Colors.black),
+        Center(
+          child: FilledButton.icon(
+            onPressed: () async {
+              final uri = Uri.tryParse(_url);
+              if (uri != null) {
+                await ul.launchUrl(uri, mode: ul.LaunchMode.externalApplication);
+              }
+            },
+            icon: const Icon(Icons.open_in_new_rounded),
+            label: const Text('Abrir video'),
+          ),
+        ),
+      ],
     );
   }
 }
