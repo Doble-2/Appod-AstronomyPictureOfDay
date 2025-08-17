@@ -50,11 +50,76 @@ class _FavoritesViewState extends State<FavoritesView> {
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
+    final isDesktop = context.isDesktop;
+
+    Widget header([int? count]) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 16, bottom: 12),
+        child: Row(
+          children: [
+            Icon(Icons.favorite_rounded, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Text(
+              i10n.favorites + (count != null ? ' ($count)' : ''),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (!isLoggedIn) {
-      return Center(
-        child: Text(
-          i10n.pleaseLoginToSeeFavorites,
-          style: const TextStyle(fontSize: 18, color: Colors.grey),
+      return Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            header(),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3), width: 1),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.lock_person_rounded, color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          i10n.pleaseLoginToSeeFavorites,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      FilledButton.icon(
+                        onPressed: () => Navigator.of(context).pushNamed('/login'),
+                        icon: const Icon(Icons.login_rounded),
+                        label: Text(i10n.login),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () => Navigator.of(context).pushNamed('/register'),
+                        icon: const Icon(Icons.person_add_rounded),
+                        label: Text(i10n.register),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -65,11 +130,13 @@ class _FavoritesViewState extends State<FavoritesView> {
         final aspect = _childAspectRatio(context);
 
         if (state.favoriteApodStatus == ApodStatus.loading) {
-          return SingleChildScrollView(
-            child: MaxWidthContainer(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: GridView.builder(
+          return Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                header(),
+                GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -78,34 +145,61 @@ class _FavoritesViewState extends State<FavoritesView> {
                     mainAxisSpacing: 20,
                     childAspectRatio: aspect,
                   ),
-                  itemCount: 8,
+                  itemCount: isDesktop ? 12 : 8,
                   itemBuilder: (context, index) => const SkeletonPrincipalApodButton(),
                 ),
-              ),
+              ],
             ),
           );
         } else if (state.favoriteApodStatus == ApodStatus.success) {
           if (state.favoriteApodData.isEmpty) {
-            return Center(
+            return Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 40),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.favorite_outline, size: 64, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Aún no tienes favoritos',
-                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                  header(0),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.favorite_outline, size: 36, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Aún no tienes favoritos',
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.75),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => Navigator.of(context).pushReplacementNamed('/home'),
+                          icon: const Icon(Icons.explore_rounded),
+                          label: const Text('Explorar'),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             );
           }
 
-          return SingleChildScrollView(
-            child: MaxWidthContainer(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16, bottom: 40),
-                child: GridView.builder(
+          return Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                header(state.favoriteApodData.length),
+                GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   padding: EdgeInsets.zero,
@@ -139,14 +233,23 @@ class _FavoritesViewState extends State<FavoritesView> {
                     );
                   },
                 ),
-              ),
+              ],
             ),
           );
         } else if (state.favoriteApodStatus == ApodStatus.failed) {
-          return Center(
-            child: Text(
-              'Error al cargar los favoritos.',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+          return Padding(
+            padding: const EdgeInsets.only(top: 24),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline_rounded, color: Theme.of(context).colorScheme.error),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Error al cargar los favoritos.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error),
+                  ),
+                ),
+              ],
             ),
           );
         } else {

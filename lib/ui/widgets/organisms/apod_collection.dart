@@ -108,12 +108,6 @@ class ApodCollection extends StatelessWidget {
                       ?.copyWith(color: Theme.of(context).colorScheme.error),
                 ),
               ),
-              const SizedBox(width: 8),
-              TextButton.icon(
-                onPressed: () => context.read<ApodBloc>().add(FetchMultipleApod()),
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(i10n.retry),
-              ),
             ],
           );
         },
