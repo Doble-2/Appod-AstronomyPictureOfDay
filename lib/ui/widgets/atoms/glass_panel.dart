@@ -26,7 +26,7 @@ class GlassPanel extends StatelessWidget {
       gradient: LinearGradient(
         colors: [
           theme.colorScheme.surface.withValues(alpha: 0.12),
-          theme.colorScheme.surfaceVariant.withValues(alpha: 0.07),
+          theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.07),
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,

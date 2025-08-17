@@ -10,6 +10,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_web_plugins/url_strategy.dart';
 Future<(ThemeMode, Locale)> _preloadPrefs() async {
   final prefs = await SharedPreferences.getInstance();
   // theme
@@ -28,6 +30,10 @@ Future<(ThemeMode, Locale)> _preloadPrefs() async {
 void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Asegúrate de que los widgets estén inicializados
+  if (kIsWeb) {
+    // Usar hash strategy para URLs estables tipo #/apod/yyyy-MM-dd
+    setUrlStrategy(const HashUrlStrategy());
+  }
   await initializeDateFormatting(); // Inicializa los datos de formato de fecha
   final (themeMode, locale) = await _preloadPrefs();
   final networkService = NetworkService();

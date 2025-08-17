@@ -211,20 +211,24 @@ class _ApodViewState extends State<ApodView> {
                                           onPressed: () async {
                                             if (isFavorite) {
                                               await AuthService().removeFavorite(apod['date']);
+                                              // ignore: use_build_context_synchronously
                                               if (mounted) {
                                                 setState(() {
                                                   _favoriteDates.remove(apod['date']);
                                                 });
+                                                // ignore: use_build_context_synchronously
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   SnackBar(content: Text(i10n.removeFromFavorites), duration: const Duration(seconds: 2)),
                                                 );
                                               }
                                             } else {
                                               await AuthService().addFavorite(apod['date']);
+                                              // ignore: use_build_context_synchronously
                                               if (mounted) {
                                                 setState(() {
                                                   _favoriteDates.add(apod['date']);
                                                 });
+                                                // ignore: use_build_context_synchronously
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   SnackBar(content: Text(i10n.addToFavorites), duration: const Duration(seconds: 2)),
                                                 );
@@ -275,6 +279,7 @@ class _ApodViewState extends State<ApodView> {
                                                             setState(() {
                                                               _favoriteDates.remove(apod['date']);
                                                             });
+                                                            // ignore: use_build_context_synchronously
                                                             ScaffoldMessenger.of(context).showSnackBar(
                                                               SnackBar(content: Text(i10n.removeFromFavorites), duration: const Duration(seconds: 2)),
                                                             );
@@ -285,6 +290,7 @@ class _ApodViewState extends State<ApodView> {
                                                             setState(() {
                                                               _favoriteDates.add(apod['date']);
                                                             });
+                                                            // ignore: use_build_context_synchronously
                                                             ScaffoldMessenger.of(context).showSnackBar(
                                                               SnackBar(content: Text(i10n.addToFavorites), duration: const Duration(seconds: 2)),
                                                             );
@@ -373,6 +379,7 @@ class _ApodViewState extends State<ApodView> {
                                     await AuthService().removeFavorite(apod['date']);
                                     if (mounted) {
                                       setState(() => _favoriteDates.remove(apod['date']));
+                                      // ignore: use_build_context_synchronously
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text(i10n.removeFromFavorites), duration: const Duration(seconds: 2)),
                                       );
@@ -381,6 +388,7 @@ class _ApodViewState extends State<ApodView> {
                                     await AuthService().addFavorite(apod['date']);
                                     if (mounted) {
                                       setState(() => _favoriteDates.add(apod['date']));
+                                      // ignore: use_build_context_synchronously
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text(i10n.addToFavorites), duration: const Duration(seconds: 2)),
                                       );

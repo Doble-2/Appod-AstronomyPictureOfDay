@@ -55,10 +55,12 @@ class _PrincipalApodState extends State<PrincipalApod> {
                     onTap: () {
                       final state = context.read<ApodBloc>().state;
                       final date = state.apodData != null ? state.apodData!['date'] as String? : null;
-                      if (date != null) {
-                        Navigator.pushNamed(context, '/apod/$date');
+            if (date != null) {
+            Navigator.of(context, rootNavigator: true)
+              .pushNamed('/apod/$date');
                       } else {
-                        Navigator.pushNamed(context, '/appod'); // compatibilidad
+            Navigator.of(context, rootNavigator: true)
+              .pushNamed('/appod'); // compatibilidad
                       }
                     },
                   ),

@@ -21,7 +21,7 @@ class NasaApiException implements Exception {
 
   @override
   String toString() =>
-      'NasaApiException(statusCode: ' + (statusCode?.toString() ?? 'null') + ', message: ' + (message ?? '') + ')';
+  'NasaApiException(statusCode: ${statusCode?.toString() ?? 'null'}, message: ${message ?? ''})';
 }
 
 class NetworkService {
@@ -48,7 +48,7 @@ class NetworkService {
         throw NasaApiException(
           statusCode: response.statusCode,
           body: response.body,
-          message: 'HTTP ' + response.statusCode.toString(),
+          message: 'HTTP ${response.statusCode}',
         );
       }
       final responseData = jsonDecode(response.body);
@@ -83,7 +83,7 @@ class NetworkService {
         throw NasaApiException(
           statusCode: response.statusCode,
           body: response.body,
-          message: 'HTTP ' + response.statusCode.toString(),
+          message: 'HTTP ${response.statusCode}',
         );
       }
       final body = jsonDecode(response.body);

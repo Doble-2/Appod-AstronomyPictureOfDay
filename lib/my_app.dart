@@ -114,23 +114,20 @@ class MyAppState extends State<MyApp> {
                 final m = now.month.toString().padLeft(2, '0');
                 final d = now.day.toString().padLeft(2, '0');
                 final today = '$y-$m-$d';
-                // Reemplaza la URL para que sea compartible
-                return MaterialPageRoute(builder: (ctx) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (Navigator.of(ctx).canPop()) {
-                      Navigator.of(ctx).pushReplacementNamed('/apod/$today');
-                    } else {
-                      Navigator.of(ctx).pushNamed('/apod/$today');
-                    }
-                  });
-                  return const SizedBox.shrink();
-                });
+                // Devuelve directamente la ruta con nombre '/apod/yyyy-MM-dd' para fijar la URL.
+                return MaterialPageRoute(
+                  settings: RouteSettings(name: '/apod/$today'),
+                  builder: (_) => ApodView(date: today),
+                );
               }
               // Ruta dinámica: /apod/yyyy-MM-dd
               final apodMatch = RegExp(r'^/apod/(\d{4}-\d{2}-\d{2})$').firstMatch(name);
               if (apodMatch != null) {
                 final date = apodMatch.group(1)!;
-                return MaterialPageRoute(builder: (_) => ApodView(date: date));
+                return MaterialPageRoute(
+                  settings: settings,
+                  builder: (_) => ApodView(date: date),
+                );
               }
               return null; // usa rutas definidas arriba
             },

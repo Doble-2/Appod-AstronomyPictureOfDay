@@ -71,8 +71,9 @@ class _ApodButtonState extends State<ApodButton> {
                       setState(() => _isExpanded = false);
                       return;
                     }
-                    context.read<ApodBloc>().add(ChangeDate(widget.date));
-                    Navigator.pushNamed(context, '/apod/${widget.date}');
+          context.read<ApodBloc>().add(ChangeDate(widget.date));
+          Navigator.of(context, rootNavigator: true)
+            .pushNamed('/apod/${widget.date}');
                   },
                   onLongPress: widget.showRemoveButton
                       ? () => setState(() => _isExpanded = !_isExpanded)

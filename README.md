@@ -1,20 +1,3 @@
-# flutter_application_1
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
 # APOD NASA (Flutter)
 
 Aplicación Flutter multiplataforma (Web, Android, Desktop) para explorar Astronomy Picture of the Day con soporte responsive, internacionalización y modo oscuro.
@@ -31,62 +14,50 @@ Aplicación Flutter multiplataforma (Web, Android, Desktop) para explorar Astron
 
 `lib/ui/responsive/responsive.dart` Breakpoints y `MaxWidthContainer`. `lib/utils/image_proxy.dart` Utilidad para proxificar imágenes en Web. `lib/ui/widgets/organisms/` Componentes adaptativos (layout, navigation, month selector, etc.).
 
-## Ejecución Local
+## Ejecución local
 
-Asegura Flutter actualizado.
+Requisitos: Flutter estable (3.32+), Dart 3.8+, Chrome para Web opcional.
 
 ```bash
 flutter pub get
 flutter run
 ```
 
-### Web con Proxy de Imágenes (CORS)
+### Web y CORS de imágenes (proxy opcional)
 
-La API/APOD no envía cabeceras CORS para imágenes → necesitas un proxy si pruebas en Web.
+La API de NASA APOD no envía cabeceras CORS para imágenes en algunos dominios. Para Web puedes usar un proxy.
 
-1. Despliega (o usa) un proxy compatible (ejemplo proporcionado en `server.js`).
-2. Define la variable `IMAGE_PROXY` al correr en Chrome. IMPORTANTE: envolver el argumento en comillas para zsh.
+Variables soportadas en build/run:
 
-```bash
-flutter run -d chrome '--dart-define=IMAGE_PROXY=https://proxycp.onrender.com/proxy-img?url='
-```
+- NASA_KEY: tu clave de API de NASA (opcional; por defecto usa DEMO_KEY).
+- IMAGE_PROXY_BASE_URL: base del proxy para imágenes. Ej: https://proxycp.onrender.com/proxy-img?url=
 
-Build release web:
-
-```bash
-flutter build web '--dart-define=IMAGE_PROXY=https://proxycp.onrender.com/proxy-img?url='
-```
-
-#### Cómo funciona
-
-El código llama `proxiedImageUrl(originalUrl)` que retorna:
-
-- URL original (plataformas nativas / si no defines proxy)
-- `IMAGE_PROXY + encode(originalUrl)` en Web.
-
-Archivo relevante: `lib/utils/image_proxy.dart`.
-
-#### Evitar problemas zsh
-
-`?` actúa como comodín → usa comillas o escapa:
-
-```bash
-flutter run -d chrome --dart-define=IMAGE_PROXY=https://proxycp.onrender.com/proxy-img\?url=
-```
-
-## Variables Dart-Define adicionales
-
-Puedes añadir más:
+Ejecutar en Chrome con zsh (escapar el ? o usar comillas):
 
 ```bash
 flutter run -d chrome \
-  '--dart-define=IMAGE_PROXY=https://proxycp.onrender.com/proxy-img?url=' \
-  '--dart-define=FLAVOR=dev'
+  --dart-define=NASA_KEY=TU_CLAVE \
+  --dart-define=IMAGE_PROXY_BASE_URL=https://proxycp.onrender.com/proxy-img\?url=
 ```
 
-## Proxy Node (Resumen)
+Build web release:
 
-Características recomendadas: whitelist de hosts, rate limit, cache LRU, cabeceras CORS. Ruta ejemplo: `/proxy-img?url=`.
+```bash
+flutter build web \
+  --release \
+  --dart-define=NASA_KEY=TU_CLAVE \
+  --dart-define=IMAGE_PROXY_BASE_URL=https://proxycp.onrender.com/proxy-img\?url=
+```
+
+Cómo funciona: `proxiedImageUrl(originalUrl)` devuelve la URL original en nativo y `IMAGE_PROXY_BASE_URL + encode(originalUrl)` en Web. Implementación en `lib/utils/image_proxy.dart`.
+
+## Variables Dart-Define adicionales
+
+Puedes añadir más banderas personalizadas como `FLAVOR=dev` si las aprovechas en tu código.
+
+## Proxy recomendado (resumen)
+
+Sea cual sea la tecnología (Node, Cloudflare Worker, etc.), se sugiere: whitelist de hosts, rate limit, cache LRU, y cabeceras CORS. Ruta ejemplo: `/proxy-img?url=`.
 
 ## Accesibilidad
 
@@ -101,4 +72,4 @@ Características recomendadas: whitelist de hosts, rate limit, cache LRU, cabece
 
 ## Licencia
 
-Uso educativo/demostración.
+Este repositorio se distribuye bajo licencia MIT. Consulta el archivo `LICENSE`.
