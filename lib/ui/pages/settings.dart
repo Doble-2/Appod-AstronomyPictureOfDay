@@ -8,6 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nasa_apod/utils/language.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
+import 'package:url_launcher/url_launcher.dart' as ul;
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SettingsView extends StatefulWidget {
   final AuthService authService;
@@ -183,6 +186,79 @@ class _SettingsViewState extends State<SettingsView> {
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface)),
               trailing: const _ComingSoonChip(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _SettingsCard(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () async {
+                final uri = Uri.parse('https://github.com/Doble-2/Appod-AstronomyPictureOfDay');
+                await ul.launchUrl(uri, mode: ul.LaunchMode.externalApplication);
+              },
+              onLongPress: () async {
+                const url = 'https://github.com/Doble-2/Appod-AstronomyPictureOfDay';
+                await Clipboard.setData(const ClipboardData(text: url));
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Enlace copiado al portapapeles')),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.15),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: SvgPicture.asset(
+                        'assets/github-mark.svg',
+                        width: 22,
+                        height: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'Repositorio en GitHub',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'github.com/Doble-2/Appod-AstronomyPictureOfDay',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton.icon(
+                      onPressed: () async {
+                        final uri = Uri.parse('https://github.com/Doble-2/Appod-AstronomyPictureOfDay');
+                        await ul.launchUrl(uri, mode: ul.LaunchMode.externalApplication);
+                      },
+                      icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                      label: const Text('Abrir'),
+                      style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 40),
