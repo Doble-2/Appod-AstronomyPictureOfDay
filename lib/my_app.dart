@@ -7,7 +7,6 @@ import 'package:nasa_apod/provider/main_screen_controller.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
 import 'package:nasa_apod/ui/pages/register.dart';
 import 'package:nasa_apod/ui/pages/login.dart';
-import 'package:nasa_apod/ui/pages/get_app_web.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatefulWidget {
@@ -96,11 +95,44 @@ class MyAppState extends State<MyApp> {
             themeMode: themeProvider.themeMode,
             initialRoute: _initialRoute,
             routes: {
-              '/': (context) => const MainScreen(),
+              // Mantener raíz y rutas explícitas de secciones
+              '/': (context) => const MainScreen(initialIndex: 0),
+              '/home': (context) => const MainScreen(initialIndex: 0),
+              '/favorites': (context) => const MainScreen(initialIndex: 1),
+              '/settings': (context) => const MainScreen(initialIndex: 2),
+              // Compatibilidad previa
               '/appod': (context) => const ApodView(),
               '/register': (context) => const RegisterScreen(),
               '/login': (context) => const LoginScreen(),
-              '/get-app': (context) => const GetAppWebPage(),
+              '/get-app': (context) => const MainScreen(initialIndex: 3),
+            },
+            onGenerateRoute: (settings) {
+              final name = settings.name ?? '';
+              if (name == '/apod' || name == '/apod/') {
+                final now = DateTime.now();
+                final y = now.year.toString().padLeft(4, '0');
+                final m = now.month.toString().padLeft(2, '0');
+                final d = now.day.toString().padLeft(2, '0');
+                final today = '$y-$m-$d';
+                // Reemplaza la URL para que sea compartible
+                return MaterialPageRoute(builder: (ctx) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (Navigator.of(ctx).canPop()) {
+                      Navigator.of(ctx).pushReplacementNamed('/apod/$today');
+                    } else {
+                      Navigator.of(ctx).pushNamed('/apod/$today');
+                    }
+                  });
+                  return const SizedBox.shrink();
+                });
+              }
+              // Ruta dinámica: /apod/yyyy-MM-dd
+              final apodMatch = RegExp(r'^/apod/(\d{4}-\d{2}-\d{2})$').firstMatch(name);
+              if (apodMatch != null) {
+                final date = apodMatch.group(1)!;
+                return MaterialPageRoute(builder: (_) => ApodView(date: date));
+              }
+              return null; // usa rutas definidas arriba
             },
           );
         },

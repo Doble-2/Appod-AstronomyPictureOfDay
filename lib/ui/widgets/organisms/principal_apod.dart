@@ -53,7 +53,13 @@ class _PrincipalApodState extends State<PrincipalApod> {
                   const SizedBox(height: 10),
                   PrincipalApodButton(
                     onTap: () {
-                      Navigator.pushNamed(context, '/appod');
+                      final state = context.read<ApodBloc>().state;
+                      final date = state.apodData != null ? state.apodData!['date'] as String? : null;
+                      if (date != null) {
+                        Navigator.pushNamed(context, '/apod/$date');
+                      } else {
+                        Navigator.pushNamed(context, '/appod'); // compatibilidad
+                      }
                     },
                   ),
                 ],

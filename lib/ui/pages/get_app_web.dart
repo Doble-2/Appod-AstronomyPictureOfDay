@@ -1,18 +1,10 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
-import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 
-class GetAppWebPage extends StatefulWidget {
+class GetAppWebPage extends StatelessWidget {
   const GetAppWebPage({super.key});
-
-  @override
-  State<GetAppWebPage> createState() => _GetAppWebPageState();
-}
-
-class _GetAppWebPageState extends State<GetAppWebPage> {
-  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +12,7 @@ class _GetAppWebPageState extends State<GetAppWebPage> {
     if (!kIsWeb) return const SizedBox.shrink();
     final theme = Theme.of(context);
 
-    final body = Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 16),
@@ -48,15 +40,6 @@ class _GetAppWebPageState extends State<GetAppWebPage> {
           ),
         ),
       ],
-    );
-
-    return Layout(
-      currentIndex: _currentIndex,
-      onNavTap: (i) => setState(() => _currentIndex = i),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 40, top: 8),
-        child: body,
-      ),
     );
   }
 }

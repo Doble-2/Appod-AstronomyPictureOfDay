@@ -13,7 +13,8 @@ import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 import 'package:nasa_apod/utils/image_proxy.dart';
 
 class ApodView extends StatefulWidget {
-  const ApodView({super.key});
+  final String? date; // yyyy-MM-dd, opcional
+  const ApodView({super.key, this.date});
 
   @override
   State<ApodView> createState() => _ApodViewState();
@@ -33,7 +34,11 @@ class _ApodViewState extends State<ApodView> {
   @override
   void initState() {
     super.initState();
-    context.read<ApodBloc>().add(FetchApod());
+    if (widget.date != null && widget.date!.isNotEmpty) {
+      context.read<ApodBloc>().add(ChangeDate(widget.date!));
+    } else {
+      context.read<ApodBloc>().add(FetchApod());
+    }
     _checkAuthentication();
     _loadFavorites();
   }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:provider/provider.dart';
-import 'package:nasa_apod/provider/main_screen_controller.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 
 class OwnNavBar extends StatelessWidget {
   final int currentIndex;
@@ -11,6 +10,7 @@ class OwnNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  final i10n = AppLocalizations.of(context)!;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
@@ -41,29 +41,26 @@ class OwnNavBar extends StatelessWidget {
                     icon: Icons.home_filled,
                     label: 'Inicio',
                     selected: currentIndex == 0,
-                    onTap: () => Provider.of<MainScreenController>(context, listen: false)
-                        .goTo(0, animation: MainScreenTransition.fade),
+                    onTap: () => onTap(0),
                   ),
                   _NavBarIcon(
                     icon: Icons.favorite,
                     label: 'Favoritos',
                     selected: currentIndex == 1,
-                    onTap: () => Provider.of<MainScreenController>(context, listen: false)
-                        .goTo(1, animation: MainScreenTransition.fade),
+                    onTap: () => onTap(1),
                   ),
                   _NavBarIcon(
                     icon: Icons.settings,
                     label: 'Ajustes',
                     selected: currentIndex == 2,
-                    onTap: () => Provider.of<MainScreenController>(context, listen: false)
-                        .goTo(2, animation: MainScreenTransition.fade),
+                    onTap: () => onTap(2),
                   ),
                   if (kIsWeb)
                     _NavBarIcon(
                       icon: Icons.download_rounded,
-                      label: 'Descargar',
-                      selected: false,
-                      onTap: () => Navigator.of(context).pushNamed('/get-app'),
+                      label: i10n.getApp,
+                      selected: currentIndex == 3,
+                      onTap: () => onTap(3),
                     ),
                 ],
               ),

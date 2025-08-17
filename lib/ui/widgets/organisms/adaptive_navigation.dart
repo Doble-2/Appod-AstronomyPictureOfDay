@@ -64,8 +64,8 @@ class _SideRail extends StatelessWidget {
               _SideIcon(
                 icon: Icons.download_rounded,
                 label: i10n.getApp,
-                selected: false,
-                onTap: () => Navigator.of(context).pushNamed('/get-app'),
+                selected: currentIndex == 3,
+                onTap: () => onTap(3),
               ),
             const Spacer(),
           ],
