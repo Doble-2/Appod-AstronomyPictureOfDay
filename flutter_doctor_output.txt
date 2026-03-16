@@ -1,0 +1,49 @@
+[✓] Flutter (Channel stable, 3.32.6, on Arch Linux 6.19.6-arch1-1, locale en_US.UTF-8) [114ms]
+    • Flutter version 3.32.6 on channel stable at /home/doble2/Escritorio/flutter
+    • Upstream repository https://github.com/flutter/flutter.git
+    • Framework revision 077b4a4ce1 (8 months ago), 2025-07-08 13:31:08 -0700
+    • Engine revision 72f2b18bb0
+    • Dart version 3.8.1
+    • DevTools version 2.45.1
+
+[!] Android toolchain - develop for Android devices (Android SDK version 36.0.0) [1,562ms]
+    • Android SDK at /home/doble2/Android/Sdk
+    • Platform android-36, build-tools 36.0.0
+    • Java binary at: /opt/android-studio/jbr/bin/java
+      This is the JDK bundled with the latest Android Studio installation on this machine.
+      To manually set the JDK path, use: `flutter config --jdk-dir="path/to/jdk"`.
+    • Java version OpenJDK Runtime Environment (build 21.0.9+-14787801-b1163.94)
+    ! Some Android licenses not accepted. To resolve this, run: flutter doctor --android-licenses
+
+[✗] Chrome - develop for the web (Cannot find Chrome executable at google-chrome) [15ms]
+    ! Cannot find Chrome. Try setting CHROME_EXECUTABLE to a Chrome executable.
+
+[✓] Linux toolchain - develop for Linux desktop [470ms]
+    • clang version 22.1.1
+    • cmake version 4.2.3
+    • ninja version 1.13.2
+    • pkg-config version 2.5.1
+    • OpenGL core renderer: Mesa Intel(R) Iris(R) Xe Graphics (TGL GT2)
+    • OpenGL core version: 4.6 (Core Profile) Mesa 26.0.2-arch1.1
+    • OpenGL core shading language version: 4.60
+    • OpenGL ES renderer: Mesa Intel(R) Iris(R) Xe Graphics (TGL GT2)
+    • OpenGL ES version: OpenGL ES 3.2 Mesa 26.0.2-arch1.1
+    • OpenGL ES shading language version: OpenGL ES GLSL ES 3.20
+    • GL_EXT_framebuffer_blit: yes
+    • GL_EXT_texture_format_BGRA8888: yes
+
+[✓] Android Studio (version 2025.2.2) [12ms]
+    • Android Studio at /opt/android-studio
+    • Flutter plugin can be installed from:
+      🔨 https://plugins.jetbrains.com/plugin/9212-flutter
+    • Dart plugin can be installed from:
+      🔨 https://plugins.jetbrains.com/plugin/6351-dart
+    • Java version OpenJDK Runtime Environment (build 21.0.9+-14787801-b1163.94)
+
+[✓] Connected device (1 available) [85ms]
+    • Linux (desktop) • linux • linux-x64 • Arch Linux 6.19.6-arch1-1
+
+[✓] Network resources [847ms]
+    • All expected network resources are available.
+
+! Doctor found issues in 2 categories.

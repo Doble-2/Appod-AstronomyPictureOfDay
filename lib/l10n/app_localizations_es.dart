@@ -151,4 +151,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get genericError => 'No se pudieron cargar los datos.';
+
+  @override
+  String get translate => 'Traducir';
 }

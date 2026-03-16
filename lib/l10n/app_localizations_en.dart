@@ -148,4 +148,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get genericError => 'Couldn\'t load data.';
+
+  @override
+  String get translate => 'Translate';
 }

@@ -45,5 +45,6 @@
   "nasaDownTitle": "Servicio de NASA con problemas",
   "nasaDownBody": "No podemos cargar los contenidos porque los servicios de la NASA están fallando (error {code}). Esto no depende de nosotros. Inténtalo de nuevo más tarde.",
   "retry": "Reintentar",
-  "genericError": "No se pudieron cargar los datos."
+  "genericError": "No se pudieron cargar los datos.",
+  "translate": "Traducir"
 }
