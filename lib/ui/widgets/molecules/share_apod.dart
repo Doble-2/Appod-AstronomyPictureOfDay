@@ -19,12 +19,14 @@ Future<void> shareApod(
   final appUrl = _appUrl(date);
   final text = 'Hola, mira la foto astronómica del día $date: $appUrl';
 
+  // Capturar antes del await para evitar usar context tras un async gap.
+  final messenger = ScaffoldMessenger.of(context);
+  final scheme = Theme.of(context).colorScheme;
+
   try {
     await Share.share(text, subject: 'Appod · $title');
   } catch (e) {
     // Fallback: la Web Share API no está disponible → portapapeles.
-    if (!context.mounted) return;
-    final messenger = ScaffoldMessenger.of(context);
     try {
       await Clipboard.setData(ClipboardData(text: text));
       messenger.showSnackBar(
@@ -32,7 +34,7 @@ Future<void> shareApod(
           content: Row(
             children: [
               Icon(Icons.check_circle_rounded,
-                  color: Theme.of(context).colorScheme.primary, size: 20),
+                  color: scheme.primary, size: 20),
               const SizedBox(width: 10),
               const Expanded(
                   child: Text('Mensaje copiado, pégalo donde quieras')),

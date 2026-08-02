@@ -76,7 +76,7 @@ class _SettingsViewState extends State<SettingsView> {
                     value: isDark,
                     onChanged: (value) => themeProvider.toggleTheme(),
                     activeTrackColor: const Color(0xFF5E9EFF).withValues(alpha: 0.5),
-                    activeColor: const Color(0xFF5E9EFF),
+                    activeThumbColor: const Color(0xFF5E9EFF),
                     thumbColor: WidgetStatePropertyAll(
                       isDark ? scheme.surface : Colors.white,
                     ),
@@ -161,7 +161,7 @@ class _SettingsViewState extends State<SettingsView> {
             const SizedBox(height: 24),
 
             // ── Acerca de ─────────────────────────────────────────────────
-            _SettingsSectionHeader(text: 'ACERCA DE'),
+            const _SettingsSectionHeader(text: 'ACERCA DE'),
             const SizedBox(height: 8),
             _SettingsCard(
               children: [
@@ -246,7 +246,7 @@ class _LanguageSegmented extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final langs = Language.values;
+    const langs = Language.values;
     final selectedIndex = langs.indexWhere(
         (l) => l.localeValue.languageCode == currentLanguage.languageCode);
 
