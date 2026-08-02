@@ -9,6 +9,9 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
+  String get explore => 'Explorar';
+
+  @override
   String get apodToday => 'Imagen del día';
 
   @override
@@ -56,6 +59,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get favorites => 'Favoritos';
+
+  @override
+  String get favoritesLocalHint =>
+      'Tus favoritos se guardan en este dispositivo. Inicia sesión para sincronizarlos.';
+
+  @override
+  String get noFavoritesYet =>
+      'Aún no tienes favoritos. Toca el corazón en cualquier imagen para guardarla.';
 
   @override
   String get settings => 'Configuración';
@@ -130,13 +141,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get getAppNotInPlay =>
-      'Aún no está disponible en Play Store; estará pronto.';
+      'Disponible directamente como APK — no necesitas Play Store. Instálala y disfruta la experiencia completa.';
 
   @override
   String get getAppAndroidOnly => 'Solo Android';
 
   @override
-  String get getAppAction => 'Pronto';
+  String get getAppAction => 'Descargar APK';
 
   @override
   String get nasaDownTitle => 'Servicio de NASA con problemas';
@@ -154,4 +165,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get translate => 'Traducir';
+
+  @override
+  String get share => 'Compartir';
+
+  @override
+  String get translating => 'Traduciendo…';
 }

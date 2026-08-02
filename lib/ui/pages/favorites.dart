@@ -69,58 +69,156 @@ class _FavoritesViewState extends State<FavoritesView> {
     }
 
     if (!isLoggedIn) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 8, bottom: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            header(),
-            const SizedBox(height: 8),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3), width: 1),
-              ),
+      // Sin login: mostrar favoritos locales con hint de sincronización
+      return BlocBuilder<ApodBloc, ApodState>(
+        builder: (context, state) {
+          final crossCount = _crossAxisCount(context);
+          final aspect = _childAspectRatio(context);
+
+          if (state.favoriteApodStatus == ApodStatus.loading) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  header(),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossCount,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: aspect,
+                    ),
+                    itemCount: 6,
+                    itemBuilder: (context, index) =>
+                        const SkeletonPrincipalApodButton(),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final isEmpty = state.favoriteApodData.isEmpty;
+          return Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                header(state.favoriteApodData.length),
+                // Banner sutil: favoritos guardados en este dispositivo
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.25),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
                     children: [
-                      Icon(Icons.lock_person_rounded, color: Theme.of(context).colorScheme.primary),
+                      Icon(Icons.cloud_sync_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          i10n.pleaseLoginToSeeFavorites,
-                          style: Theme.of(context).textTheme.bodyLarge,
+                          i10n.favoritesLocalHint,
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.of(context).pushNamed('/login'),
+                        child: Text(i10n.login),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      FilledButton.icon(
-                        onPressed: () => Navigator.of(context).pushNamed('/login'),
-                        icon: const Icon(Icons.login_rounded),
-                        label: Text(i10n.login),
+                ),
+                if (isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(Icons.favorite_border_rounded,
+                              size: 56,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.25)),
+                          const SizedBox(height: 12),
+                          Text(
+                            i10n.noFavoritesYet,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                          ),
+                        ],
                       ),
-                      OutlinedButton.icon(
-                        onPressed: () => Navigator.of(context).pushNamed('/register'),
-                        icon: const Icon(Icons.person_add_rounded),
-                        label: Text(i10n.register),
-                      ),
-                    ],
+                    ),
                   )
-                ],
-              ),
+                else
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossCount,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: aspect,
+                    ),
+                    itemCount: state.favoriteApodData.length,
+                    itemBuilder: (context, index) {
+                      final apod = state.favoriteApodData[index]!;
+                      return ApodButton(
+                        title: apod['title'] ?? 'No Title',
+                        date: apod['date'] ?? 'No Date',
+                        author: apod['copyright'] ?? 'No Author',
+                        image: apod['url'] ?? '',
+                        mediaType: apod['media_type'] ?? 'image',
+                        showRemoveButton: true,
+                        onRemove: () async {
+                          final scaffoldMessenger =
+                              ScaffoldMessenger.of(context);
+                          final apodBloc = context.read<ApodBloc>();
+                          await widget.authService.removeFavorite(apod['date']);
+                          if (!mounted) return;
+                          setState(() {});
+                          apodBloc.add(FetchFavoriteApod());
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    i10n.removeFromFavorites)),
+                          );
+                        },
+                      );
+                    },
+                  ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       );
     }
 
@@ -217,6 +315,7 @@ class _FavoritesViewState extends State<FavoritesView> {
                       date: apod['date'] ?? 'No Date',
                       author: apod['copyright'] ?? 'No Author',
                       image: apod['url'] ?? '',
+                      mediaType: apod['media_type'] ?? 'image',
                       showRemoveButton: true,
                       onRemove: () async {
                         final scaffoldMessenger = ScaffoldMessenger.of(context);

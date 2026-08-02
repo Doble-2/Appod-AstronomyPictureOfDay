@@ -46,6 +46,8 @@ dependencies:
   shared_preferences: ^2.3.2
   cloud_firestore: ^5.4.2
   shimmer: ^3.0.0
+  path_provider: ^2.1.5
+  share_plus: ^10.1.2
   animations: ^2.0.11
   image_gallery_saver_plus: ^4.0.1
   permission_handler: ^12.0.1
@@ -56,7 +58,6 @@ dependencies:
   flutter_native_splash: ^2.4.6
   youtube_player_iframe: ^5.1.2
   url_launcher: ^6.3.0
-  translator: ^1.0.4+1
 dev_dependencies:
   flutter_test:
     sdk: flutter

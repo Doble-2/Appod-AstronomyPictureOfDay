@@ -113,6 +113,22 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
     }
   }
 
+  /// Traduce un error de red/API a un mensaje amigable y su tipo.
+  /// Evita filtrar texto crudo de la API (ej: 'HTTP 500', 'API_KEY_INVALID').
+  ({int? code, String? message}) friendlyError(Object error) {
+    final (code, rawMsg) = errorInfo(error);
+    final message = switch (code) {
+      400 => 'La fecha seleccionada no tiene datos disponibles.',
+      401 || 403 => 'La clave de la NASA no es válida o expiró.',
+      404 => 'No se encontró contenido para esta fecha.',
+      429 => 'Se alcanzó el límite de peticiones. Espera un momento e inténtalo de nuevo.',
+      500 || 502 || 503 => 'La NASA está teniendo problemas con su servicio.',
+      504 => 'El servicio tardó demasiado en responder.',
+      _ => rawMsg ?? 'Error de conexión. Verifica tu internet e inténtalo de nuevo.',
+    };
+    return (code: code, message: message);
+  }
+
     on<FetchApod>((event, emit) async {
       try {
         final apodData = await _apodRepository.getApod(state.date);
@@ -123,11 +139,11 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           errorCode: null,
         ));
       } catch (error) {
-        final (code, msg) = errorInfo(error);
+        final err = friendlyError(error);
         emit(state.copyWith(
           status: ApodStatus.failed,
-          errorMessage: msg ?? 'Error al obtener datos',
-          errorCode: code,
+          errorMessage: err.message,
+          errorCode: err.code,
         ));
       }
     });
@@ -143,11 +159,11 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           errorCode: null,
         ));
       } catch (error) {
-        final (code, msg) = errorInfo(error);
+        final err = friendlyError(error);
         emit(state.copyWith(
           multiplestatus: ApodStatus.failed,
-          errorMessage: msg ?? 'Error al obtener contenidos',
-          errorCode: code,
+          errorMessage: err.message,
+          errorCode: err.code,
         ));
       }
     });
@@ -159,11 +175,11 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           multiplestatus: ApodStatus.success,
         ));
       } catch (error) {
-        final (code, msg) = errorInfo(error);
+        final err = friendlyError(error);
         emit(state.copyWith(
           multiplestatus: ApodStatus.failed,
-          errorMessage: msg ?? 'Error al obtener contenidos',
-          errorCode: code,
+          errorMessage: err.message,
+          errorCode: err.code,
         ));
       }
     });
@@ -177,11 +193,11 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           favoriteApodStatus: ApodStatus.success,
         ));
       } catch (error) {
-        final (code, msg) = errorInfo(error);
+        final err = friendlyError(error);
         emit(state.copyWith(
           favoriteApodStatus: ApodStatus.failed,
-          errorMessage: msg ?? 'Error al cargar favoritos',
-          errorCode: code,
+          errorMessage: err.message,
+          errorCode: err.code,
         ));
       }
     });
@@ -207,12 +223,12 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           multipleApodData: multipleApodData,
         ));
       } catch (error) {
-        final (code, msg) = errorInfo(error);
+        final err = friendlyError(error);
         emit(state.copyWith(
           status: ApodStatus.failed,
           multiplestatus: ApodStatus.failed,
-          errorMessage: msg ?? 'Error al actualizar datos',
-          errorCode: code,
+          errorMessage: err.message,
+          errorCode: err.code,
         ));
       }
     });
@@ -256,12 +272,12 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           multipleApodData: multipleApodData,
         ));
       } catch (error) {
-        final (code, msg) = errorInfo(error);
+        final err = friendlyError(error);
         emit(state.copyWith(
           status: ApodStatus.failed,
           multiplestatus: ApodStatus.failed,
-          errorMessage: msg ?? 'Error al cambiar de fecha',
-          errorCode: code,
+          errorMessage: err.message,
+          errorCode: err.code,
         ));
       }
     });

@@ -43,17 +43,17 @@ class MyAppState extends State<MyApp> {
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             title: 'Appod - Astronomy picture of the day',
-            // TEMA CLARO
+            // TEMA CLARO — limpio estilo Apple
             theme: ThemeData(
               brightness: Brightness.light,
               fontFamily: 'Inter',
               scaffoldBackgroundColor: const Color(0xFFF6F8FC),
               colorScheme: const ColorScheme.light(
-                primary: Color(0xFF1A73E8), // azul cósmico con contraste 4.5:1 + blanco
+                primary: Color(0xFF1A73E8),
                 onPrimary: Colors.white,
                 secondary: Color(0xFF00796B),
                 onSecondary: Colors.white,
-                tertiary: Color(0xFF7C4DFF), // violeta nebulosa
+                tertiary: Color(0xFF7C4DFF),
                 surface: Color(0xFFFFFFFF),
                 onSurface: Color(0xFF0A0E14),
                 error: Color(0xFFD93025),
@@ -70,15 +70,17 @@ class MyAppState extends State<MyApp> {
                   fontFamily: 'SpaceGrotesk',
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF0A0E14),
+                  letterSpacing: -0.5,
                 ),
                 headlineMedium: TextStyle(
                   fontFamily: 'SpaceGrotesk',
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF0A0E14),
+                  letterSpacing: -0.3,
                 ),
                 headlineSmall: TextStyle(
                   fontFamily: 'SpaceGrotesk',
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   color: Color(0xFF0A0E14),
                 ),
                 bodyLarge: TextStyle(color: Color(0xFF0A0E14), height: 1.5),
@@ -87,51 +89,49 @@ class MyAppState extends State<MyApp> {
               ),
               useMaterial3: true,
             ),
-            // TEMA OSCURO — Dark Mode OLED: fondo azul-noche profundo (#0F172A del design system)
+            // TEMA OSCURO — limpio estilo Apple: materiales, jerarquía tipográfica, sin glow
             darkTheme: ThemeData(
               brightness: Brightness.dark,
               fontFamily: 'Inter',
-              scaffoldBackgroundColor: const Color(0xFF0F172A),
+              scaffoldBackgroundColor: const Color(0xFF05060A),
               colorScheme: const ColorScheme.dark(
-                primary: Color(0xFF4C9AFF), // azul cósmico luminoso
-                onPrimary: Color(0xFF0A0E14), // texto oscuro sobre azul claro (contraste alto)
+                primary: Color(0xFF5E9EFF),
+                onPrimary: Color(0xFF0A0E14),
                 secondary: Color(0xFF2DD4BF),
                 onSecondary: Color(0xFF0A0E14),
-                tertiary: Color(0xFF8B5CF6), // violeta nebulosa
-                surface: Color(0xFF192134), // card azul-noche (del design system)
-                onSurface: Color(0xFFE6EAF2),
+                tertiary: Color(0xFF8B5CF6),
+                surface: Color(0xFF0E1118),
+                onSurface: Color(0xFFEDEDEF),
                 error: Color(0xFFFF6B6B),
                 onError: Color(0xFF2A0A0A),
-                outline: Color(0xFF4A5568),
-                surfaceContainerHighest: Color(0xFF232B3D),
+                outline: Color(0xFF3A4150),
+                surfaceContainerHighest: Color(0xFF161A24),
               ),
-              dividerColor: const Color(0x14FFFFFF), // border rgba(255,255,255,0.08)
-              cardColor: const Color(0xFF192134),
-              focusColor: const Color(0x2E4C9AFF),
-              highlightColor: const Color(0x1F4C9AFF),
+              dividerColor: const Color(0x14FFFFFF),
+              cardColor: const Color(0xFF0E1118),
+              focusColor: const Color(0x2E5E9EFF),
+              highlightColor: const Color(0x1F5E9EFF),
               textTheme: const TextTheme(
                 headlineLarge: TextStyle(
                   fontFamily: 'SpaceGrotesk',
                   fontWeight: FontWeight.bold,
                   color: Color(0xFFFFFFFF),
-                  // glow sutil tipo design system: "minimal glow (text-shadow: 0 0 10px)"
-                  shadows: [
-                    Shadow(color: Color(0x404C9AFF), blurRadius: 12),
-                  ],
+                  letterSpacing: -0.5,
                 ),
                 headlineMedium: TextStyle(
                   fontFamily: 'SpaceGrotesk',
                   fontWeight: FontWeight.bold,
                   color: Color(0xFFFFFFFF),
+                  letterSpacing: -0.3,
                 ),
                 headlineSmall: TextStyle(
                   fontFamily: 'SpaceGrotesk',
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
-                bodyLarge: TextStyle(color: Color(0xFFE6EAF2), height: 1.5),
-                bodyMedium: TextStyle(color: Color(0xFFE6EAF2), height: 1.5),
-                titleMedium: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                bodyLarge: TextStyle(color: Color(0xFFEDEDEF), height: 1.5),
+                bodyMedium: TextStyle(color: Color(0xFFB8BEC9), height: 1.5),
+                titleMedium: TextStyle(color: Color(0xFF8A8F98), fontSize: 14),
               ),
               useMaterial3: true,
             ),
@@ -158,25 +158,48 @@ class MyAppState extends State<MyApp> {
                 final d = now.day.toString().padLeft(2, '0');
                 final today = '$y-$m-$d';
                 // Devuelve directamente la ruta con nombre '/apod/yyyy-MM-dd' para fijar la URL.
-                return MaterialPageRoute(
-                  settings: RouteSettings(name: '/apod/$today'),
-                  builder: (_) => ApodView(date: today),
-                );
+                return _buildApodRoute(RouteSettings(name: '/apod/$today'), today);
               }
               // Ruta dinámica: /apod/yyyy-MM-dd
               final apodMatch = RegExp(r'^/apod/(\d{4}-\d{2}-\d{2})$').firstMatch(name);
               if (apodMatch != null) {
                 final date = apodMatch.group(1)!;
-                return MaterialPageRoute(
-                  settings: settings,
-                  builder: (_) => ApodView(date: date),
-                );
+                return _buildApodRoute(settings, date);
               }
               return null; // usa rutas definidas arriba
             },
           );
         },
       ),
+    );
+  }
+
+  // Profundidad (HIG): transición fluida fade + slide con easing de iOS
+  // (Expo.out / easeOutCubic) al abrir el detalle del APOD.
+  Route<void> _buildApodRoute(RouteSettings settings, String date) {
+    return PageRouteBuilder<void>(
+      settings: settings,
+      transitionDuration: const Duration(milliseconds: 380),
+      reverseTransitionDuration: const Duration(milliseconds: 280),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          ApodView(date: date),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return FadeTransition(
+          opacity: curved,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.04),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          ),
+        );
+      },
     );
   }
 }

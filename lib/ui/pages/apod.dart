@@ -8,6 +8,8 @@ import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_description.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_title.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
+import 'package:nasa_apod/ui/widgets/molecules/share_apod.dart';
+import 'package:nasa_apod/ui/widgets/atoms/loading_button.dart';
 import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
 import 'package:nasa_apod/ui/widgets/molecules/translate_description.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
@@ -101,6 +103,7 @@ class _ApodViewState extends State<ApodView> {
   }
 
   bool _isExpanded = false;
+  bool _isTranslating = false;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +119,7 @@ class _ApodViewState extends State<ApodView> {
     return Layout(
       hideNavBar: true,
       currentIndex: currentIndex,
-      onNavTap: onNavTap,
+      onTap: onNavTap,
       child: BlocBuilder<ApodBloc, ApodState>(
         builder: (context, state) {
           if (state.status == ApodStatus.loading) {
@@ -258,6 +261,25 @@ class _ApodViewState extends State<ApodView> {
                                       ),
                                     ),
                                   const SizedBox(width: 8),
+                                  if (isImage)
+                                    Bubble(
+                                      child: Semantics(
+                                        label: i10n.share,
+                                        button: true,
+                                        child: IconButton(
+                                          icon: const Icon(
+                                              Icons.ios_share_rounded),
+                                          tooltip: i10n.share,
+                                          onPressed: () => shareApod(
+                                            context,
+                                            title: apod['title'] ?? '',
+                                            date: apod['date'] ?? '',
+                                            imageUrl: apod['url'] ?? '',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  const SizedBox(width: 8),
                                   if (_isLogged)
                                     Bubble(
                                       child: Semantics(
@@ -310,6 +332,28 @@ class _ApodViewState extends State<ApodView> {
                                                   ),
                                                 ),
                                               const SizedBox(width: 8),
+                                              if (isImage)
+                                                Bubble(
+                                                  child: Semantics(
+                                                    label: i10n.share,
+                                                    button: true,
+                                                    child: IconButton(
+                                                      icon: const Icon(Icons
+                                                          .ios_share_rounded),
+                                                      tooltip: i10n.share,
+                                                      onPressed: () =>
+                                                          shareApod(
+                                                        context,
+                                                        title:
+                                                            apod['title'] ?? '',
+                                                        date: apod['date'] ?? '',
+                                                        imageUrl:
+                                                            apod['url'] ?? '',
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              const SizedBox(width: 8),
                                               if (_isLogged)
                                                 Bubble(
                                                   child: Semantics(
@@ -345,10 +389,23 @@ class _ApodViewState extends State<ApodView> {
                                   ),
                                   const SizedBox(width: 8),
                                   FloatingActionButton(
-                                    backgroundColor:
-                                        Theme.of(context).colorScheme.primary,
+                                    // Deferencia (HIG): control discreto, glass con borde
+                                    // hairline en vez de azul sólido que compite con el contenido.
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .surface
+                                        .withValues(alpha: 0.7),
                                     foregroundColor:
-                                        Theme.of(context).colorScheme.onPrimary,
+                                        Theme.of(context).colorScheme.onSurface,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18),
+                                      side: BorderSide(
+                                        color: Theme.of(context)
+                                            .dividerColor,
+                                        width: 1,
+                                      ),
+                                    ),
                                     tooltip:
                                         _isExpanded ? 'Cerrar' : 'Más opciones',
                                     onPressed: () => setState(
@@ -447,21 +504,34 @@ class _ApodViewState extends State<ApodView> {
                         ),
                       ),
                     ),
-                    //if (translatedExplanation == null)
+                    // Solo mostrar el botón de traducir si el idioma de la app no es inglés
+                    // (las descripciones de NASA ya vienen en inglés).
+                    if (Localizations.localeOf(context).languageCode != 'en')
                       Padding(
                         padding: const EdgeInsets.only(right: 4),
-                        child: FilledButton.icon(
+                        child: LoadingButton(
+                          loading: _isTranslating,
+                          loadingLabel: i10n.translating,
+                          icon: Icons.g_translate_rounded,
                           onPressed: () async {
-                            translatedExplanation = await translateDescription(
-                                context,
-                                apod['explanation'],
-                                i10n);
-                            setState(() {});
+                            setState(() => _isTranslating = true);
+                            try {
+                              final translated = await translateDescription(
+                                  context,
+                                  apod['explanation'],
+                                  i10n);
+                              if (mounted) {
+                                setState(() {
+                                  translatedExplanation = translated;
+                                });
+                              }
+                            } finally {
+                              if (mounted) {
+                                setState(() => _isTranslating = false);
+                              }
+                            }
                           },
-                          icon: const Icon(
-                            Icons.g_translate_rounded,
-                          ),
-                          label: Text(i10n.translate),
+                          child: Text(i10n.translate),
                         ),
                       )
 
@@ -499,9 +569,20 @@ class _ApodViewState extends State<ApodView> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.cloud_off_rounded,
-                          size: 64, color: Theme.of(context).colorScheme.error),
-                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .error
+                              .withValues(alpha: 0.1),
+                        ),
+                        child: Icon(Icons.cloud_off_rounded,
+                            size: 44,
+                            color: Theme.of(context).colorScheme.error),
+                      ),
+                      const SizedBox(height: 16),
                       Text(
                         isNasaDown ? i10n.nasaDownTitle : i10n.genericError,
                         textAlign: TextAlign.center,
@@ -516,9 +597,14 @@ class _ApodViewState extends State<ApodView> {
                             ? i10n.nasaDownBody(state.errorCode ?? 504)
                             : (state.errorMessage ?? i10n.genericError),
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.7),
+                            ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       FilledButton.icon(
                         onPressed: () {
                           context.read<ApodBloc>().add(FetchApod());

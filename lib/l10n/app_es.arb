@@ -1,6 +1,7 @@
 {
   "@@locale": "es",
-  "apodToday": "Imagen del día",
+  "explore": "Explorar",
+    "apodToday": "Imagen del día",
   "otherApods": "Otras imágenes",
   "downloadApod": "Descargar imagen",
   "addToFavorites": "Añadir a favoritos",
@@ -16,7 +17,9 @@
   "spanish": "Español",
   "account": "Cuenta",
   "favorites": "Favoritos",
-  "settings": "Configuración",
+  "favoritesLocalHint": "Tus favoritos se guardan en este dispositivo. Inicia sesión para sincronizarlos.",
+  "noFavoritesYet": "Aún no tienes favoritos. Toca el corazón en cualquier imagen para guardarla.",
+    "settings": "Configuración",
   "diariesNotification": "Notificación diaria",
   "qualityDownload": "Calidad de descarga",
   "welcomeBack": "Bienvenido de nuevo",
@@ -39,12 +42,14 @@
   "getApp": "Descargar app",
   "getAppTitle": "Recomendamos la app",
   "getAppIntro": "Este sitio fue creado originalmente como una app. Te recomendamos instalar la app para una experiencia completa.",
-  "getAppNotInPlay": "Aún no está disponible en Play Store; estará pronto.",
+  "getAppNotInPlay": "Disponible directamente como APK — no necesitas Play Store. Instálala y disfruta la experiencia completa.",
   "getAppAndroidOnly": "Solo Android",
-  "getAppAction": "Pronto",
+  "getAppAction": "Descargar APK",
   "nasaDownTitle": "Servicio de NASA con problemas",
   "nasaDownBody": "No podemos cargar los contenidos porque los servicios de la NASA están fallando (error {code}). Esto no depende de nosotros. Inténtalo de nuevo más tarde.",
   "retry": "Reintentar",
   "genericError": "No se pudieron cargar los datos.",
-  "translate": "Traducir"
+  "translate": "Traducir",
+  "share": "Compartir",
+    "translating": "Traduciendo…"
 }

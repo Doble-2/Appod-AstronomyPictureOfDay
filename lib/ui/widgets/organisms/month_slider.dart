@@ -106,6 +106,11 @@ class _MonthSliderState extends State<MonthSlider> {
                     onChanged: (value) {
                       if (value == null) return;
                       final newMonth = value + 1;
+                      // Meses futuros del año actual: no seleccionables (NASA no tiene datos del futuro)
+                      if (DateTime(selectedDate.year, newMonth, 1)
+                          .isAfter(DateTime(DateTime.now().year, DateTime.now().month, 1))) {
+                        return;
+                      }
                       // Clamp day to 28 para evitar invalid date
                       final newDate = DateTime(selectedDate.year, newMonth, selectedDate.day.clamp(1, 28));
                       context.read<ApodBloc>().add(ChangeDate(DateFormat('yyyy-MM-dd').format(newDate)));
@@ -127,28 +132,41 @@ class _MonthSliderState extends State<MonthSlider> {
             itemCount: 12,
             itemBuilder: (context, index) {
               final isSelected = selectedIndex == index;
+              // Meses futuros del año actual: deshabilitados (NASA no tiene datos del futuro)
+              final isFutureMonth = DateTime(selectedDate.year, index + 1, 1)
+                  .isAfter(DateTime(DateTime.now().year, DateTime.now().month, 1));
               return MouseRegion(
-                cursor: SystemMouseCursors.click,
+                cursor: isFutureMonth ? SystemMouseCursors.basic : SystemMouseCursors.click,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    final newDate = DateTime(selectedDate.year, index + 1, selectedDate.day.clamp(1, 28));
-                    context.read<ApodBloc>().add(ChangeDate(DateFormat('yyyy-MM-dd').format(newDate)));
-                  },
+                  onTap: isFutureMonth
+                      ? null
+                      : () {
+                          final newDate = DateTime(selectedDate.year, index + 1, selectedDate.day.clamp(1, 28));
+                          context.read<ApodBloc>().add(ChangeDate(DateFormat('yyyy-MM-dd').format(newDate)));
+                        },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.easeInOut,
                     margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
-                      color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : isFutureMonth
+                              ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.4)
+                              : Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Center(
                       child: Text(
                         monthItems[index],
                         style: TextStyle(
-                          color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.onPrimary
+                              : isFutureMonth
+                                  ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)
+                                  : Theme.of(context).colorScheme.onSurface,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),

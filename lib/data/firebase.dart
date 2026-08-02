@@ -3,6 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
+  static const _localFavoritesKey = 'localFavorites';
+
+  /// Lee la lista de favoritos local (SharedPreferences).
+  Future<List<String>> _getLocalFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_localFavoritesKey) ?? [];
+  }
+
   Future<String?> registration({
     required String email,
     required String password,
@@ -89,6 +97,16 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     String? userUID = prefs.getString('userUID');
 
+    // Sin sesión: favorito local (funciona sin login).
+    if (userUID == null) {
+      final local = await _getLocalFavorites();
+      if (!local.contains(date)) {
+        local.add(date);
+        await prefs.setStringList(_localFavoritesKey, local);
+      }
+      return;
+    }
+
     CollectionReference favorites =
         FirebaseFirestore.instance.collection('favorites');
 
@@ -129,6 +147,11 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     String? userUID = prefs.getString('userUID');
 
+    // Sin sesión: devolver favoritos locales.
+    if (userUID == null) {
+      return _getLocalFavorites();
+    }
+
     CollectionReference favorites =
         FirebaseFirestore.instance.collection('favorites');
 
@@ -151,6 +174,14 @@ class AuthService {
   Future<void> removeFavorite(String date) async {
     final prefs = await SharedPreferences.getInstance();
     String? userUID = prefs.getString('userUID');
+
+    // Sin sesión: eliminar de favoritos locales.
+    if (userUID == null) {
+      final local = await _getLocalFavorites();
+      local.remove(date);
+      await prefs.setStringList(_localFavoritesKey, local);
+      return;
+    }
 
     CollectionReference favorites =
         FirebaseFirestore.instance.collection('favorites');

@@ -73,9 +73,31 @@ class _DayPickerState extends State<DayPicker> {
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage!),
-              backgroundColor: Colors.red[400],
+              content: Row(
+                children: [
+                  Icon(Icons.error_outline_rounded,
+                      color: Theme.of(context).colorScheme.error, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      state.errorMessage!,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Theme.of(context).colorScheme.surface,
               behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: BorderSide(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .error
+                      .withValues(alpha: 0.4),
+                ),
+              ),
+              duration: const Duration(seconds: 4),
             ),
           );
         }
