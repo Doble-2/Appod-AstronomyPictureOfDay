@@ -50,7 +50,7 @@ class AnimatedNavigator extends StatelessWidget {
         key: ValueKey(currentIndex),
         child: Layout(
           currentIndex: currentIndex,
-          onNavTap: onNavTap,
+          onTap: onNavTap,
           child: pages[currentIndex],
         ),
       ),

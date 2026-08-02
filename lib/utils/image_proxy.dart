@@ -48,3 +48,27 @@ String proxiedImageUrl(String url) {
   // Caso base: simple concatenación (asegurar slash si falta)
   return '$base${base.endsWith('/') ? '' : '/'}${Uri.encodeFull(url)}';
 }
+
+/// Devuelve una URL de imagen renderizable para un APOD.
+/// - Videos de YouTube → thumbnail estático (img.youtube.com), sin proxy.
+/// - Imágenes → [proxiedImageUrl].
+String apodImageUrl(String url) {
+  final youtubeId = _youtubeVideoId(url);
+  if (youtubeId != null) {
+    return 'https://img.youtube.com/vi/$youtubeId/hqdefault.jpg';
+  }
+  return proxiedImageUrl(url);
+}
+
+String? _youtubeVideoId(String url) {
+  final uri = Uri.tryParse(url);
+  if (uri == null) return null;
+  if (uri.host.contains('youtube.com') || uri.host.contains('youtu.be')) {
+    final id = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+    if (id != null && id.isNotEmpty && id != 'embed') {
+      return id;
+    }
+    return uri.queryParameters['v'];
+  }
+  return null;
+}

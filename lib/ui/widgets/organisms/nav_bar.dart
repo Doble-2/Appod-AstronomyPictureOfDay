@@ -157,11 +157,21 @@ class _NavBarIconState extends State<_NavBarIcon> with SingleTickerProviderState
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 400),
                               curve: Curves.fastOutSlowIn,
-                              width: 35 + (_hover ? 4 : 0),
-                              height: 35 + (_hover ? 4 : 0),
+                              width: 52 + (_hover ? 4 : 0),
+                              height: 34 + (_hover ? 4 : 0),
                               decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(17),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withValues(alpha: 0.14),
+                                border: Border.all(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withValues(alpha: 0.25),
+                                  width: 1,
+                                ),
                               ),
                             ),
                           ),

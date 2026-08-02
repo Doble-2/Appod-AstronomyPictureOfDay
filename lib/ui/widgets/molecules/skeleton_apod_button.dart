@@ -1,92 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SkeletonApodButton extends StatelessWidget {
   const SkeletonApodButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: SizedBox(
-        width: 200,
-        height: 180,
-        child: Stack(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24.0),
-                color: Theme.of(context).colorScheme.surface,
-                boxShadow: [
-                  BoxShadow(
-                        color: isDark
-                            ? Colors.black.withValues(alpha: 0.1)
-                            : Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                ],
+      child: Shimmer.fromColors(
+        baseColor: scheme.surface,
+        highlightColor: scheme.onSurface.withValues(alpha: 0.06),
+        child: Container(
+          width: 200,
+          height: 180,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24.0),
+            color: scheme.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
               ),
-            ),
-            // Efecto shimmer animado
-            Positioned.fill(
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: -1, end: 2),
-                duration: const Duration(seconds: 2),
-                curve: Curves.easeInOut,
-                builder: (context, value, child) {
-                  return ShaderMask(
-                    shaderCallback: (rect) {
-                      return LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.surface,
-                          Theme.of(context).colorScheme.surface,
-                          Theme.of(context).colorScheme.surface,
-                        ],
-                        stops: const [0.1, 0.5, 0.9],
-                        begin: const Alignment(-1, -1),
-                        end: Alignment(value, 1),
-                      ).createShader(rect);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24.0),
-                        color: Theme.of(context).colorScheme.surface,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            // Placeholder para el texto
-            Positioned(
-              left: 16,
-              bottom: 32,
-              right: 16,
-              child: Container(
-                height: 18,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Spacer(),
+                Container(
+                  height: 18,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: scheme.onSurface.withValues(alpha: 0.5),
+                  ),
                 ),
-              ),
-            ),
-            Positioned(
-              left: 16,
-              bottom: 12,
-              right: 80,
-              child: Container(
-                height: 12,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                const SizedBox(height: 8),
+                Container(
+                  height: 12,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    color: scheme.onSurface.withValues(alpha: 0.3),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

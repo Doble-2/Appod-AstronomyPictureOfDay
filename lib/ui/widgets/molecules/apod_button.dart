@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
@@ -10,6 +11,7 @@ class ApodButton extends StatefulWidget {
   final String date;
   final String author;
   final String image;
+  final String mediaType;
   final VoidCallback? onRemove;
   final bool showRemoveButton;
   final bool expand;
@@ -20,6 +22,7 @@ class ApodButton extends StatefulWidget {
     required this.date,
     required this.author,
     required this.image,
+    this.mediaType = 'image',
     this.onRemove,
     this.showRemoveButton = false,
     this.expand = false,
@@ -95,32 +98,113 @@ class _ApodButtonState extends State<ApodButton> {
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
+                        // glow cósmico en hover (Cinema Mobile: accent glow)
+                        if (_hover && isDark)
+                          BoxShadow(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.35),
+                            blurRadius: 28,
+                            offset: const Offset(0, 0),
+                          ),
                       ],
-                      border: _hover && !isDark
+                      // borde hairline sutil en dark (rgba(255,255,255,0.08))
+                      border: isDark
                           ? Border.all(
-                color: Theme.of(context)
-                  .colorScheme
-                  .primary
-                  .withValues(alpha: 0.4),
-                              width: 1.5,
+                              color: Colors.white.withValues(alpha: 0.08),
+                              width: 1,
                             )
-                          : null,
+                          : _hover
+                              ? Border.all(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withValues(alpha: 0.4),
+                                  width: 1.5,
+                                )
+                              : null,
                     ),
                         child: Stack(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(24),
-                              child: Image.network(
-                                proxiedImageUrl(widget.image),
-                                width: targetSize,
-                                height: targetHeight,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error_outline, color: Colors.red)),
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return const Center(child: CircularProgressIndicator());
-                                },
-                              ),
+                              child: widget.mediaType == 'video'
+                                  // Video: fondo con gradiente + icono de play (nunca cargar el .mp4 como imagen)
+                                  ? Container(
+                                      width: targetSize,
+                                      height: targetHeight,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: isDark
+                                              ? const [
+                                                  Color(0xFF1A2030),
+                                                  Color(0xFF0E1118),
+                                                ]
+                                              : const [
+                                                  Color(0xFFE8EDF7),
+                                                  Color(0xFFD6DEEF),
+                                                ],
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Container(
+                                          width: 52,
+                                          height: 52,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.9),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withValues(alpha: 0.4),
+                                                blurRadius: 16,
+                                              ),
+                                            ],
+                                          ),
+                                          child: Icon(
+                                            Icons.play_arrow_rounded,
+                                            size: 30,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Image.network(
+                                      apodImageUrl(widget.image),
+                                      width: targetSize,
+                                      height: targetHeight,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error_outline, color: Colors.red)),
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return Shimmer.fromColors(
+                                          baseColor: Theme.of(context)
+                                              .colorScheme
+                                              .surface,
+                                          highlightColor: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.06),
+                                          child: Container(
+                                            width: targetSize,
+                                            height: targetHeight,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surface,
+                                          ),
+                                        );
+                                      },
+                                    ),
                             ),
                             Positioned(
                               left: 0,

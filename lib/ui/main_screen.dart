@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/ui/widgets/organisms/animated_navigator.dart';
 import 'package:nasa_apod/data/firebase.dart';
-import 'package:nasa_apod/ui/pages/main_pages.dart';
+import 'package:nasa_apod/ui/pages/home.dart';
+import 'package:nasa_apod/ui/pages/favorites.dart';
+import 'package:nasa_apod/ui/pages/settings.dart';
 import 'package:nasa_apod/ui/pages/get_app_web.dart';
 import 'package:provider/provider.dart';
 import 'package:nasa_apod/provider/main_screen_controller.dart';
@@ -32,10 +34,10 @@ class _MainScreenState extends State<MainScreen> {
     final mainScreenController = Provider.of<MainScreenController>(context);
     final authService = AuthService();
     final pages = [
-      MainPages.home(),
-      MainPages.favorites(authService),
-      MainPages.settings(authService),
-  const GetAppWebPage(),
+      const HomeView(),
+      FavoritesView(authService: authService),
+      SettingsView(authService: authService),
+      const GetAppWebPage(),
     ];
     void handleNavTap(int i) {
       if (i < 0 || i > 3) return; // tabs principales incluyendo get-app

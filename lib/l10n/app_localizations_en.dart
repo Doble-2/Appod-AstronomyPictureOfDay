@@ -9,6 +9,9 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get explore => 'Explore';
+
+  @override
   String get apodToday => 'Image of the Day';
 
   @override
@@ -55,6 +58,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get favorites => 'Favorites';
+
+  @override
+  String get favoritesLocalHint =>
+      'Favorites are saved on this device. Log in to sync them across devices.';
+
+  @override
+  String get noFavoritesYet =>
+      'No favorites yet. Tap the heart on any image to save it.';
 
   @override
   String get settings => 'Settings';
@@ -127,13 +138,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'This website was originally built as an app. We recommend installing the app for the full experience.';
 
   @override
-  String get getAppNotInPlay => 'Not available on Play Store yet; coming soon.';
+  String get getAppNotInPlay =>
+      'Available directly as APK — no Play Store needed. Install it and enjoy the full experience.';
 
   @override
   String get getAppAndroidOnly => 'Android only';
 
   @override
-  String get getAppAction => 'Coming soon';
+  String get getAppAction => 'Download APK';
 
   @override
   String get nasaDownTitle => 'NASA service issues';
@@ -148,4 +160,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get genericError => 'Couldn\'t load data.';
+
+  @override
+  String get translate => 'Translate';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get translating => 'Translating…';
 }

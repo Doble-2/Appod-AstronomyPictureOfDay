@@ -98,6 +98,12 @@ abstract class AppLocalizations {
     Locale('es')
   ];
 
+  /// No description provided for @explore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get explore;
+
   /// No description provided for @apodToday.
   ///
   /// In en, this message translates to:
@@ -193,6 +199,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Favorites'**
   String get favorites;
+
+  /// No description provided for @favoritesLocalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites are saved on this device. Log in to sync them across devices.'**
+  String get favoritesLocalHint;
+
+  /// No description provided for @noFavoritesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet. Tap the heart on any image to save it.'**
+  String get noFavoritesYet;
 
   /// No description provided for @settings.
   ///
@@ -335,7 +353,7 @@ abstract class AppLocalizations {
   /// No description provided for @getAppNotInPlay.
   ///
   /// In en, this message translates to:
-  /// **'Not available on Play Store yet; coming soon.'**
+  /// **'Available directly as APK — no Play Store needed. Install it and enjoy the full experience.'**
   String get getAppNotInPlay;
 
   /// No description provided for @getAppAndroidOnly.
@@ -347,7 +365,7 @@ abstract class AppLocalizations {
   /// No description provided for @getAppAction.
   ///
   /// In en, this message translates to:
-  /// **'Coming soon'**
+  /// **'Download APK'**
   String get getAppAction;
 
   /// No description provided for @nasaDownTitle.
@@ -373,6 +391,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t load data.'**
   String get genericError;
+
+  /// No description provided for @translate.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate'**
+  String get translate;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @translating.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating…'**
+  String get translating;
 }
 
 class _AppLocalizationsDelegate

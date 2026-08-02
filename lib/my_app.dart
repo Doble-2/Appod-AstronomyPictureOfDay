@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 class MyApp extends StatefulWidget {
   final ThemeMode? initialThemeMode;
   final Locale? initialLocale;
-  const MyApp({super.key, apodUseCase, this.initialThemeMode, this.initialLocale});
+  const MyApp({super.key, this.initialThemeMode, this.initialLocale});
 
   @override
   State<MyApp> createState() => MyAppState();
@@ -43,52 +43,95 @@ class MyAppState extends State<MyApp> {
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             title: 'Appod - Astronomy picture of the day',
-            // TEMA CLARO
+            // TEMA CLARO — limpio estilo Apple
             theme: ThemeData(
               brightness: Brightness.light,
               fontFamily: 'Inter',
-              scaffoldBackgroundColor: const Color(0xFFF5F6FA),
+              scaffoldBackgroundColor: const Color(0xFFF6F8FC),
               colorScheme: const ColorScheme.light(
-                primary: Color(0xFF3391FF),
-                secondary: Color(0xFF00C6B5),
-                surface: Color(0xFFFFFFFF),
+                primary: Color(0xFF1A73E8),
+                onPrimary: Colors.white,
+                secondary: Color(0xFF00796B),
                 onSecondary: Colors.white,
+                tertiary: Color(0xFF7C4DFF),
+                surface: Color(0xFFFFFFFF),
                 onSurface: Color(0xFF0A0E14),
-                error: Color(0xFFFF4D4D),
+                error: Color(0xFFD93025),
                 onError: Colors.white,
+                outline: Color(0xFF8A94A6),
+                surfaceContainerHighest: Color(0xFFE9EDF5),
               ),
+              dividerColor: const Color(0x140A0E14),
+              cardColor: Colors.white,
+              focusColor: const Color(0x1F1A73E8),
+              highlightColor: const Color(0x0F1A73E8),
               textTheme: const TextTheme(
-                headlineLarge: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFF0A0E14)),
-                headlineMedium: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFF0A0E14)),
-                headlineSmall: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.w500, color: Color(0xFF0A0E14)),
-                bodyLarge: TextStyle(color: Color(0xFF0A0E14)),
-                bodyMedium: TextStyle(color: Color(0xFF3D4451)),
-                titleMedium: TextStyle(color: Color(0xFF8A94A6), fontSize: 14),
+                headlineLarge: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0A0E14),
+                  letterSpacing: -0.5,
+                ),
+                headlineMedium: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0A0E14),
+                  letterSpacing: -0.3,
+                ),
+                headlineSmall: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0A0E14),
+                ),
+                bodyLarge: TextStyle(color: Color(0xFF0A0E14), height: 1.5),
+                bodyMedium: TextStyle(color: Color(0xFF3D4451), height: 1.5),
+                titleMedium: TextStyle(color: Color(0xFF5B6472), fontSize: 14),
               ),
               useMaterial3: true,
             ),
-            // TEMA OSCURO
+            // TEMA OSCURO — limpio estilo Apple: materiales, jerarquía tipográfica, sin glow
             darkTheme: ThemeData(
               brightness: Brightness.dark,
               fontFamily: 'Inter',
-              scaffoldBackgroundColor: const Color(0xFF0A0E14),
+              scaffoldBackgroundColor: const Color(0xFF05060A),
               colorScheme: const ColorScheme.dark(
-                primary: Color(0xFF3391FF),
-                secondary: Color(0xFF00C6B5),
-                surface: Color(0xFF1A1F2A),
-                onPrimary: Colors.white,
-                onSecondary: Colors.white,
-                onSurface: Color(0xFFE1E6F0),
-                error: Color(0xFFFF4D4D),
-                onError: Colors.white,
+                primary: Color(0xFF5E9EFF),
+                onPrimary: Color(0xFF0A0E14),
+                secondary: Color(0xFF2DD4BF),
+                onSecondary: Color(0xFF0A0E14),
+                tertiary: Color(0xFF8B5CF6),
+                surface: Color(0xFF0E1118),
+                onSurface: Color(0xFFEDEDEF),
+                error: Color(0xFFFF6B6B),
+                onError: Color(0xFF2A0A0A),
+                outline: Color(0xFF3A4150),
+                surfaceContainerHighest: Color(0xFF161A24),
               ),
+              dividerColor: const Color(0x14FFFFFF),
+              cardColor: const Color(0xFF0E1118),
+              focusColor: const Color(0x2E5E9EFF),
+              highlightColor: const Color(0x1F5E9EFF),
               textTheme: const TextTheme(
-                headlineLarge: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFFE1E6F0)),
-                headlineMedium: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFFE1E6F0)),
-                headlineSmall: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.w500, color: Color(0xFFE1E6F0)),
-                bodyLarge: TextStyle(color: Color(0xFFE1E6F0)),
-                bodyMedium: TextStyle(color: Color(0xFFE1E6F0)),
-                titleMedium: TextStyle(color: Color(0xFF8A94A6), fontSize: 14),
+                headlineLarge: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFFFFFF),
+                  letterSpacing: -0.5,
+                ),
+                headlineMedium: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFFFFFF),
+                  letterSpacing: -0.3,
+                ),
+                headlineSmall: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFFFFFFF),
+                ),
+                bodyLarge: TextStyle(color: Color(0xFFEDEDEF), height: 1.5),
+                bodyMedium: TextStyle(color: Color(0xFFB8BEC9), height: 1.5),
+                titleMedium: TextStyle(color: Color(0xFF8A8F98), fontSize: 14),
               ),
               useMaterial3: true,
             ),
@@ -115,25 +158,48 @@ class MyAppState extends State<MyApp> {
                 final d = now.day.toString().padLeft(2, '0');
                 final today = '$y-$m-$d';
                 // Devuelve directamente la ruta con nombre '/apod/yyyy-MM-dd' para fijar la URL.
-                return MaterialPageRoute(
-                  settings: RouteSettings(name: '/apod/$today'),
-                  builder: (_) => ApodView(date: today),
-                );
+                return _buildApodRoute(RouteSettings(name: '/apod/$today'), today);
               }
               // Ruta dinámica: /apod/yyyy-MM-dd
               final apodMatch = RegExp(r'^/apod/(\d{4}-\d{2}-\d{2})$').firstMatch(name);
               if (apodMatch != null) {
                 final date = apodMatch.group(1)!;
-                return MaterialPageRoute(
-                  settings: settings,
-                  builder: (_) => ApodView(date: date),
-                );
+                return _buildApodRoute(settings, date);
               }
               return null; // usa rutas definidas arriba
             },
           );
         },
       ),
+    );
+  }
+
+  // Profundidad (HIG): transición fluida fade + slide con easing de iOS
+  // (Expo.out / easeOutCubic) al abrir el detalle del APOD.
+  Route<void> _buildApodRoute(RouteSettings settings, String date) {
+    return PageRouteBuilder<void>(
+      settings: settings,
+      transitionDuration: const Duration(milliseconds: 380),
+      reverseTransitionDuration: const Duration(milliseconds: 280),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          ApodView(date: date),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return FadeTransition(
+          opacity: curved,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.04),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          ),
+        );
+      },
     );
   }
 }

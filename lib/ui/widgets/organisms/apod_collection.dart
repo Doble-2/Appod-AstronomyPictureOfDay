@@ -57,6 +57,7 @@ class ApodCollection extends StatelessWidget {
                         title: apodData['title'],
                         date: apodData['date'],
                         author: apodData['copyright'] ?? 'Nasa',
+                        mediaType: apodData['media_type'] ?? 'image',
                       ),
                     );
                   },
@@ -95,20 +96,35 @@ class ApodCollection extends StatelessWidget {
             );
           }
           final isNasaDown = state.errorCode == 504;
-          return Row(
-            children: [
-              Icon(Icons.cloud_off_rounded, color: Theme.of(context).colorScheme.error),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  isNasaDown ? i10n.nasaDownTitle : i10n.genericError,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Theme.of(context).colorScheme.error),
-                ),
+          return Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Theme.of(context)
+                    .colorScheme
+                    .error
+                    .withValues(alpha: 0.2),
               ),
-            ],
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off_rounded,
+                    color: Theme.of(context).colorScheme.error),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    state.errorMessage ??
+                        (isNasaDown ? i10n.nasaDownTitle : i10n.genericError),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: Theme.of(context).colorScheme.error),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       );
@@ -185,6 +201,7 @@ class _DesktopHorizontalApodSliderState extends State<_DesktopHorizontalApodSlid
                     title: apod['title'],
                     date: apod['date'],
                     author: apod['copyright'] ?? 'Nasa',
+                    mediaType: apod['media_type'] ?? 'image',
                   ),
                 );
               },

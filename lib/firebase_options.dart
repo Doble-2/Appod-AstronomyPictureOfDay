@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '885350117808',
     projectId: 'appod-3f4d9',
     storageBucket: 'appod-3f4d9.appspot.com',
-    iosBundleId: 'com.example.flutterApplication1',
+    iosBundleId: 'com.doble2.apod',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '885350117808',
     projectId: 'appod-3f4d9',
     storageBucket: 'appod-3f4d9.appspot.com',
-    iosBundleId: 'com.example.flutterApplication1',
+    iosBundleId: 'com.doble2.apod',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
