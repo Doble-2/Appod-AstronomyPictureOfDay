@@ -1,6 +1,5 @@
 import 'package:nasa_apod/data/firebase.dart';
 import 'nasa.dart';
-import 'package:nasa_apod/domain/contract.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -72,9 +71,6 @@ class _ApodCache {
   }
 
   Map<String, dynamic>? get(String date) {
-    if (!_loaded) {
-      // No se ha cargado todavía; retornamos null para forzar fetch.
-    }
     final ts = _fetchedAt[date];
     if (ts == null) return null;
     if (DateTime.now().difference(ts) > ttl) {
@@ -92,13 +88,12 @@ class _ApodCache {
   }
 }
 
-class ApodRepositoryImpl implements ApodRepository {
+class ApodRepositoryImpl {
   final NetworkService _networkService;
   final _ApodCache _cache = _ApodCache();
 
   ApodRepositoryImpl(this._networkService);
 
-  @override
   Future<Map<String, dynamic>?> getApod(String date) async {
   await _cache.ensureLoaded();
   // Caché primero
@@ -109,7 +104,6 @@ class ApodRepositoryImpl implements ApodRepository {
   return data;
   }
 
-  @override
   Future<List> getMultipleApod(String date, {int count = 5}) async {
   await _cache.ensureLoaded();
     final DateFormat format = DateFormat('yyyy-MM-dd');
@@ -161,7 +155,6 @@ class ApodRepositoryImpl implements ApodRepository {
 
   // Método getApodRange eliminado
 
-  @override
   Future<List> getFavoritesApod() async {
     List<Map<String, dynamic>> favoriteApodData = [];
     final List favoriteDates = await AuthService().getFavorites();

@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 class MyApp extends StatefulWidget {
   final ThemeMode? initialThemeMode;
   final Locale? initialLocale;
-  const MyApp({super.key, apodUseCase, this.initialThemeMode, this.initialLocale});
+  const MyApp({super.key, this.initialThemeMode, this.initialLocale});
 
   @override
   State<MyApp> createState() => MyAppState();

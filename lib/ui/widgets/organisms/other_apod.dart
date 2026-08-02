@@ -5,12 +5,10 @@ import 'package:nasa_apod/ui/widgets/organisms/apod_collection.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 
 class OtherApod extends StatelessWidget {
-  final VoidCallback onTap;
   final bool embedded;
 
   const OtherApod({
     super.key,
-    required this.onTap,
     this.embedded = false,
   });
 
@@ -30,7 +28,6 @@ class OtherApod extends StatelessWidget {
       ),
     );
 
-    // Glassmorphism eliminado: usar contenedor plano opcional en desktop
     if (embedded && context.isDesktop) {
       return Container(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
@@ -47,9 +44,8 @@ class OtherApod extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20) ,
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: content,
     );
   }
 }
-

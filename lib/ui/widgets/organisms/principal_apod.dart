@@ -6,14 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/molecules/principal_apod_button.dart';
 
-
 class PrincipalApod extends StatefulWidget {
-  final VoidCallback onTap;
-
-  const PrincipalApod({
-    super.key,
-    required this.onTap,
-  });
+  const PrincipalApod({super.key});
 
   @override
   State<PrincipalApod> createState() => _PrincipalApodState();
@@ -33,7 +27,9 @@ class _PrincipalApodState extends State<PrincipalApod> {
     return BlocBuilder<ApodBloc, ApodState>(
       builder: (context, state) {
         return Padding(
-          padding: context.isDesktop ? const EdgeInsets.symmetric(vertical: 40.0) : EdgeInsets.zero,
+          padding: context.isDesktop
+              ? const EdgeInsets.symmetric(vertical: 40.0)
+              : EdgeInsets.zero,
           child: AnimatedOpacity(
             opacity: 1.0,
             duration: const Duration(milliseconds: 700),
@@ -48,19 +44,21 @@ class _PrincipalApodState extends State<PrincipalApod> {
                     offset: Offset.zero,
                     duration: const Duration(milliseconds: 600),
                     curve: Curves.easeOut,
-                    child: TitleArea(text:    l10n.apodToday,),
+                    child: TitleArea(text: l10n.apodToday),
                   ),
                   const SizedBox(height: 10),
                   PrincipalApodButton(
                     onTap: () {
                       final state = context.read<ApodBloc>().state;
-                      final date = state.apodData != null ? state.apodData!['date'] as String? : null;
-            if (date != null) {
-            Navigator.of(context, rootNavigator: true)
-              .pushNamed('/apod/$date');
+                      final date = state.apodData != null
+                          ? state.apodData!['date'] as String?
+                          : null;
+                      if (date != null) {
+                        Navigator.of(context, rootNavigator: true)
+                            .pushNamed('/apod/$date');
                       } else {
-            Navigator.of(context, rootNavigator: true)
-              .pushNamed('/appod'); // compatibilidad
+                        Navigator.of(context, rootNavigator: true)
+                            .pushNamed('/appod'); // compatibilidad
                       }
                     },
                   ),

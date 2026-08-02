@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:nasa_apod/domain/use_case.dart';
+import 'package:nasa_apod/data/repository.dart';
 
 enum ApodStatus { loading, success, failed }
 
@@ -69,15 +69,9 @@ class ApodState {
 
 abstract class ApodEvent {}
 
-class FetchApod extends ApodEvent {
-  String? date;
-  FetchApod();
-}
+class FetchApod extends ApodEvent {}
 
-class FetchMultipleApod extends ApodEvent {
-  String? date;
-  FetchMultipleApod();
-}
+class FetchMultipleApod extends ApodEvent {}
 
 class FetchMultipleApodSized extends ApodEvent {
   final int count;
@@ -100,17 +94,28 @@ class ChangeDate extends ApodEvent {
 }
 
 class ApodBloc extends Bloc<ApodEvent, ApodState> {
-  final ApodUseCase _apodUseCase;
+  final ApodRepositoryImpl _apodRepository;
 
-  ApodBloc(this._apodUseCase)
+  ApodBloc(this._apodRepository)
       : super(ApodState(
             status: ApodStatus.loading,
             multiplestatus: ApodStatus.loading,
             favoriteApodStatus: ApodStatus.loading,
             date: DateFormat('yyyy-MM-dd').format(DateTime.now()))) {
+  (int?, String?) errorInfo(Object error) {
+    try {
+      return (
+        (error as dynamic).statusCode as int?,
+        (error as dynamic).message as String?,
+      );
+    } catch (_) {
+      return (null, null);
+    }
+  }
+
     on<FetchApod>((event, emit) async {
       try {
-        final apodData = await _apodUseCase.getApod(state.date);
+        final apodData = await _apodRepository.getApod(state.date);
         emit(state.copyWith(
           status: ApodStatus.success,
           apodData: apodData,
@@ -118,15 +123,7 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           errorCode: null,
         ));
       } catch (error) {
-        int? code;
-        String? msg;
-        try {
-          // compatible con NetworkService.NasaApiException
-          // ignore: avoid_dynamic_calls
-          code = (error as dynamic).statusCode as int?;
-          // ignore: avoid_dynamic_calls
-          msg = (error as dynamic).message as String?;
-        } catch (_) {}
+        final (code, msg) = errorInfo(error);
         emit(state.copyWith(
           status: ApodStatus.failed,
           errorMessage: msg ?? 'Error al obtener datos',
@@ -138,7 +135,7 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
     on<FetchMultipleApod>((event, emit) async {
       try {
         final multipleApodData =
-            await _apodUseCase.getMultipleApod(state.date);
+            await _apodRepository.getMultipleApod(state.date);
         emit(state.copyWith(
           multipleApodData: multipleApodData,
           multiplestatus: ApodStatus.success,
@@ -146,12 +143,7 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           errorCode: null,
         ));
       } catch (error) {
-        int? code;
-        String? msg;
-        try {
-          code = (error as dynamic).statusCode as int?;
-          msg = (error as dynamic).message as String?;
-        } catch (_) {}
+        final (code, msg) = errorInfo(error);
         emit(state.copyWith(
           multiplestatus: ApodStatus.failed,
           errorMessage: msg ?? 'Error al obtener contenidos',
@@ -161,18 +153,13 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
     });
     on<FetchMultipleApodSized>((event, emit) async {
       try {
-        final multipleApodData = await _apodUseCase.getMultipleApod(state.date, count: event.count);
+        final multipleApodData = await _apodRepository.getMultipleApod(state.date, count: event.count);
         emit(state.copyWith(
           multipleApodData: multipleApodData,
           multiplestatus: ApodStatus.success,
         ));
       } catch (error) {
-        int? code;
-        String? msg;
-        try {
-          code = (error as dynamic).statusCode as int?;
-          msg = (error as dynamic).message as String?;
-        } catch (_) {}
+        final (code, msg) = errorInfo(error);
         emit(state.copyWith(
           multiplestatus: ApodStatus.failed,
           errorMessage: msg ?? 'Error al obtener contenidos',
@@ -183,19 +170,14 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
     on<FetchFavoriteApod>((event, emit) async {
       emit(state.copyWith(favoriteApodStatus: ApodStatus.loading));
       try {
-        final favorites = await _apodUseCase.getFavoritesApod();
+        final favorites = await _apodRepository.getFavoritesApod();
 
         emit(state.copyWith(
           favoriteApodData: favorites,
           favoriteApodStatus: ApodStatus.success,
         ));
       } catch (error) {
-        int? code;
-        String? msg;
-        try {
-          code = (error as dynamic).statusCode as int?;
-          msg = (error as dynamic).message as String?;
-        } catch (_) {}
+        final (code, msg) = errorInfo(error);
         emit(state.copyWith(
           favoriteApodStatus: ApodStatus.failed,
           errorMessage: msg ?? 'Error al cargar favoritos',
@@ -211,8 +193,8 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
         ));
 
         final results = await Future.wait([
-          _apodUseCase.getApod(state.date),
-          _apodUseCase.getMultipleApod(state.date),
+          _apodRepository.getApod(state.date),
+          _apodRepository.getMultipleApod(state.date),
         ]);
 
         final apodData = results[0] as Map<String, dynamic>;
@@ -225,12 +207,7 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           multipleApodData: multipleApodData,
         ));
       } catch (error) {
-        int? code;
-        String? msg;
-        try {
-          code = (error as dynamic).statusCode as int?;
-          msg = (error as dynamic).message as String?;
-        } catch (_) {}
+        final (code, msg) = errorInfo(error);
         emit(state.copyWith(
           status: ApodStatus.failed,
           multiplestatus: ApodStatus.failed,
@@ -265,8 +242,8 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
 
         // Fetch both main APOD and slider APODs concurrently
         final results = await Future.wait([
-          _apodUseCase.getApod(newDate),
-          _apodUseCase.getMultipleApod(newDate),
+          _apodRepository.getApod(newDate),
+          _apodRepository.getMultipleApod(newDate),
         ]);
 
         final apodData = results[0] as Map<String, dynamic>;
@@ -279,12 +256,7 @@ class ApodBloc extends Bloc<ApodEvent, ApodState> {
           multipleApodData: multipleApodData,
         ));
       } catch (error) {
-        int? code;
-        String? msg;
-        try {
-          code = (error as dynamic).statusCode as int?;
-          msg = (error as dynamic).message as String?;
-        } catch (_) {}
+        final (code, msg) = errorInfo(error);
         emit(state.copyWith(
           status: ApodStatus.failed,
           multiplestatus: ApodStatus.failed,

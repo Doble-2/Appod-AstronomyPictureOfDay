@@ -5,7 +5,6 @@ import 'package:nasa_apod/provider/theme_provider.dart';
 import 'package:nasa_apod/provider/locale_provider.dart';
 import 'package:nasa_apod/ui/widgets/atoms/title_area.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nasa_apod/utils/language.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:url_launcher/url_launcher.dart' as ul;
@@ -26,20 +25,13 @@ class _SettingsViewState extends State<SettingsView> {
   void handleLogout() async {
     final navigator = Navigator.of(context);
     await widget.authService.logout();
-    // Clear user data from SharedPreferences (opcional)
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userUID');
     if (!mounted) return;
     navigator.pushNamed('/login');
   }
 
   Future<void> _checkAuthentication() async {
-    // Replace with your actual authentication logic
     isLoggedIn = await AuthService().isLoggedIn();
-
-    setState(() {
-      isLoggedIn = isLoggedIn;
-    });
+    setState(() {});
   }
 
   @override

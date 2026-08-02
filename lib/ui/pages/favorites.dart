@@ -20,7 +20,7 @@ class _FavoritesViewState extends State<FavoritesView> {
   bool isLoggedIn = false;
 
   Future<void> _checkAuthentication() async {
-    isLoggedIn = await AuthService().isLoggedIn();
+    isLoggedIn = await widget.authService.isLoggedIn();
     setState(() {});
   }
 

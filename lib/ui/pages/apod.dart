@@ -38,12 +38,30 @@ class _ApodViewState extends State<ApodView> {
     });
   }
 
+  Future<void> _toggleFavorite(String date) async {
+    final i10n = AppLocalizations.of(context)!;
+    final isFav = _favoriteDates.contains(date);
+    if (isFav) {
+      await AuthService().removeFavorite(date);
+      if (mounted) setState(() => _favoriteDates.remove(date));
+    } else {
+      await AuthService().addFavorite(date);
+      if (mounted) setState(() => _favoriteDates.add(date));
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isFav ? i10n.removeFromFavorites : i10n.addToFavorites),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   String? translatedExplanation;
-  bool explanationLoading = true;
   @override
   void initState() {
     translatedExplanation = null;
-    explanationLoading = true;
 
     super.initState();
     if (widget.date != null && widget.date!.isNotEmpty) {
@@ -79,10 +97,7 @@ class _ApodViewState extends State<ApodView> {
   Future<void> _checkAuthentication() async {
     // Replace with your actual authentication logic
     _isLogged = await AuthService().isLoggedIn();
-
-    setState(() {
-      _isLogged = _isLogged;
-    });
+    setState(() {});
   }
 
   bool _isExpanded = false;
@@ -261,47 +276,8 @@ class _ApodViewState extends State<ApodView> {
                                           tooltip: isFavorite
                                               ? i10n.removeFromFavorites
                                               : i10n.addToFavorites,
-                                          onPressed: () async {
-                                            if (isFavorite) {
-                                              await AuthService()
-                                                  .removeFavorite(apod['date']);
-                                              // ignore: use_build_context_synchronously
-                                              if (mounted) {
-                                                setState(() {
-                                                  _favoriteDates
-                                                      .remove(apod['date']);
-                                                });
-                                                // ignore: use_build_context_synchronously
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                      content: Text(i10n
-                                                          .removeFromFavorites),
-                                                      duration: const Duration(
-                                                          seconds: 2)),
-                                                );
-                                              }
-                                            } else {
-                                              await AuthService()
-                                                  .addFavorite(apod['date']);
-                                              // ignore: use_build_context_synchronously
-                                              if (mounted) {
-                                                setState(() {
-                                                  _favoriteDates
-                                                      .add(apod['date']);
-                                                });
-                                                // ignore: use_build_context_synchronously
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                      content: Text(
-                                                          i10n.addToFavorites),
-                                                      duration: const Duration(
-                                                          seconds: 2)),
-                                                );
-                                              }
-                                            }
-                                          },
+                                          onPressed: () =>
+                                              _toggleFavorite(apod['date']),
                                         ),
                                       ),
                                     ),
@@ -357,55 +333,9 @@ class _ApodViewState extends State<ApodView> {
                                                           ? i10n
                                                               .removeFromFavorites
                                                           : i10n.addToFavorites,
-                                                      onPressed: () async {
-                                                        if (isFavorite) {
-                                                          await AuthService()
-                                                              .removeFavorite(
-                                                                  apod['date']);
-                                                          if (mounted) {
-                                                            setState(() {
-                                                              _favoriteDates
-                                                                  .remove(apod[
-                                                                      'date']);
-                                                            });
-                                                            // ignore: use_build_context_synchronously
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              SnackBar(
-                                                                  content: Text(i10n
-                                                                      .removeFromFavorites),
-                                                                  duration:
-                                                                      const Duration(
-                                                                          seconds:
-                                                                              2)),
-                                                            );
-                                                          }
-                                                        } else {
-                                                          await AuthService()
-                                                              .addFavorite(
-                                                                  apod['date']);
-                                                          if (mounted) {
-                                                            setState(() {
-                                                              _favoriteDates
-                                                                  .add(apod[
-                                                                      'date']);
-                                                            });
-                                                            // ignore: use_build_context_synchronously
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              SnackBar(
-                                                                  content: Text(i10n
-                                                                      .addToFavorites),
-                                                                  duration:
-                                                                      const Duration(
-                                                                          seconds:
-                                                                              2)),
-                                                            );
-                                                          }
-                                                        }
-                                                      },
+                                                      onPressed: () =>
+                                                          _toggleFavorite(
+                                                              apod['date']),
                                                     ),
                                                   ),
                                                 ),
@@ -491,41 +421,8 @@ class _ApodViewState extends State<ApodView> {
                               ),
                             if (_isLogged)
                               OutlinedButton.icon(
-                                onPressed: () async {
-                                  final favored = isFavorite;
-                                  if (favored) {
-                                    await AuthService()
-                                        .removeFavorite(apod['date']);
-                                    if (mounted) {
-                                      setState(() =>
-                                          _favoriteDates.remove(apod['date']));
-                                      // ignore: use_build_context_synchronously
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text(i10n.removeFromFavorites),
-                                            duration:
-                                                const Duration(seconds: 2)),
-                                      );
-                                    }
-                                  } else {
-                                    await AuthService()
-                                        .addFavorite(apod['date']);
-                                    if (mounted) {
-                                      setState(() =>
-                                          _favoriteDates.add(apod['date']));
-                                      // ignore: use_build_context_synchronously
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content: Text(i10n.addToFavorites),
-                                            duration:
-                                                const Duration(seconds: 2)),
-                                      );
-                                    }
-                                  }
-                                },
+                                onPressed: () =>
+                                    _toggleFavorite(apod['date']),
                                 icon: Icon(isFavorite
                                     ? Icons.favorite_rounded
                                     : Icons.favorite_border_rounded),
@@ -554,13 +451,11 @@ class _ApodViewState extends State<ApodView> {
                       Padding(
                         padding: const EdgeInsets.only(right: 4),
                         child: FilledButton.icon(
-                          onPressed:  () async {
+                          onPressed: () async {
                             translatedExplanation = await translateDescription(
                                 context,
                                 apod['explanation'],
-                                i10n); // Reiniciar para mostrar el indicador de carga
-                            explanationLoading = true;
-                           
+                                i10n);
                             setState(() {});
                           },
                           icon: const Icon(
@@ -570,53 +465,7 @@ class _ApodViewState extends State<ApodView> {
                         ),
                       )
 
-                    /*s
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withValues(alpha: 0.4),
-                              width: 1,
-                            ),
-                          ),
-                          child:  Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.g_translate_rounded,
-                                size: 16,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              const SizedBox(width: 6),
-                              Builder(builder: (context) {
-                                final code = Localizations.localeOf(context).languageCode;
-                                final text = code == 'es'
-                                    ? 'Próximamente traducción automática de la descripción '
-                                    : 'Coming soon description auto-translation ';
-                                return Text(
-                                  text,
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11.5,
-                                    height: 1.2,
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),*/
+
                   ],
                 );
                 return _CenteredScrollable(

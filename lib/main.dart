@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/data/repository.dart';
 import 'package:nasa_apod/data/nasa.dart';
-import 'package:nasa_apod/domain/use_case.dart';
-import 'package:nasa_apod/ui/blocs/locale_bloc/locale_bloc.dart';
-import 'my_app.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
+import 'my_app.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_web_plugins/url_strategy.dart';
+
 Future<(ThemeMode, Locale)> _preloadPrefs() async {
   final prefs = await SharedPreferences.getInstance();
   // theme
@@ -42,21 +41,12 @@ void main() async {
   );
 
   final apodRepository = ApodRepositoryImpl(networkService);
-  final apodUseCase = ApodUseCase(apodRepository);
-  final apodBloc = ApodBloc(apodUseCase);
-  runApp(MultiBlocProvider(
-    providers: [
-      BlocProvider<LocaleBloc>(create: (_) => LocaleBloc()),
-      BlocProvider<ApodBloc>(create: (_) => apodBloc),
-    ],
-    child: BlocBuilder<LocaleBloc, LocaleState>(
-      builder: (context, state) {
-        return MyApp(
-          apodUseCase: apodUseCase,
-          initialThemeMode: themeMode,
-          initialLocale: locale,
-        );
-      },
+  final apodBloc = ApodBloc(apodRepository);
+  runApp(BlocProvider<ApodBloc>(
+    create: (_) => apodBloc,
+    child: MyApp(
+      initialThemeMode: themeMode,
+      initialLocale: locale,
     ),
   ));
 }
