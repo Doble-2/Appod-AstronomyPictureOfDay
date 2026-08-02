@@ -47,48 +47,91 @@ class MyAppState extends State<MyApp> {
             theme: ThemeData(
               brightness: Brightness.light,
               fontFamily: 'Inter',
-              scaffoldBackgroundColor: const Color(0xFFF5F6FA),
+              scaffoldBackgroundColor: const Color(0xFFF6F8FC),
               colorScheme: const ColorScheme.light(
-                primary: Color(0xFF3391FF),
-                secondary: Color(0xFF00C6B5),
-                surface: Color(0xFFFFFFFF),
+                primary: Color(0xFF1A73E8), // azul cósmico con contraste 4.5:1 + blanco
+                onPrimary: Colors.white,
+                secondary: Color(0xFF00796B),
                 onSecondary: Colors.white,
+                tertiary: Color(0xFF7C4DFF), // violeta nebulosa
+                surface: Color(0xFFFFFFFF),
                 onSurface: Color(0xFF0A0E14),
-                error: Color(0xFFFF4D4D),
+                error: Color(0xFFD93025),
                 onError: Colors.white,
+                outline: Color(0xFF8A94A6),
+                surfaceContainerHighest: Color(0xFFE9EDF5),
               ),
+              dividerColor: const Color(0x140A0E14),
+              cardColor: Colors.white,
+              focusColor: const Color(0x1F1A73E8),
+              highlightColor: const Color(0x0F1A73E8),
               textTheme: const TextTheme(
-                headlineLarge: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFF0A0E14)),
-                headlineMedium: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFF0A0E14)),
-                headlineSmall: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.w500, color: Color(0xFF0A0E14)),
-                bodyLarge: TextStyle(color: Color(0xFF0A0E14)),
-                bodyMedium: TextStyle(color: Color(0xFF3D4451)),
-                titleMedium: TextStyle(color: Color(0xFF8A94A6), fontSize: 14),
+                headlineLarge: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0A0E14),
+                ),
+                headlineMedium: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0A0E14),
+                ),
+                headlineSmall: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF0A0E14),
+                ),
+                bodyLarge: TextStyle(color: Color(0xFF0A0E14), height: 1.5),
+                bodyMedium: TextStyle(color: Color(0xFF3D4451), height: 1.5),
+                titleMedium: TextStyle(color: Color(0xFF5B6472), fontSize: 14),
               ),
               useMaterial3: true,
             ),
-            // TEMA OSCURO
+            // TEMA OSCURO — Dark Mode OLED: fondo azul-noche profundo (#0F172A del design system)
             darkTheme: ThemeData(
               brightness: Brightness.dark,
               fontFamily: 'Inter',
-              scaffoldBackgroundColor: const Color(0xFF0A0E14),
+              scaffoldBackgroundColor: const Color(0xFF0F172A),
               colorScheme: const ColorScheme.dark(
-                primary: Color(0xFF3391FF),
-                secondary: Color(0xFF00C6B5),
-                surface: Color(0xFF1A1F2A),
-                onPrimary: Colors.white,
-                onSecondary: Colors.white,
-                onSurface: Color(0xFFE1E6F0),
-                error: Color(0xFFFF4D4D),
-                onError: Colors.white,
+                primary: Color(0xFF4C9AFF), // azul cósmico luminoso
+                onPrimary: Color(0xFF0A0E14), // texto oscuro sobre azul claro (contraste alto)
+                secondary: Color(0xFF2DD4BF),
+                onSecondary: Color(0xFF0A0E14),
+                tertiary: Color(0xFF8B5CF6), // violeta nebulosa
+                surface: Color(0xFF192134), // card azul-noche (del design system)
+                onSurface: Color(0xFFE6EAF2),
+                error: Color(0xFFFF6B6B),
+                onError: Color(0xFF2A0A0A),
+                outline: Color(0xFF4A5568),
+                surfaceContainerHighest: Color(0xFF232B3D),
               ),
+              dividerColor: const Color(0x14FFFFFF), // border rgba(255,255,255,0.08)
+              cardColor: const Color(0xFF192134),
+              focusColor: const Color(0x2E4C9AFF),
+              highlightColor: const Color(0x1F4C9AFF),
               textTheme: const TextTheme(
-                headlineLarge: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFFE1E6F0)),
-                headlineMedium: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.bold, color: Color(0xFFE1E6F0)),
-                headlineSmall: TextStyle(fontFamily: 'SpaceGrotesk', fontWeight: FontWeight.w500, color: Color(0xFFE1E6F0)),
-                bodyLarge: TextStyle(color: Color(0xFFE1E6F0)),
-                bodyMedium: TextStyle(color: Color(0xFFE1E6F0)),
-                titleMedium: TextStyle(color: Color(0xFF8A94A6), fontSize: 14),
+                headlineLarge: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFFFFFF),
+                  // glow sutil tipo design system: "minimal glow (text-shadow: 0 0 10px)"
+                  shadows: [
+                    Shadow(color: Color(0x404C9AFF), blurRadius: 12),
+                  ],
+                ),
+                headlineMedium: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFFFFFF),
+                ),
+                headlineSmall: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFFFFFFFF),
+                ),
+                bodyLarge: TextStyle(color: Color(0xFFE6EAF2), height: 1.5),
+                bodyMedium: TextStyle(color: Color(0xFFE6EAF2), height: 1.5),
+                titleMedium: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
               ),
               useMaterial3: true,
             ),
