@@ -169,4 +169,113 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translating => 'Translating…';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get previousDay => 'Previous day';
+
+  @override
+  String get nextDay => 'Next day';
+
+  @override
+  String get chooseDate => 'Choose a date';
+
+  @override
+  String get backToToday => 'Go to today\'s picture';
+
+  @override
+  String get previousDays => 'Previous days';
+
+  @override
+  String get readMore => 'Open this picture';
+
+  @override
+  String get viewFullScreen => 'View full screen';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get openVideo => 'Open video';
+
+  @override
+  String get imageLoadError => 'Couldn\'t load this image.';
+
+  @override
+  String get imageCredit => 'Credit';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get aboutBody =>
+      'Appod shows NASA\'s Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors.';
+
+  @override
+  String get sourceCode => 'Source code on GitHub';
+
+  @override
+  String get loginToSync => 'Log in to keep your favorites across devices.';
+
+  @override
+  String get favoritesError => 'Couldn\'t load your favorites.';
+
+  @override
+  String get favoriteAdded => 'Added to favorites';
+
+  @override
+  String get favoriteRemoved => 'Removed from favorites';
+
+  @override
+  String get errorBadDate =>
+      'There is no picture for this date. Try another day.';
+
+  @override
+  String get errorKey => 'The NASA key is invalid or has expired.';
+
+  @override
+  String get errorNotFound =>
+      'There is no content for this date. Try another day.';
+
+  @override
+  String get errorRateLimit =>
+      'Too many requests to NASA. Wait a moment and try again.';
+
+  @override
+  String get errorNasa =>
+      'NASA\'s service is having problems. Try again later.';
+
+  @override
+  String get errorTimeout => 'NASA took too long to respond. Try again.';
+
+  @override
+  String get errorConnection => 'Check your internet connection and try again.';
+
+  @override
+  String get shareCopied => 'Link copied. Paste it anywhere.';
+
+  @override
+  String get shareFailed => 'Couldn\'t share this picture.';
+
+  @override
+  String get downloadStarted => 'Download started.';
+
+  @override
+  String get downloadFailed => 'Couldn\'t download this image.';
+
+  @override
+  String get imageSaved => 'Image saved to your gallery.';
+
+  @override
+  String get permissionDenied => 'Allow access to your gallery to save images.';
+
+  @override
+  String shareText(String date, String url) {
+    return 'Look at the astronomy picture of $date: $url';
+  }
+
+  @override
+  String get showPassword => 'Show password';
 }

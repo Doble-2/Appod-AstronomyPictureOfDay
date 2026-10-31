@@ -1,3 +1,4 @@
+import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
@@ -13,7 +14,7 @@ Future<void> saveNetworkImage(BuildContext context, String imageUrl, String titl
     if (!granted) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Permiso denegado para guardar en galería.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.permissionDenied)),
         );
       }
       return;
@@ -32,18 +33,18 @@ Future<void> saveNetworkImage(BuildContext context, String imageUrl, String titl
     if (context.mounted) {
       if (result['isSuccess'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Imagen guardada en la galería.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.imageSaved)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo guardar la imagen.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.downloadFailed)),
         );
       }
     }
   } catch (e) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.downloadFailed)),
       );
     }
   }

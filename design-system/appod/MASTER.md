@@ -1,208 +1,43 @@
-# Design System Master File
+# Appod design system: Observatory
 
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+The photograph leads and the interface steps back. The source of truth is `lib/ui/theme/app_theme.dart`; shared components are in `lib/ui/widgets/common.dart`.
 
----
+## Principles
 
-**Project:** Appod
-**Generated:** 2026-08-02 10:49:21
-**Category:** Space Tech / Aerospace
+- Never crop a picture on its own page. It sits on black, in its own shape.
+- One accent, amber, for actions and the current item. No gradients or glows on the interface.
+- Text on a photograph is always white on a dark fade, in both themes.
+- Every empty or error state says what happened and offers the next step.
+- Text and buttons always have a label. Do not rely on an icon alone.
 
----
+## Color
 
-## Global Rules
+| Role | Dark | Light |
+|------|------|-------|
+| Background | `#0B0C0E` | `#F7F8F9` |
+| Surface | `#16181B` | `#EDEFF1` |
+| Raised surface | `#212429` | `#E1E3E6` |
+| Line | `#2A2D32` | `#D9DBDF` |
+| Text | `#F2F1EE` | `#15171A` |
+| Secondary text | `#A9ACB1` | `#585C63` |
+| Accent | `#F5B14C` | `#9A5200` |
+| Error | `#FF8A7A` | `#B3261E` |
 
-### Color Palette
+## Type
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#4338CA` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#6366F1` | `--color-secondary` |
-| Accent/CTA | `#7C3AED` | `--color-accent` |
-| Background | `#0F172A` | `--color-background` |
-| Foreground | `#FFFFFF` | `--color-foreground` |
-| Muted | `#131936` | `--color-muted` |
-| Border | `rgba(255,255,255,0.08)` | `--color-border` |
-| Destructive | `#DC2626` | `--color-destructive` |
-| Ring | `#4338CA` | `--color-ring` |
+| Use | Font |
+|-----|------|
+| Titles | Newsreader 500 |
+| Interface and reading | IBM Plex Sans 400, 500, 600 |
+| Dates | IBM Plex Mono 400 |
+| APPOD wordmark only | Nasalization |
 
-**Color Notes:** Night indigo + dream violet on dark
+All are bundled in `assets/`. Newsreader and IBM Plex are under the SIL Open Font License.
 
-### Typography
+## Layout
 
-- **Heading Font:** Space Grotesk
-- **Body Font:** Inter
-- **Mood:** web3, bitcoin, defi, digital gold, fintech, crypto, trustless, luminescent, precision, dark
-- **Google Fonts:** [Space Grotesk + Inter](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap)
-
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap');
-```
-
-### Spacing Variables
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
-
-### Shadow Depths
-
-| Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
-
----
-
-## Component Specs
-
-### Buttons
-
-```css
-/* Primary Button */
-.btn-primary {
-  background: #7C3AED;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #4338CA;
-  border: 2px solid #4338CA;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
-
-### Cards
-
-```css
-.card {
-  background: #0F172A;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
-
-### Inputs
-
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
-
-.input:focus {
-  border-color: #4338CA;
-  outline: none;
-  box-shadow: 0 0 0 3px #4338CA20;
-}
-```
-
-### Modals
-
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
-```
-
----
-
-## Style Guidelines
-
-**Style:** Dark Mode (OLED)
-
-**Keywords:** Dark theme, low light, high contrast, deep black, midnight blue, eye-friendly, OLED, night mode, power efficient
-
-**Best For:** Night-mode apps, coding platforms, entertainment, eye-strain prevention, OLED devices, low-light
-
-**Key Effects:** Minimal glow (text-shadow: 0 0 10px), dark-to-light transitions, low white emission, high readability, visible focus
-
-### Page Pattern
-
-**Pattern Name:** Immersive/Interactive Experience
-
-- **Conversion Strategy:** 40% higher engagement. Performance trade-off. Provide skip option. Mobile fallback essential.
-- **CTA Placement:** After interaction complete + Skip option for impatient users
-- **Section Order:** 1. Full-screen interactive element, 2. Guided product tour, 3. Key benefits revealed, 4. CTA after completion
-
----
-
-## Anti-Patterns (Do NOT Use)
-
-- ❌ Generic design
-- ❌ No immersion
-
-### Additional Forbidden Patterns
-
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
-
----
-
-## Pre-Delivery Checklist
-
-Before delivering any UI code, verify:
-
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+- Page width: 1240 at most; 760 for reading and settings; 440 for forms.
+- Side margins: 32 from 905 wide, otherwise 16.
+- Navigation: text tabs at the top from 905 wide, otherwise a bottom bar.
+- Grid: 4 columns from 1000 wide, 3 from 600, otherwise 2. Pictures are 4:3.
+- Corner radius: 8. Touch targets: at least 44.

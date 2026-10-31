@@ -2,24 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
-import 'package:nasa_apod/ui/widgets/molecules/bubble.dart';
-import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_data.dart';
-import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_description.dart';
-import 'package:nasa_apod/ui/widgets/molecules/skeleton_apod_title.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
+import 'package:nasa_apod/ui/widgets/common.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/share_apod.dart';
-import 'package:nasa_apod/ui/widgets/atoms/loading_button.dart';
-import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
 import 'package:nasa_apod/ui/widgets/molecules/translate_description.dart';
-import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
+import 'package:nasa_apod/utils/apod_dates.dart';
 import 'package:nasa_apod/utils/image_proxy.dart';
-import 'package:nasa_apod/ui/responsive/responsive.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:url_launcher/url_launcher.dart' as ul;
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
+/// One day of the archive: the picture first, then its story.
 class ApodView extends StatefulWidget {
-  final String? date; // yyyy-MM-dd, opcional
+  final String? date; // yyyy-MM-dd
   const ApodView({super.key, this.date});
 
   @override
@@ -27,669 +22,273 @@ class ApodView extends StatefulWidget {
 }
 
 class _ApodViewState extends State<ApodView> {
-  bool _isLogged = false;
-  List<String> _favoriteDates = [];
-  // Mantiene el aspect ratio real de la imagen (ancho/alto) para ajustar el contenedor en desktop
-  double? _imageAspectRatio;
-  String? _lastImageUrl;
+  late final String _date = widget.date ?? todayIso();
+  List<String> _favorites = [];
+  String? _translated;
+  bool _translating = false;
 
-  Future<void> _loadFavorites() async {
-    final favs = await AuthService().getFavorites();
-    setState(() {
-      _favoriteDates = List<String>.from(favs);
-    });
-  }
-
-  Future<void> _toggleFavorite(String date) async {
-    final i10n = AppLocalizations.of(context)!;
-    final isFav = _favoriteDates.contains(date);
-    if (isFav) {
-      await AuthService().removeFavorite(date);
-      if (mounted) setState(() => _favoriteDates.remove(date));
-    } else {
-      await AuthService().addFavorite(date);
-      if (mounted) setState(() => _favoriteDates.add(date));
-    }
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isFav ? i10n.removeFromFavorites : i10n.addToFavorites),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  String? translatedExplanation;
   @override
   void initState() {
-    translatedExplanation = null;
-
     super.initState();
-    if (widget.date != null && widget.date!.isNotEmpty) {
-      context.read<ApodBloc>().add(ChangeDate(widget.date!));
-    } else {
-      context.read<ApodBloc>().add(FetchApod());
+    final bloc = context.read<ApodBloc>();
+    if (bloc.state.date != _date || bloc.state.apodData?['date'] != _date) {
+      bloc.add(ChangeDate(_date));
     }
-
-    _checkAuthentication();
-    _loadFavorites();
-  }
-
-  void _ensureImageAspectRatio(String url) {
-    if (_lastImageUrl == url && _imageAspectRatio != null) return;
-    _lastImageUrl = url;
-    final stream = Image.network(url).image.resolve(const ImageConfiguration());
-    ImageStreamListener? listener;
-    listener = ImageStreamListener((info, _) {
-      final w = info.image.width.toDouble();
-      final h = info.image.height.toDouble();
-      if (w > 0 && h > 0) {
-        setState(() {
-          _imageAspectRatio = w / h;
-        });
-      }
-      stream.removeListener(listener!);
-    }, onError: (error, stackTrace) {
-      stream.removeListener(listener!);
+    AuthService().getFavorites().then((favorites) {
+      if (mounted) setState(() => _favorites = List<String>.from(favorites));
     });
-    stream.addListener(listener);
   }
 
-  Future<void> _checkAuthentication() async {
-    // Replace with your actual authentication logic
-    _isLogged = await AuthService().isLoggedIn();
-    setState(() {});
+  Future<void> _toggleFavorite() async {
+    final i10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final wasFavorite = _favorites.contains(_date);
+    if (wasFavorite) {
+      await AuthService().removeFavorite(_date);
+    } else {
+      await AuthService().addFavorite(_date);
+    }
+    if (!mounted) return;
+    setState(() => wasFavorite ? _favorites.remove(_date) : _favorites.add(_date));
+    messenger.showSnackBar(SnackBar(content: Text(wasFavorite ? i10n.favoriteRemoved : i10n.favoriteAdded)));
   }
 
-  bool _isExpanded = false;
-  bool _isTranslating = false;
+  Future<void> _translate(String explanation, AppLocalizations i10n) async {
+    setState(() => _translating = true);
+    final translated = await translateDescription(context, explanation, i10n);
+    if (mounted) {
+      setState(() {
+        _translated = translated;
+        _translating = false;
+      });
+    }
+  }
+
+  void _openDay(String date) => Navigator.of(context).pushReplacementNamed('/apod/$date');
 
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
-
-    int currentIndex = 0;
-    void onNavTap(int value) {
-      setState(() {
-        currentIndex = value;
-      });
-    }
-
-    return Layout(
-      hideNavBar: true,
-      currentIndex: currentIndex,
-      onTap: onNavTap,
-      child: BlocBuilder<ApodBloc, ApodState>(
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () {
+            // A shared link opens this page first, with nothing to go back to.
+            final navigator = Navigator.of(context);
+            navigator.canPop() ? navigator.pop() : navigator.pushReplacementNamed('/home');
+          },
+        ),
+        title: const Text('APPOD', style: TextStyle(fontFamily: 'Nasa', fontSize: 20)),
+      ),
+      body: BlocBuilder<ApodBloc, ApodState>(
         builder: (context, state) {
-          if (state.status == ApodStatus.loading) {
-            return const _CenteredScrollable(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 16),
-                  SkeletonPrincipalApodButton(),
-                  SizedBox(height: 24),
-                  SkeletonTitle(),
-                  SizedBox(height: 12),
-                  SkeletonData(),
-                  SizedBox(height: 24),
-                  SkeletonDescription(),
-                  SizedBox(height: 40),
-                ],
-              ),
-            );
-          } else if (state.status == ApodStatus.success &&
-              state.apodData != null) {
-            final apod = state.apodData!;
-            final isImage = apod["media_type"] == "image";
-            final isFavorite = _favoriteDates.contains(apod['date']);
-            if (isImage) {
-              final imgUrl = proxiedImageUrl(apod['url']);
-              _ensureImageAspectRatio(imgUrl);
-            } else {
-              _imageAspectRatio = null; // no mantener ratio cuando es video
-              _lastImageUrl = null;
-            }
-
-            // Traducción diferida eliminada (no se llamaba). Se puede reintroducir bajo demanda.
-
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final isDesktop = context.isDesktop;
-                final mediaWidget = Padding(
-                  padding: const EdgeInsets.only(top: 24.0),
-                  child: Stack(
-                    children: [
-                      GestureDetector(
-                        onTap: isImage
-                            ? () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Dialog(
-                                      backgroundColor: Colors.transparent,
-                                      insetPadding: const EdgeInsets.all(0),
-                                      child: Stack(
-                                        children: [
-                                          InteractiveViewer(
-                                            panEnabled: true,
-                                            minScale: 0.5,
-                                            maxScale: 4,
-                                            child: Center(
-                                              child: Image.network(
-                                                proxiedImageUrl(apod['hdurl'] ??
-                                                    apod['url']),
-                                                fit: BoxFit.contain,
-                                                errorBuilder: (context, error,
-                                                        stack) =>
-                                                    const Center(
-                                                        child: Text(
-                                                            'Error al cargar imagen en alta calidad')),
-                                              ),
-                                            ),
-                                          ),
-                                          Positioned(
-                                            top: 16,
-                                            right: 16,
-                                            child: IconButton(
-                                              icon: const Icon(Icons.close,
-                                                  color: Colors.white,
-                                                  size: 30),
-                                              onPressed: () =>
-                                                  Navigator.of(context).pop(),
-                                              style: IconButton.styleFrom(
-                                                backgroundColor: Colors.black
-                                                    .withValues(alpha: 0.5),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              }
-                            : null,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(28.0),
-                          child: AspectRatio(
-                            aspectRatio: isDesktop
-                                ? (_imageAspectRatio ?? 16 / 9)
-                                : 6 / 3,
-                            child: isImage
-                                ? Image.network(
-                                    proxiedImageUrl(apod['url']),
-                                    // Preferimos contener para evitar recortes si el ratio aún no está calculado
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    loadingBuilder: (context, child,
-                                            progress) =>
-                                        progress == null
-                                            ? child
-                                            : const SkeletonPrincipalApodButton(),
-                                    errorBuilder: (context, error, stack) =>
-                                        const Center(
-                                            child:
-                                                Text('Error al cargar imagen')),
-                                  )
-                                : _ApodVideo(url: apod['url']),
-                          ),
-                        ),
-                      ),
-                      // Acciones: en desktop se muestran siempre; en mobile se expanden con FAB
-                      Positioned(
-                        bottom: 16,
-                        right: 16,
-                        child: isDesktop
-                            ? Row(
-                                children: [
-                                  if (isImage)
-                                    Bubble(
-                                      child: Semantics(
-                                        label: i10n.downloadApod,
-                                        button: true,
-                                        child: IconButton(
-                                          icon: const Icon(
-                                              Icons.download_rounded),
-                                          tooltip: i10n.downloadApod,
-                                          onPressed: () => saveNetworkImage(
-                                              context,
-                                              apod['url'],
-                                              apod['title']),
-                                        ),
-                                      ),
-                                    ),
-                                  const SizedBox(width: 8),
-                                  if (isImage)
-                                    Bubble(
-                                      child: Semantics(
-                                        label: i10n.share,
-                                        button: true,
-                                        child: IconButton(
-                                          icon: const Icon(
-                                              Icons.ios_share_rounded),
-                                          tooltip: i10n.share,
-                                          onPressed: () => shareApod(
-                                            context,
-                                            title: apod['title'] ?? '',
-                                            date: apod['date'] ?? '',
-                                            imageUrl: apod['url'] ?? '',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  const SizedBox(width: 8),
-                                  if (_isLogged)
-                                    Bubble(
-                                      child: Semantics(
-                                        label: isFavorite
-                                            ? i10n.removeFromFavorites
-                                            : i10n.addToFavorites,
-                                        button: true,
-                                        child: IconButton(
-                                          icon: Icon(
-                                            isFavorite
-                                                ? Icons.favorite_rounded
-                                                : Icons.favorite_border_rounded,
-                                            color:
-                                                isFavorite ? Colors.red : null,
-                                          ),
-                                          tooltip: isFavorite
-                                              ? i10n.removeFromFavorites
-                                              : i10n.addToFavorites,
-                                          onPressed: () =>
-                                              _toggleFavorite(apod['date']),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              )
-                            : Row(
-                                children: [
-                                  AnimatedSize(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                    child: _isExpanded
-                                        ? Row(
-                                            children: [
-                                              if (isImage)
-                                                Bubble(
-                                                  child: Semantics(
-                                                    label: i10n.downloadApod,
-                                                    button: true,
-                                                    child: IconButton(
-                                                      icon: const Icon(Icons
-                                                          .download_rounded),
-                                                      tooltip:
-                                                          i10n.downloadApod,
-                                                      onPressed: () =>
-                                                          saveNetworkImage(
-                                                              context,
-                                                              apod['url'],
-                                                              apod['title']),
-                                                    ),
-                                                  ),
-                                                ),
-                                              const SizedBox(width: 8),
-                                              if (isImage)
-                                                Bubble(
-                                                  child: Semantics(
-                                                    label: i10n.share,
-                                                    button: true,
-                                                    child: IconButton(
-                                                      icon: const Icon(Icons
-                                                          .ios_share_rounded),
-                                                      tooltip: i10n.share,
-                                                      onPressed: () =>
-                                                          shareApod(
-                                                        context,
-                                                        title:
-                                                            apod['title'] ?? '',
-                                                        date: apod['date'] ?? '',
-                                                        imageUrl:
-                                                            apod['url'] ?? '',
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              const SizedBox(width: 8),
-                                              if (_isLogged)
-                                                Bubble(
-                                                  child: Semantics(
-                                                    label: isFavorite
-                                                        ? i10n
-                                                            .removeFromFavorites
-                                                        : i10n.addToFavorites,
-                                                    button: true,
-                                                    child: IconButton(
-                                                      icon: Icon(
-                                                        isFavorite
-                                                            ? Icons
-                                                                .favorite_rounded
-                                                            : Icons
-                                                                .favorite_border_rounded,
-                                                        color: isFavorite
-                                                            ? Colors.red
-                                                            : null,
-                                                      ),
-                                                      tooltip: isFavorite
-                                                          ? i10n
-                                                              .removeFromFavorites
-                                                          : i10n.addToFavorites,
-                                                      onPressed: () =>
-                                                          _toggleFavorite(
-                                                              apod['date']),
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          )
-                                        : const SizedBox.shrink(),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  FloatingActionButton(
-                                    // Deferencia (HIG): control discreto, glass con borde
-                                    // hairline en vez de azul sólido que compite con el contenido.
-                                    backgroundColor: Theme.of(context)
-                                        .colorScheme
-                                        .surface
-                                        .withValues(alpha: 0.7),
-                                    foregroundColor:
-                                        Theme.of(context).colorScheme.onSurface,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                      side: BorderSide(
-                                        color: Theme.of(context)
-                                            .dividerColor,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    tooltip:
-                                        _isExpanded ? 'Cerrar' : 'Más opciones',
-                                    onPressed: () => setState(
-                                        () => _isExpanded = !_isExpanded),
-                                    child: Icon(_isExpanded
-                                        ? Icons.close_rounded
-                                        : Icons.more_horiz_rounded),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ],
-                  ),
-                );
-                final metaAndDescription = Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(top: 24.0, left: 4, right: 4),
-                      child: Text(
-                        apod['title'],
-                        style:
-                            Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  height: 1.1,
-                                ),
-                      ),
-                    ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(top: 16.0, left: 4, right: 4),
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 14,
-                        runSpacing: 10,
-                        children: [
-                          _MetaChip(
-                            icon: Icons.calendar_today_rounded,
-                            label: apod['date'],
-                          ),
-                          if (apod['copyright'] != null)
-                            _MetaChip(
-                              icon: Icons.camera_alt_rounded,
-                              label: apod['copyright'].replaceAll('\n', ' '),
-                              maxWidth: 240,
-                            ),
-                          if (apod['media_type'] != null)
-                            _MetaChip(
-                              icon: Icons.category_rounded,
-                              label: apod['media_type'],
-                            ),
-                        ],
-                      ),
-                    ),
-                    if (isDesktop)
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(top: 14.0, left: 4, right: 4),
-                        child: Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: [
-                            if (isImage)
-                              FilledButton.icon(
-                                onPressed: () => saveNetworkImage(
-                                    context, apod['url'], apod['title']),
-                                icon: const Icon(Icons.download_rounded),
-                                label: Text(i10n.downloadApod),
-                              ),
-                            if (_isLogged)
-                              OutlinedButton.icon(
-                                onPressed: () =>
-                                    _toggleFavorite(apod['date']),
-                                icon: Icon(isFavorite
-                                    ? Icons.favorite_rounded
-                                    : Icons.favorite_border_rounded),
-                                label: Text(isFavorite
-                                    ? i10n.removeFromFavorites
-                                    : i10n.addToFavorites),
-                              ),
-                          ],
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: 24.0, left: 4, right: 4, bottom: 16),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 800),
-                        child: Text(
-                          translatedExplanation ?? apod['explanation'],
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
-                              ?.copyWith(height: 1.6, fontSize: 17),
-                        ),
-                      ),
-                    ),
-                    // Solo mostrar el botón de traducir si el idioma de la app no es inglés
-                    // (las descripciones de NASA ya vienen en inglés).
-                    if (Localizations.localeOf(context).languageCode != 'en')
-                      Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: LoadingButton(
-                          loading: _isTranslating,
-                          loadingLabel: i10n.translating,
-                          icon: Icons.g_translate_rounded,
-                          onPressed: () async {
-                            setState(() => _isTranslating = true);
-                            try {
-                              final translated = await translateDescription(
-                                  context,
-                                  apod['explanation'],
-                                  i10n);
-                              if (mounted) {
-                                setState(() {
-                                  translatedExplanation = translated;
-                                });
-                              }
-                            } finally {
-                              if (mounted) {
-                                setState(() => _isTranslating = false);
-                              }
-                            }
-                          },
-                          child: Text(i10n.translate),
-                        ),
-                      )
-
-
-                  ],
-                );
-                return _CenteredScrollable(
-                  child: isDesktop
-                      ? Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 7, child: mediaWidget),
-                            const SizedBox(width: 28),
-                            Expanded(flex: 5, child: metaAndDescription),
-                          ],
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            mediaWidget,
-                            metaAndDescription,
-                            const SizedBox(height: 48),
-                          ],
-                        ),
-                );
-              },
-            );
-          } else {
-            final isNasaDown = state.errorCode == 504;
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 520),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .error
-                              .withValues(alpha: 0.1),
-                        ),
-                        child: Icon(Icons.cloud_off_rounded,
-                            size: 44,
-                            color: Theme.of(context).colorScheme.error),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        isNasaDown ? i10n.nasaDownTitle : i10n.genericError,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        isNasaDown
-                            ? i10n.nasaDownBody(state.errorCode ?? 504)
-                            : (state.errorMessage ?? i10n.genericError),
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.7),
-                            ),
-                      ),
-                      const SizedBox(height: 20),
-                      FilledButton.icon(
-                        onPressed: () {
-                          context.read<ApodBloc>().add(FetchApod());
-                        },
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: Text(i10n.retry),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+          if (state.status == ApodStatus.failed) {
+            return StateMessage(
+              icon: Icons.cloud_off_rounded,
+              title: i10n.genericError,
+              body: apodErrorText(i10n, state.errorCode),
+              actionLabel: i10n.retry,
+              onAction: () => context.read<ApodBloc>().add(ChangeDate(_date)),
             );
           }
+          final apod = state.apodData;
+          if (state.status != ApodStatus.success || apod == null || apod['date'] != _date) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 56),
+            child: Column(
+              children: [
+                _Stage(apod: apod),
+                const SizedBox(height: 28),
+                PageBody(maxWidth: 760, child: _article(apod, i10n)),
+              ],
+            ),
+          );
         },
       ),
     );
   }
-}
 
-class _MetaChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final double? maxWidth;
-  const _MetaChip({required this.icon, required this.label, this.maxWidth});
-
-  @override
-  Widget build(BuildContext context) {
-    final text = Text(
-      label,
-      overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-    );
-    final content = Row(
-      mainAxisSize: MainAxisSize.min,
+  Widget _article(Map<String, dynamic> apod, AppLocalizations i10n) {
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final isImage = apod['media_type'] == 'image';
+    final isFavorite = _favorites.contains(_date);
+    final title = (apod['title'] ?? '') as String;
+    final url = (apod['url'] ?? '') as String;
+    final credit = (apod['copyright'] as String?)?.replaceAll('\n', ' ').trim();
+    final explanation = (apod['explanation'] ?? '') as String;
+    final previous = shiftDay(_date, -1);
+    final next = shiftDay(_date, 1);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16),
-        const SizedBox(width: 6),
-        Flexible(child: text),
-      ],
-    );
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxWidth ?? 180),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: Theme.of(context)
-              .colorScheme
-              .surfaceContainerHighest
-              .withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-            width: 1,
-          ),
+        Text(longDate(_date, locale), style: theme.textTheme.labelSmall?.copyWith(fontSize: 13)),
+        const SizedBox(height: 8),
+        Text(title, style: theme.textTheme.displaySmall?.copyWith(fontSize: MediaQuery.of(context).size.width < 600 ? 32 : 44)),
+        if (credit != null && credit.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Text('${i10n.imageCredit}: $credit', style: theme.textTheme.bodyMedium),
+        ],
+        const SizedBox(height: 20),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            OutlinedButton.icon(
+              onPressed: _toggleFavorite,
+              icon: Icon(isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded, size: 18, color: isFavorite ? theme.colorScheme.primary : null),
+              label: Text(isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites),
+            ),
+            OutlinedButton.icon(
+              onPressed: () => shareApod(context, title: title, date: _date, imageUrl: url),
+              icon: const Icon(Icons.ios_share_rounded, size: 18),
+              label: Text(i10n.share),
+            ),
+            if (isImage)
+              OutlinedButton.icon(
+                onPressed: () => saveNetworkImage(context, url, title),
+                icon: const Icon(Icons.download_rounded, size: 18),
+                label: Text(i10n.downloadApod),
+              ),
+          ],
         ),
-        child: content,
-      ),
+        const SizedBox(height: 28),
+        SelectableText(_translated ?? explanation, style: theme.textTheme.bodyLarge),
+        // NASA writes in English, so translation is only offered to other readers.
+        if (locale != 'en' && _translated == null) ...[
+          const SizedBox(height: 12),
+          TextButton.icon(
+            onPressed: _translating ? null : () => _translate(explanation, i10n),
+            icon: _translating
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.translate_rounded, size: 18),
+            label: Text(_translating ? i10n.translating : i10n.translate),
+          ),
+        ],
+        const SizedBox(height: 36),
+        const Divider(),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            if (previous != null)
+              TextButton.icon(
+                onPressed: () => _openDay(previous),
+                icon: const Icon(Icons.chevron_left_rounded),
+                label: Text(i10n.previousDay),
+              ),
+            const Spacer(),
+            if (next != null)
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: TextButton.icon(
+                  onPressed: () => _openDay(next),
+                  icon: const Icon(Icons.chevron_left_rounded),
+                  label: Text(i10n.nextDay),
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
 
-class _CenteredScrollable extends StatelessWidget {
-  final Widget child;
-  const _CenteredScrollable({required this.child});
+/// The picture on black, never cropped. Tapping it opens the full view.
+class _Stage extends StatelessWidget {
+  final Map<String, dynamic> apod;
+  const _Stage({required this.apod});
+
+  void _openFullScreen(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+    final url = proxiedImageUrl((apod['hdurl'] ?? apod['url']) as String);
+    showDialog<void>(
+      context: context,
+      builder: (context) => Dialog.fullscreen(
+        backgroundColor: Colors.black,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: InteractiveViewer(
+                maxScale: 6,
+                child: Image.network(
+                  url,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, progress) =>
+                      progress == null ? child : const Center(child: CircularProgressIndicator(color: Colors.white)),
+                  errorBuilder: (context, error, stack) =>
+                      Center(child: Text(i10n.imageLoadError, style: const TextStyle(color: Colors.white))),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: IconButton(
+                    tooltip: i10n.close,
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: IconButton.styleFrom(backgroundColor: Colors.black54),
+                    icon: const Icon(Icons.close_rounded, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const maxWidth = 1100.0;
-        final horizontalPadding = constraints.maxWidth > maxWidth ? 32.0 : 16.0;
-        return SingleChildScrollView(
-          child: Center(
+    final i10n = AppLocalizations.of(context)!;
+    final maxHeight = MediaQuery.of(context).size.height * 0.72;
+    if (apod['media_type'] != 'image') {
+      return ColoredBox(
+        color: Colors.black,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxHeight * 16 / 9),
+            child: AspectRatio(aspectRatio: 16 / 9, child: _ApodVideo(url: apod['url'] as String)),
+          ),
+        ),
+      );
+    }
+    return Container(
+      color: Colors.black,
+      width: double.infinity,
+      child: Semantics(
+        button: true,
+        label: i10n.viewFullScreen,
+        child: Tooltip(
+          message: i10n.viewFullScreen,
+          child: InkWell(
+            onTap: () => _openFullScreen(context),
+            mouseCursor: SystemMouseCursors.zoomIn,
+            // The stage takes the picture's own shape, up to the height limit.
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: maxWidth),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                child: child,
+              constraints: BoxConstraints(minHeight: 240, maxHeight: maxHeight),
+              child: Center(
+                heightFactor: 1,
+                child: Image.network(
+                  proxiedImageUrl(apod['url'] as String),
+                  fit: BoxFit.contain,
+                  frameBuilder: (context, child, frame, sync) => AnimatedOpacity(
+                    opacity: sync || frame != null ? 1 : 0,
+                    duration: const Duration(milliseconds: 300),
+                    child: child,
+                  ),
+                  errorBuilder: (context, error, stack) =>
+                      Text(i10n.imageLoadError, style: const TextStyle(color: Colors.white)),
+                ),
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
@@ -765,7 +364,7 @@ class _ApodVideoState extends State<_ApodVideo> {
               }
             },
             icon: const Icon(Icons.open_in_new_rounded),
-            label: const Text('Abrir video'),
+            label: Text(AppLocalizations.of(context)!.openVideo),
           ),
         ),
       ],

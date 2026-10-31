@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
   "explore": "Explore",
-    "apodToday": "Image of the Day",
+  "apodToday": "Image of the Day",
   "otherApods": "Other Images",
   "downloadApod": "Download Image",
   "addToFavorites": "Add to Favorites",
@@ -19,7 +19,7 @@
   "favorites": "Favorites",
   "favoritesLocalHint": "Favorites are saved on this device. Log in to sync them across devices.",
   "noFavoritesYet": "No favorites yet. Tap the heart on any image to save it.",
-    "settings": "Settings",
+  "settings": "Settings",
   "diariesNotification": "Daily Notification",
   "qualityDownload": "Download Quality",
   "welcomeBack": "Welcome back",
@@ -51,5 +51,49 @@
   "genericError": "Couldn't load data.",
   "translate": "Translate",
   "share": "Share",
-    "translating": "Translating…"
+  "translating": "Translating…",
+  "today": "Today",
+  "previousDay": "Previous day",
+  "nextDay": "Next day",
+  "chooseDate": "Choose a date",
+  "backToToday": "Go to today's picture",
+  "previousDays": "Previous days",
+  "readMore": "Open this picture",
+  "viewFullScreen": "View full screen",
+  "close": "Close",
+  "openVideo": "Open video",
+  "imageLoadError": "Couldn't load this image.",
+  "imageCredit": "Credit",
+  "about": "About",
+  "aboutBody": "Appod shows NASA's Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors.",
+  "sourceCode": "Source code on GitHub",
+  "loginToSync": "Log in to keep your favorites across devices.",
+  "favoritesError": "Couldn't load your favorites.",
+  "favoriteAdded": "Added to favorites",
+  "favoriteRemoved": "Removed from favorites",
+  "errorBadDate": "There is no picture for this date. Try another day.",
+  "errorKey": "The NASA key is invalid or has expired.",
+  "errorNotFound": "There is no content for this date. Try another day.",
+  "errorRateLimit": "Too many requests to NASA. Wait a moment and try again.",
+  "errorNasa": "NASA's service is having problems. Try again later.",
+  "errorTimeout": "NASA took too long to respond. Try again.",
+  "errorConnection": "Check your internet connection and try again.",
+  "shareCopied": "Link copied. Paste it anywhere.",
+  "shareFailed": "Couldn't share this picture.",
+  "downloadStarted": "Download started.",
+  "downloadFailed": "Couldn't download this image.",
+  "imageSaved": "Image saved to your gallery.",
+  "permissionDenied": "Allow access to your gallery to save images.",
+  "shareText": "Look at the astronomy picture of {date}: {url}",
+  "@shareText": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "showPassword": "Show password"
 }

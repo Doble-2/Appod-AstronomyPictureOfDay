@@ -1,3 +1,4 @@
+import 'package:nasa_apod/l10n/app_localizations.dart';
 // ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'package:flutter/material.dart';
 import 'dart:html' as html;
@@ -28,13 +29,13 @@ Future<void> saveNetworkImage(BuildContext context, String imageUrl, String titl
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Descarga iniciada.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.downloadStarted)),
       );
     }
   } catch (e) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error iniciando descarga: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.downloadFailed)),
       );
     }
   }

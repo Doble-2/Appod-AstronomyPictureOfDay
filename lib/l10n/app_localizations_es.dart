@@ -171,4 +171,117 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get translating => 'Traduciendo…';
+
+  @override
+  String get today => 'Hoy';
+
+  @override
+  String get previousDay => 'Día anterior';
+
+  @override
+  String get nextDay => 'Día siguiente';
+
+  @override
+  String get chooseDate => 'Elegir una fecha';
+
+  @override
+  String get backToToday => 'Ir a la imagen de hoy';
+
+  @override
+  String get previousDays => 'Días anteriores';
+
+  @override
+  String get readMore => 'Abrir esta imagen';
+
+  @override
+  String get viewFullScreen => 'Ver en pantalla completa';
+
+  @override
+  String get close => 'Cerrar';
+
+  @override
+  String get openVideo => 'Abrir video';
+
+  @override
+  String get imageLoadError => 'No se pudo cargar esta imagen.';
+
+  @override
+  String get imageCredit => 'Crédito';
+
+  @override
+  String get about => 'Acerca de';
+
+  @override
+  String get aboutBody =>
+      'Appod muestra la imagen astronómica del día de la NASA. Las imágenes y los textos pertenecen a la NASA y a sus autores acreditados.';
+
+  @override
+  String get sourceCode => 'Código fuente en GitHub';
+
+  @override
+  String get loginToSync =>
+      'Inicia sesión para conservar tus favoritos entre dispositivos.';
+
+  @override
+  String get favoritesError => 'No se pudieron cargar tus favoritos.';
+
+  @override
+  String get favoriteAdded => 'Añadida a favoritos';
+
+  @override
+  String get favoriteRemoved => 'Quitada de favoritos';
+
+  @override
+  String get errorBadDate =>
+      'No hay imagen para esta fecha. Prueba con otro día.';
+
+  @override
+  String get errorKey => 'La clave de la NASA no es válida o caducó.';
+
+  @override
+  String get errorNotFound =>
+      'No hay contenido para esta fecha. Prueba con otro día.';
+
+  @override
+  String get errorRateLimit =>
+      'Demasiadas peticiones a la NASA. Espera un momento y vuelve a intentarlo.';
+
+  @override
+  String get errorNasa =>
+      'El servicio de la NASA tiene problemas. Vuelve a intentarlo más tarde.';
+
+  @override
+  String get errorTimeout =>
+      'La NASA tardó demasiado en responder. Vuelve a intentarlo.';
+
+  @override
+  String get errorConnection =>
+      'Revisa tu conexión a internet y vuelve a intentarlo.';
+
+  @override
+  String get shareCopied => 'Enlace copiado. Pégalo donde quieras.';
+
+  @override
+  String get shareFailed => 'No se pudo compartir esta imagen.';
+
+  @override
+  String get downloadStarted => 'Descarga iniciada.';
+
+  @override
+  String get downloadFailed => 'No se pudo descargar esta imagen.';
+
+  @override
+  String get imageSaved => 'Imagen guardada en tu galería.';
+
+  @override
+  String get permissionDenied =>
+      'Permite el acceso a tu galería para guardar imágenes.';
+
+  @override
+  String shareText(String date, String url) {
+    return 'Mira la imagen astronómica del $date: $url';
+  }
+
+  @override
+  String get showPassword => 'Mostrar contraseña';
 }

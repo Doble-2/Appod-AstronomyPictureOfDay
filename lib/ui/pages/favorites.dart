@@ -3,13 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
-import 'package:nasa_apod/ui/widgets/molecules/apod_button.dart';
-import 'package:nasa_apod/ui/widgets/molecules/skeleton_principal_apod_button.dart';
-import 'package:nasa_apod/ui/responsive/responsive.dart';
+import 'package:nasa_apod/ui/widgets/common.dart';
 
 class FavoritesView extends StatefulWidget {
   final AuthService authService;
-
   const FavoritesView({super.key, required this.authService});
 
   @override
@@ -17,344 +14,76 @@ class FavoritesView extends StatefulWidget {
 }
 
 class _FavoritesViewState extends State<FavoritesView> {
-  bool isLoggedIn = false;
-
-  Future<void> _checkAuthentication() async {
-    isLoggedIn = await widget.authService.isLoggedIn();
-    setState(() {});
-  }
+  bool _isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    _checkAuthentication();
-    context.read<ApodBloc>().add(FetchFavoriteApod());
+    widget.authService.isLoggedIn().then((value) {
+      if (mounted) setState(() => _isLoggedIn = value);
+    });
+    _reload();
   }
 
-  int _crossAxisCount(BuildContext context) {
-    if (context.isDesktop && !context.isXl) return 4;
-    if (context.isXl) return 5;
-    if (context.isMd) return 3; // rango md (>=905 <1240)
-    if (context.isSm) return 3; // tablets pequeñas / landscape
-    return 2; // móvil
-  }
+  void _reload() => context.read<ApodBloc>().add(FetchFavoriteApod());
 
-  double _childAspectRatio(BuildContext context) {
-    if (context.isXl) return 0.9;
-    if (context.isDesktop) return 0.85;
-    if (context.isMd) return 0.8;
-    if (context.isSm) return 0.78;
-    return 0.75;
+  Future<void> _remove(String date) async {
+    final i10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    await widget.authService.removeFavorite(date);
+    if (!mounted) return;
+    _reload();
+    messenger.showSnackBar(SnackBar(content: Text(i10n.favoriteRemoved)));
   }
 
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
-    final isDesktop = context.isDesktop;
-
-    Widget header([int? count]) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 16, bottom: 12),
-        child: Row(
-          children: [
-            Icon(Icons.favorite_rounded, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 8),
-            Text(
-              i10n.favorites + (count != null ? ' ($count)' : ''),
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+    final theme = Theme.of(context);
+    return PageBody(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 32),
+          Text(i10n.favorites, style: theme.textTheme.displaySmall),
+          if (!_isLoggedIn) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(i10n.favoritesLocalHint, style: theme.textTheme.bodyMedium),
+                TextButton(onPressed: () => Navigator.of(context).pushNamed('/login'), child: Text(i10n.login)),
+              ],
             ),
           ],
-        ),
-      );
-    }
-
-    if (!isLoggedIn) {
-      // Sin login: mostrar favoritos locales con hint de sincronización
-      return BlocBuilder<ApodBloc, ApodState>(
-        builder: (context, state) {
-          final crossCount = _crossAxisCount(context);
-          final aspect = _childAspectRatio(context);
-
-          if (state.favoriteApodStatus == ApodStatus.loading) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  header(),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.zero,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossCount,
-                      crossAxisSpacing: 20,
-                      mainAxisSpacing: 20,
-                      childAspectRatio: aspect,
-                    ),
-                    itemCount: 6,
-                    itemBuilder: (context, index) =>
-                        const SkeletonPrincipalApodButton(),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final isEmpty = state.favoriteApodData.isEmpty;
-          return Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                header(state.favoriteApodData.length),
-                // Banner sutil: favoritos guardados en este dispositivo
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.25),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.cloud_sync_rounded,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          i10n.favoritesLocalHint,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () =>
-                            Navigator.of(context).pushNamed('/login'),
-                        child: Text(i10n.login),
-                      ),
-                    ],
-                  ),
+          const SizedBox(height: 24),
+          BlocBuilder<ApodBloc, ApodState>(
+            buildWhen: (a, b) => a.favoriteApodStatus != b.favoriteApodStatus || a.favoriteApodData != b.favoriteApodData,
+            builder: (context, state) => switch (state.favoriteApodStatus) {
+              ApodStatus.loading => const Padding(padding: EdgeInsets.all(48), child: Center(child: CircularProgressIndicator())),
+              ApodStatus.failed => StateMessage(
+                  icon: Icons.cloud_off_rounded,
+                  title: i10n.favoritesError,
+                  body: apodErrorText(i10n, state.errorCode),
+                  actionLabel: i10n.retry,
+                  onAction: _reload,
                 ),
-                if (isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Icon(Icons.favorite_border_rounded,
-                              size: 56,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.25)),
-                          const SizedBox(height: 12),
-                          Text(
-                            i10n.noFavoritesYet,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.6),
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                else
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.zero,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossCount,
-                      crossAxisSpacing: 20,
-                      mainAxisSpacing: 20,
-                      childAspectRatio: aspect,
-                    ),
-                    itemCount: state.favoriteApodData.length,
-                    itemBuilder: (context, index) {
-                      final apod = state.favoriteApodData[index]!;
-                      return ApodButton(
-                        title: apod['title'] ?? 'No Title',
-                        date: apod['date'] ?? 'No Date',
-                        author: apod['copyright'] ?? 'No Author',
-                        image: apod['url'] ?? '',
-                        mediaType: apod['media_type'] ?? 'image',
-                        showRemoveButton: true,
-                        onRemove: () async {
-                          final scaffoldMessenger =
-                              ScaffoldMessenger.of(context);
-                          final apodBloc = context.read<ApodBloc>();
-                          await widget.authService.removeFavorite(apod['date']);
-                          if (!mounted) return;
-                          setState(() {});
-                          apodBloc.add(FetchFavoriteApod());
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(
-                                content: Text(
-                                    i10n.removeFromFavorites)),
-                          );
-                        },
-                      );
-                    },
-                  ),
-              ],
-            ),
-          );
-        },
-      );
-    }
-
-    return BlocBuilder<ApodBloc, ApodState>(
-      builder: (context, state) {
-        final crossCount = _crossAxisCount(context);
-        final aspect = _childAspectRatio(context);
-
-        if (state.favoriteApodStatus == ApodStatus.loading) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                header(),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossCount,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: aspect,
-                  ),
-                  itemCount: isDesktop ? 12 : 8,
-                  itemBuilder: (context, index) => const SkeletonPrincipalApodButton(),
+              ApodStatus.success when state.favoriteApodData.isEmpty => StateMessage(
+                  icon: Icons.favorite_border_rounded,
+                  title: i10n.noFavoritesYet,
+                  actionLabel: i10n.backToToday,
+                  onAction: () => Navigator.of(context).pushReplacementNamed('/home'),
                 ),
-              ],
-            ),
-          );
-        } else if (state.favoriteApodStatus == ApodStatus.success) {
-          if (state.favoriteApodData.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  header(0),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.favorite_outline, size: 36, color: Theme.of(context).colorScheme.primary),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Aún no tienes favoritos',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.75),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => Navigator.of(context).pushReplacementNamed('/home'),
-                          icon: const Icon(Icons.explore_rounded),
-                          label: const Text('Explorar'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                header(state.favoriteApodData.length),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.zero,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossCount,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: aspect,
-                  ),
-                  itemCount: state.favoriteApodData.length,
-                  itemBuilder: (context, index) {
-                    final apod = state.favoriteApodData[index]!;
-                    return ApodButton(
-                      title: apod['title'] ?? 'No Title',
-                      date: apod['date'] ?? 'No Date',
-                      author: apod['copyright'] ?? 'No Author',
-                      image: apod['url'] ?? '',
-                      mediaType: apod['media_type'] ?? 'image',
-                      showRemoveButton: true,
-                      onRemove: () async {
-                        final scaffoldMessenger = ScaffoldMessenger.of(context);
-                        final apodBloc = context.read<ApodBloc>();
-                        await widget.authService.removeFavorite(apod['date']);
-                        if (!mounted) return;
-                        scaffoldMessenger.showSnackBar(
-                          const SnackBar(
-                            content: Text('Favorito eliminado con éxito'),
-                          ),
-                        );
-                        apodBloc.add(FetchFavoriteApod());
-                      },
-                    );
-                  },
+              ApodStatus.success => ApodGrid(
+                  children: [
+                    for (final apod in state.favoriteApodData)
+                      ApodCard(apod: apod as Map, onRemove: () => _remove(apod['date'] as String), onReturned: _reload),
+                  ],
                 ),
-              ],
-            ),
-          );
-        } else if (state.favoriteApodStatus == ApodStatus.failed) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: Row(
-              children: [
-                Icon(Icons.error_outline_rounded, color: Theme.of(context).colorScheme.error),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Error al cargar los favoritos.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error),
-                  ),
-                ),
-              ],
-            ),
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
+            },
+          ),
+        ],
+      ),
     );
   }
 }

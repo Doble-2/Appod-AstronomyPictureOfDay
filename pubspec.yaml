@@ -107,6 +107,22 @@ flutter:
     - family: Nasa
       fonts:
         - asset: assets/nasalization rg.ttf
+    - family: Newsreader
+      fonts:
+        - asset: assets/fonts/Newsreader_500Medium.ttf
+          weight: 500
+    - family: IBMPlexSans
+      fonts:
+        - asset: assets/fonts/IBMPlexSans_400Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexSans_500Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSans_600SemiBold.ttf
+          weight: 600
+    - family: IBMPlexMono
+      fonts:
+        - asset: assets/fonts/IBMPlexMono_400Regular.ttf
+          weight: 400
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
