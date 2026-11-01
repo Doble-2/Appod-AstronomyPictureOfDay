@@ -19,7 +19,13 @@ Space Grotesk for titles, Inter for everything else. Both are bundled under the 
 - Swiping moves between days. Pictures fly from the card into their page.
 - Text on a photograph is white on a dark fade, in both themes.
 - Tapping a picture on its page always shows it whole and uncropped.
-- Corner radius 14 for cards, 12 for controls. Touch targets of at least 44.
+- Corner radius 14 for cards, 12 for controls, 8 for small marks, 20 for sheets and dialogs. Touch targets of at least 44.
+
+## Motion and texture
+
+- Entrances fade and rise; lists arrive slightly staggered. Everything is 140 to 500 ms, except the photo settling for 1600 ms.
+- Motion turns off when the system asks for reduced motion (`reduceMotion` in `common.dart`).
+- A faint, fixed star field sits behind the dark theme only. It never moves.
 
 ## Navigation
 

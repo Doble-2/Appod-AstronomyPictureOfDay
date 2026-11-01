@@ -63,13 +63,7 @@ class MyAppState extends State<MyApp> {
     final target = parseRoute(settings.name);
     final named = RouteSettings(name: target.path, arguments: settings.arguments);
     return switch (target.kind) {
-      // Tabs swap instantly, like tabs.
-      RouteKind.tab => PageRouteBuilder<void>(
-          settings: named,
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-          pageBuilder: (context, _, __) => MainScreen(initialIndex: target.tab),
-        ),
+      RouteKind.tab => _fade(named, MainScreen(initialIndex: target.tab), duration: 160, rise: false),
       RouteKind.day => _fade(named, ApodView(date: target.date)),
       RouteKind.login => _fade(named, const LoginScreen()),
       RouteKind.register => _fade(named, const RegisterScreen()),
@@ -77,13 +71,22 @@ class MyAppState extends State<MyApp> {
     };
   }
 
-  Route<void> _fade(RouteSettings settings, Widget page) {
+  Route<void> _fade(RouteSettings settings, Widget page, {int duration = 300, bool rise = true}) {
     return PageRouteBuilder<void>(
       settings: settings,
-      transitionDuration: const Duration(milliseconds: 220),
-      reverseTransitionDuration: const Duration(milliseconds: 160),
+      transitionDuration: Duration(milliseconds: duration),
+      reverseTransitionDuration: Duration(milliseconds: duration ~/ 1.5),
       pageBuilder: (context, _, __) => page,
-      transitionsBuilder: (context, animation, _, child) => FadeTransition(opacity: animation, child: child),
+      transitionsBuilder: (context, animation, _, child) {
+        if (MediaQuery.of(context).disableAnimations) return child;
+        final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+        return FadeTransition(
+          opacity: curved,
+          child: rise
+              ? SlideTransition(position: Tween(begin: const Offset(0, 0.015), end: Offset.zero).animate(curved), child: child)
+              : child,
+        );
+      },
     );
   }
 }

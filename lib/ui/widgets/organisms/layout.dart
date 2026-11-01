@@ -61,9 +61,13 @@ class _LayoutState extends State<Layout> {
         ),
       ),
     );
-    return Scaffold(
+    final lightIcons = overPhoto || scheme.brightness == Brightness.dark;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: lightIcons ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
       body: Stack(
         children: [
+          const Positioned.fill(child: AppBackground()),
           Positioned.fill(
             child: NotificationListener<ScrollNotification>(
               onNotification: _onScroll,
@@ -111,6 +115,7 @@ class _LayoutState extends State<Layout> {
             ),
         ],
       ),
+      ),
     );
   }
 }
@@ -157,14 +162,28 @@ class _TopTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       selected: selected,
-      child: TextButton(
-        onPressed: onTap,
-        style: TextButton.styleFrom(
-          foregroundColor: color.withValues(alpha: selected ? 1 : 0.72),
-          textStyle: TextStyle(fontWeight: selected ? FontWeight.w600 : FontWeight.w500, fontSize: 14),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-        ),
-        child: Text(label),
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          TextButton(
+            onPressed: onTap,
+            style: TextButton.styleFrom(
+              foregroundColor: color.withValues(alpha: selected ? 1 : 0.72),
+              textStyle: TextStyle(fontWeight: selected ? FontWeight.w600 : FontWeight.w500, fontSize: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+            child: Text(label),
+          ),
+          // The current tab is marked by more than its weight.
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            width: selected ? 18 : 0,
+            height: 2,
+            margin: const EdgeInsets.only(bottom: 4),
+            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(1)),
+          ),
+        ],
       ),
     );
   }
@@ -193,7 +212,12 @@ class _BottomTab extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(selected ? item.selectedIcon : item.icon, color: color, size: 24),
+            AnimatedScale(
+              scale: selected ? 1.08 : 1,
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutBack,
+              child: Icon(selected ? item.selectedIcon : item.icon, color: color, size: 24),
+            ),
             const SizedBox(height: 3),
             Text(item.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w500)),
           ],

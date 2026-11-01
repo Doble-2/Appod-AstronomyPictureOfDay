@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
@@ -57,7 +58,8 @@ class ApodImage extends StatelessWidget {
             fit: fit,
             frameBuilder: (context, child, frame, sync) => AnimatedOpacity(
               opacity: sync || frame != null ? 1 : 0,
-              duration: const Duration(milliseconds: 300),
+              duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 350),
+              curve: Curves.easeOut,
               child: child,
             ),
             errorBuilder: (context, error, stack) => Icon(Icons.broken_image_outlined, color: scheme.onSurfaceVariant),
@@ -67,6 +69,80 @@ class ApodImage extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Whether the reader asked for less motion in their system settings.
+bool reduceMotion(BuildContext context) => MediaQuery.of(context).disableAnimations;
+
+/// A faint field of stars behind the dark interface. Fixed, so it never distracts.
+class AppBackground extends StatelessWidget {
+  const AppBackground({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    // Stars only exist at night: on a light page they would read as dust.
+    if (scheme.brightness == Brightness.light) return const SizedBox.expand();
+    return RepaintBoundary(
+      child: CustomPaint(painter: _StarsPainter(scheme.onSurface, 0.2), size: Size.infinite),
+    );
+  }
+}
+
+class _StarsPainter extends CustomPainter {
+  final Color color;
+  final double strength;
+  _StarsPainter(this.color, this.strength);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final random = Random(1995); // The year APOD began, and the same sky every time.
+    final paint = Paint();
+    final stars = (size.width * size.height / 7000).round().clamp(40, 400);
+    for (var i = 0; i < stars; i++) {
+      final brightness = pow(random.nextDouble(), 3).toDouble();
+      paint.color = color.withValues(alpha: (0.15 + brightness * 0.85) * strength);
+      canvas.drawCircle(Offset(random.nextDouble() * size.width, random.nextDouble() * size.height), 0.4 + brightness * 0.7, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_StarsPainter old) => old.color != color || old.strength != strength;
+}
+
+/// Fades and rises into place, a little later for each [index] in a list.
+class Reveal extends StatelessWidget {
+  final int index;
+  final Widget child;
+  const Reveal({super.key, required this.child, this.index = 0});
+
+  @override
+  Widget build(BuildContext context) {
+    if (reduceMotion(context)) return child;
+    const base = 420;
+    final delay = 45 * index.clamp(0, 8);
+    final total = base + delay;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: total),
+      curve: Interval(delay / total, 1, curve: Curves.easeOutCubic),
+      child: child,
+      builder: (context, value, child) => Opacity(
+        opacity: value,
+        child: Transform.translate(offset: Offset(0, (1 - value) * 14), child: child),
+      ),
+    );
+  }
+}
+
+/// A photograph's corners stay rounded while it flies to its page, then square off.
+Widget roundedFlight(BuildContext flightContext, Animation<double> animation, HeroFlightDirection direction, BuildContext from, BuildContext to) {
+  final hero = (direction == HeroFlightDirection.push ? from : to).widget as Hero;
+  return AnimatedBuilder(
+    animation: animation,
+    builder: (context, child) => ClipRRect(borderRadius: BorderRadius.circular((1 - animation.value) * AppTheme.radius), child: child),
+    child: hero.child,
+  );
 }
 
 enum GlassEdge { none, top, bottom }
@@ -119,7 +195,8 @@ class GlassIconButton extends StatelessWidget {
           onPressed: onPressed,
           style: IconButton.styleFrom(backgroundColor: Colors.black38, minimumSize: const Size(48, 48)),
           icon: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
+            duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 260),
+            switchInCurve: Curves.easeOutBack,
             transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
             child: Icon(icon, key: ValueKey(icon), color: color ?? Colors.white, size: 22),
           ),
@@ -162,57 +239,93 @@ class ApodCard extends StatefulWidget {
 
 class _ApodCardState extends State<ApodCard> {
   bool _hover = false;
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final calm = reduceMotion(context);
     final apod = widget.apod;
     final date = (apod['date'] ?? '') as String;
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppTheme.radius),
-      hoverColor: Colors.transparent,
-      splashFactory: NoSplash.splashFactory,
-      onHover: (value) => setState(() => _hover = value),
-      onTap: () async {
-        await Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(date));
-        widget.onReturned?.call();
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AspectRatio(
-            aspectRatio: 4 / 3,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppTheme.radius),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  AnimatedScale(
-                    scale: _hover ? 1.03 : 1,
-                    duration: const Duration(milliseconds: 350),
-                    curve: Curves.easeOutCubic,
-                    child: Hero(tag: 'apod-$date', child: ApodImage(url: (apod['url'] ?? '') as String, isVideo: apod['media_type'] == 'video')),
-                  ),
-                  if (widget.onRemove != null)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: GlassIconButton(icon: Icons.favorite_rounded, tooltip: i10n.removeFromFavorites, onPressed: widget.onRemove!),
+    return AnimatedScale(
+      scale: _pressed && !calm ? 0.98 : 1,
+      duration: const Duration(milliseconds: 140),
+      curve: Curves.easeOut,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppTheme.radius),
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        splashFactory: NoSplash.splashFactory,
+        onHover: (value) => setState(() => _hover = value),
+        onHighlightChanged: (value) => setState(() => _pressed = value),
+        onTap: () async {
+          await Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(date));
+          widget.onReturned?.call();
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 4 / 3,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppTheme.radius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? (_hover ? 0.5 : 0.3) : (_hover ? 0.18 : 0.08)),
+                      blurRadius: _hover ? 24 : 14,
+                      offset: Offset(0, _hover ? 10 : 5),
                     ),
-                ],
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppTheme.radius),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      AnimatedScale(
+                        scale: _hover && !calm ? 1.04 : 1,
+                        duration: const Duration(milliseconds: 450),
+                        curve: Curves.easeOutCubic,
+                        child: Hero(
+                          tag: 'apod-$date',
+                          flightShuttleBuilder: roundedFlight,
+                          child: ApodImage(url: (apod['url'] ?? '') as String, isVideo: apod['media_type'] == 'video'),
+                        ),
+                      ),
+                      // A hairline keeps dark pictures from melting into the background.
+                      IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(AppTheme.radius),
+                            border: Border.all(color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08)),
+                          ),
+                        ),
+                      ),
+                      if (widget.onRemove != null)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: GlassIconButton(icon: Icons.favorite_rounded, tooltip: i10n.removeFromFavorites, onPressed: widget.onRemove!),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 10),
-          // Two lines are always reserved, so every card in a row ends level.
-          SizedBox(
-            height: 38,
-            child: Text((apod['title'] ?? '') as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium),
-          ),
-          const SizedBox(height: 2),
-          Text(longDate(date, Localizations.localeOf(context).languageCode), style: theme.textTheme.labelSmall),
-        ],
+            const SizedBox(height: 10),
+            // Two lines are always reserved, so every card in a row ends level.
+            SizedBox(
+              height: 38,
+              child: Text((apod['title'] ?? '') as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium),
+            ),
+            const SizedBox(height: 2),
+            Text(longDate(date, Localizations.localeOf(context).languageCode), style: theme.textTheme.labelSmall),
+          ],
+        ),
       ),
     );
   }
@@ -264,7 +377,10 @@ class ApodGrid extends StatelessWidget {
       return Wrap(
         spacing: gap,
         runSpacing: 28,
-        children: [for (final child in children) SizedBox(width: width, child: child)],
+        children: [
+          for (var i = 0; i < children.length; i++)
+            Reveal(key: children[i].key, index: i, child: SizedBox(width: width, child: children[i])),
+        ],
       );
     });
   }
@@ -290,8 +406,13 @@ class StateMessage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 32, color: theme.colorScheme.onSurfaceVariant),
-              const SizedBox(height: 12),
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: theme.colorScheme.surfaceContainerHighest),
+                child: Icon(icon, size: 28, color: theme.colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 16),
               Text(title, textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
               if (body != null) ...[
                 const SizedBox(height: 8),

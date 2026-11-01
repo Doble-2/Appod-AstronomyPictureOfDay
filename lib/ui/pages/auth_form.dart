@@ -65,8 +65,12 @@ class _AuthFormState extends State<AuthForm> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(top: 24, bottom: 48),
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          const Positioned.fill(child: AppBackground()),
+          Positioned.fill(child: SafeArea(child: SingleChildScrollView(
+        padding: const EdgeInsets.only(top: 56, bottom: 48),
         child: PageBody(
           maxWidth: 440,
           child: Form(
@@ -125,6 +129,8 @@ class _AuthFormState extends State<AuthForm> {
             ),
           ),
         ),
+      ))),
+        ],
       ),
     );
   }

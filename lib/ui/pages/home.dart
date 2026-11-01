@@ -71,7 +71,7 @@ class _HomeViewState extends State<HomeView> {
                   ApodGrid(
                     children: loadingOthers
                         ? [for (var i = 0; i < 8; i++) const AspectRatio(aspectRatio: 4 / 3, child: Skeleton())]
-                        : [for (final apod in others) ApodCard(apod: apod)],
+                        : [for (final apod in others) ApodCard(key: ValueKey(apod['date']), apod: apod)],
                   ),
                 ],
               ),
@@ -130,11 +130,11 @@ class _Hero extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 450),
+                      duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 500),
                       child: Hero(
                         key: ValueKey(shown),
                         tag: 'apod-$shown',
-                        child: ApodImage(url: (data['url'] ?? '') as String, isVideo: data['media_type'] == 'video'),
+                        child: _SettlingImage(url: (data['url'] ?? '') as String, isVideo: data['media_type'] == 'video'),
                       ),
                     ),
                     // Darkens only the edges, so the header and title stay legible.
@@ -164,8 +164,14 @@ class _Hero extends StatelessWidget {
                   child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
                   child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    layoutBuilder: (current, previous) => Stack(alignment: Alignment.bottomLeft, children: [...previous, if (current != null) current]),
+                    duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 380),
+                    switchInCurve: Curves.easeOutCubic,
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(position: Tween(begin: const Offset(0, 0.06), end: Offset.zero).animate(animation), child: child),
+                    ),
+                    // Only the new text is shown, so two titles never overlap.
+                    layoutBuilder: (current, previous) => current ?? const SizedBox.shrink(),
                     child: Column(
                       key: ValueKey(shown),
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,6 +212,28 @@ class _Hero extends StatelessWidget {
               Positioned(right: 24, top: 0, bottom: 0, child: Center(child: GlassIconButton(icon: Icons.chevron_right_rounded, tooltip: i10n.nextDay, onPressed: () => _go(context, 1)))),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// The photograph eases out of a slight zoom when it arrives.
+class _SettlingImage extends StatelessWidget {
+  final String url;
+  final bool isVideo;
+  const _SettlingImage({required this.url, required this.isVideo});
+
+  @override
+  Widget build(BuildContext context) {
+    final image = ApodImage(url: url, isVideo: isVideo);
+    if (reduceMotion(context)) return image;
+    return ClipRect(
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 1.05, end: 1),
+        duration: const Duration(milliseconds: 1600),
+        curve: Curves.easeOutCubic,
+        child: image,
+        builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
       ),
     );
   }
@@ -298,7 +326,7 @@ class _DayStripState extends State<_DayStrip> {
         ),
         const SizedBox(height: 4),
         SizedBox(
-          height: 64,
+          height: 68,
           child: ShaderMask(
             // Days fade out at the edge instead of being cut off.
             shaderCallback: (rect) => const LinearGradient(colors: [Colors.white, Colors.white, Colors.transparent], stops: [0, 0.92, 1]).createShader(rect),
@@ -339,8 +367,15 @@ class _DayStripState extends State<_DayStrip> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(DateFormat.E(locale).format(parsed), style: TextStyle(color: selected ? scheme.onPrimary : scheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500)),
-                                const SizedBox(height: 4),
-                                Text('${parsed.day}', style: TextStyle(color: selected ? scheme.onPrimary : scheme.onSurface, fontSize: 17, fontWeight: FontWeight.w600)),
+                                const SizedBox(height: 2),
+                                Text('${parsed.day}', style: TextStyle(color: selected ? scheme.onPrimary : scheme.onSurface, fontSize: 17, fontWeight: FontWeight.w600, fontFeatures: const [FontFeature.tabularFigures()])),
+                                const SizedBox(height: 3),
+                                // A dot marks today, wherever the reader is in the strip.
+                                Container(
+                                  width: 4,
+                                  height: 4,
+                                  decoration: BoxDecoration(shape: BoxShape.circle, color: day != todayIso() ? Colors.transparent : (selected ? scheme.onPrimary : scheme.primary)),
+                                ),
                               ],
                             ),
                           ),

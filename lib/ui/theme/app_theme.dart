@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static const display = 'SpaceGrotesk';
   static const text = 'Inter';
+  // Radius scale: cards 14, controls 12, small marks 8, sheets and dialogs 20.
   static const radius = 14.0;
+  static const radiusControl = 12.0;
+  static const radiusSheet = 20.0;
 
   static final dark = _build(const ColorScheme(
     brightness: Brightness.dark,
@@ -64,6 +67,22 @@ class AppTheme {
       fontFamily: text,
       textTheme: textTheme,
       scaffoldBackgroundColor: scheme.surface,
+      splashFactory: InkRipple.splashFactory,
+      splashColor: on.withValues(alpha: 0.06),
+      highlightColor: on.withValues(alpha: 0.04),
+      hoverColor: on.withValues(alpha: 0.05),
+      focusColor: scheme.primary.withValues(alpha: 0.16),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: scheme.primary, selectionColor: scheme.primary.withValues(alpha: 0.3)),
+      tooltipTheme: TooltipThemeData(
+        waitDuration: const Duration(milliseconds: 500),
+        textStyle: TextStyle(color: scheme.surface, fontSize: 12, fontWeight: FontWeight.w500),
+        decoration: BoxDecoration(color: on, borderRadius: BorderRadius.circular(8)),
+      ),
+      scrollbarTheme: ScrollbarThemeData(
+        thickness: const WidgetStatePropertyAll(6),
+        radius: const Radius.circular(3),
+        thumbColor: WidgetStatePropertyAll(on.withValues(alpha: 0.25)),
+      ),
       dividerColor: scheme.outlineVariant,
       dividerTheme: DividerThemeData(color: scheme.outlineVariant, space: 1, thickness: 1),
       appBarTheme: AppBarTheme(backgroundColor: Colors.transparent, foregroundColor: on, surfaceTintColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0),
@@ -79,13 +98,13 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: scheme.surfaceContainerHighest,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: scheme.primary, width: 2)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(radiusControl), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radiusControl), borderSide: BorderSide.none),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radiusControl), borderSide: BorderSide(color: scheme.primary, width: 2)),
       ),
       snackBarTheme: SnackBarThemeData(behavior: SnackBarBehavior.floating, shape: shape, backgroundColor: scheme.surfaceContainerHighest, contentTextStyle: TextStyle(color: on, fontFamily: text, fontSize: 14)),
-      dialogTheme: DialogThemeData(backgroundColor: scheme.surfaceContainer, surfaceTintColor: Colors.transparent, shape: shape),
-      datePickerTheme: DatePickerThemeData(backgroundColor: scheme.surfaceContainer, surfaceTintColor: Colors.transparent, headerBackgroundColor: scheme.surfaceContainer, headerForegroundColor: on),
+      dialogTheme: DialogThemeData(backgroundColor: scheme.surfaceContainer, surfaceTintColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusSheet))),
+      datePickerTheme: DatePickerThemeData(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusSheet)), backgroundColor: scheme.surfaceContainer, surfaceTintColor: Colors.transparent, headerBackgroundColor: scheme.surfaceContainer, headerForegroundColor: on),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: scheme.primary),
     );
   }

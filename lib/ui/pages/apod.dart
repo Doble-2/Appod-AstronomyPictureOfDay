@@ -6,6 +6,7 @@ import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
+import 'package:nasa_apod/ui/theme/app_theme.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/share_apod.dart';
@@ -89,7 +90,9 @@ class _ApodViewState extends State<ApodView> {
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
     final padding = MediaQuery.of(context).padding;
-    return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
       backgroundColor: Colors.black,
       body: BlocBuilder<ApodBloc, ApodState>(
         builder: (context, state) {
@@ -108,7 +111,9 @@ class _ApodViewState extends State<ApodView> {
               ),
             );
           } else if (!ready) {
-            content = const Skeleton(radius: 0);
+            content = context.isDesktop
+                ? Row(children: [const Expanded(child: Skeleton(radius: 0)), SizedBox(width: 440, child: ColoredBox(color: Theme.of(context).colorScheme.surface, child: const _StorySkeleton()))])
+                : Column(children: [const Expanded(flex: 3, child: Skeleton(radius: 0)), Expanded(flex: 2, child: ColoredBox(color: Theme.of(context).colorScheme.surface, child: const _StorySkeleton()))]);
           } else {
             content = context.isDesktop ? _wide(apod, i10n) : _phone(apod, i10n);
           }
@@ -127,6 +132,7 @@ class _ApodViewState extends State<ApodView> {
             ],
           );
         },
+      ),
       ),
     );
   }
@@ -174,7 +180,8 @@ class _ApodViewState extends State<ApodView> {
           builder: (context, controller) => DecoratedBox(
             decoration: BoxDecoration(
               color: scheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusSheet)),
+              border: Border(top: BorderSide(color: scheme.outlineVariant)),
               boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 30, offset: Offset(0, -6))],
             ),
             child: ListView(
@@ -207,7 +214,7 @@ class _ApodViewState extends State<ApodView> {
         Expanded(child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.contain))),
         Container(
           width: 440,
-          color: scheme.surface,
+          decoration: BoxDecoration(color: scheme.surface, border: Border(left: BorderSide(color: scheme.outlineVariant))),
           child: ListView(
             padding: const EdgeInsets.fromLTRB(36, 44, 36, 44),
             children: [
@@ -306,6 +313,32 @@ class _ApodViewState extends State<ApodView> {
   }
 }
 
+/// The shape of the story while it loads.
+class _StorySkeleton extends StatelessWidget {
+  const _StorySkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(28, 40, 28, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 120, child: Skeleton(height: 12, radius: 6)),
+          SizedBox(height: 16),
+          Skeleton(height: 28, radius: 8),
+          SizedBox(height: 24),
+          Skeleton(height: 12, radius: 6),
+          SizedBox(height: 10),
+          Skeleton(height: 12, radius: 6),
+          SizedBox(height: 10),
+          SizedBox(width: 200, child: Skeleton(height: 12, radius: 6)),
+        ],
+      ),
+    );
+  }
+}
+
 /// The photograph. Tapping it opens the full, uncropped view.
 class _Stage extends StatelessWidget {
   final Map<String, dynamic> apod;
@@ -369,6 +402,7 @@ class _Stage extends StatelessWidget {
           mouseCursor: SystemMouseCursors.zoomIn,
           child: Hero(
             tag: 'apod-$date',
+            flightShuttleBuilder: roundedFlight,
             child: ApodImage(url: apod['url'] as String, fit: fit, background: Colors.black),
           ),
         ),
