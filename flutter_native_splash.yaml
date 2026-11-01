@@ -15,7 +15,7 @@ flutter_native_splash:
   # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
   # size of the app. Only one parameter can be used, color and background_image cannot both be set.
   # Colores alineados con scaffoldBackgroundColor del tema claro
-  color: "#F5F6FA"
+  color: "#0A0C10"
   #background_image: "assets/background.png"
 
   # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
@@ -50,23 +50,23 @@ flutter_native_splash:
   # From Android 12 onwards, the splash screen is handled differently than in previous versions.
   # Please visit https://developer.android.com/guide/topics/ui/splash-screen
   # Following are specific parameters for Android 12+.
-  # Colores oscuros alineados con scaffoldBackgroundColor dark (#0A0E14)
-  color_dark: "#0A0E14"
+  # Colores oscuros alineados con scaffoldBackgroundColor dark (#0A0C10)
+  color_dark: "#0A0C10"
 
   # Personalización específica por plataforma (opcional pero explícita)
-  color_android: "#F5F6FA"
-  color_dark_android: "#0A0E14"
-  color_ios: "#F5F6FA"
-  color_dark_ios: "#0A0E14"
-  color_web: "#F5F6FA"
-  color_dark_web: "#0A0E14"
+  color_android: "#0A0C10"
+  color_dark_android: "#0A0C10"
+  color_ios: "#0A0C10"
+  color_dark_ios: "#0A0C10"
+  color_web: "#0A0C10"
+  color_dark_web: "#0A0C10"
 
   android_12:
     image: assets/AppodMargin.png
     image_dark: assets/AppodMargin.png
   # Quitar fondo circular para que no recorte el logo en Android 12+
-  # icon_background_color: "#F5F6FA"
-  # icon_background_color_dark: "#0A0E14"
+  # icon_background_color: "#0A0C10"
+  # icon_background_color_dark: "#0A0C10"
     #color_dark: "#042a49"
     #icon_background_color_dark: "#eeeeee"
 

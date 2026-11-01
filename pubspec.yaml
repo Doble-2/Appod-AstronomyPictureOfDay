@@ -107,7 +107,7 @@ flutter:
   fonts:
     - family: Nasa
       fonts:
-        - asset: assets/nasalization rg.ttf
+        - asset: assets/nasalization-rg.ttf
     - family: SpaceGrotesk
       fonts:
         - asset: assets/fonts/SpaceGrotesk_600SemiBold.ttf

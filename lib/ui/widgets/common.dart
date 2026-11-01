@@ -324,7 +324,6 @@ class _ApodCardState extends State<ApodCard> {
                 onTap: () async {
                   precacheApod(context, apod);
                   await Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(date));
-                  setAmbientFrom(apod);
                   widget.onReturned?.call();
                 },
                 child: Stack(

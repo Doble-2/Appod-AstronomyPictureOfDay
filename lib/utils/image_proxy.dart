@@ -35,6 +35,8 @@ String get _kImageProxyBase {
 
 String proxiedImageUrl(String url) {
   if (!kIsWeb) return url;
+  // NASA's image host lets browsers read it directly, and proxies get a 403.
+  if (url.startsWith('https://assets.science.nasa.gov/')) return url;
   final base = _kImageProxyBase;
   if (base.isEmpty) return url;
   // Si termina en '=' (caso ?url=) concatenamos la URL codificada

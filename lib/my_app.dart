@@ -1,3 +1,6 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/provider/locale_provider.dart';
@@ -42,6 +45,7 @@ class MyAppState extends State<MyApp> {
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             title: 'Appod - Astronomy picture of the day',
+            scrollBehavior: const _AppScrollBehavior(),
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             themeMode: themeProvider.themeMode,
@@ -72,6 +76,10 @@ class MyAppState extends State<MyApp> {
   }
 
   Route<void> _fade(RouteSettings settings, Widget page, {int duration = 300, bool rise = true}) {
+    // iPhone users expect to swipe back from the screen's edge.
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS && rise) {
+      return CupertinoPageRoute<void>(settings: settings, builder: (_) => page);
+    }
     return PageRouteBuilder<void>(
       settings: settings,
       transitionDuration: Duration(milliseconds: duration),
@@ -89,4 +97,12 @@ class MyAppState extends State<MyApp> {
       },
     );
   }
+}
+
+/// Lets a mouse drag whatever a finger can, such as panels and carousels.
+class _AppScrollBehavior extends MaterialScrollBehavior {
+  const _AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => const {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad, PointerDeviceKind.stylus};
 }

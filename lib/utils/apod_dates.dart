@@ -52,3 +52,5 @@ String shortDate(String date, String locale) {
   final parsed = DateTime.tryParse(date);
   return parsed == null ? date : DateFormat.yMMMd(locale).format(parsed);
 }
+
+String isoDate(DateTime date) => _iso.format(date);

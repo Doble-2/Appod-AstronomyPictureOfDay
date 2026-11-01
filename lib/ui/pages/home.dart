@@ -60,6 +60,7 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _loadMore() async {
     if (_loadingArchive || _archiveFailed) return;
     setState(() => _loadingArchive = true);
+    final monthDay = context.read<ApodBloc>().state.date.substring(5);
     var failed = false;
     List<dynamic> fresh = const [];
     // A random stretch can come back empty, so try a few before giving up.
@@ -67,7 +68,8 @@ class _HomeViewState extends State<HomeView> {
       final (start, end) = randomArchiveWindow(_random, DateTime.now());
       try {
         final days = await _service.getApodRange(start, end);
-        fresh = days.where((day) => day['url'] != null && !_seen.contains(day['date'])).toList()..shuffle(_random);
+        // "On this day" may show the same date, and two cards can't share a flight.
+        fresh = days.where((day) => day['url'] != null && !_seen.contains(day['date']) && !(day['date'] as String).endsWith(monthDay)).toList()..shuffle(_random);
       } on Exception {
         failed = true;
       }
