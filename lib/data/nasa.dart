@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:nasa_apod/data/nasa_site.dart';
 // dotenv eliminado: se usarán constantes en tiempo de compilación via --dart-define
 
 class ApiConstants {
@@ -25,7 +26,35 @@ class NasaApiException implements Exception {
 }
 
 class NetworkService {
+  final _site = NasaSiteSource();
+
+  /// The official API now answers with this placeholder instead of the picture.
+  static bool _isPlaceholder(Map item) =>
+      item['title'] == 'NASA Science' || '${item['url']}'.contains('nasa-logo');
+
   Future<Map<String, dynamic>> getApod(String date) async {
+    try {
+      return await _site.getDay(date);
+    } on NasaApiException catch (error) {
+      // No article is a real answer. Otherwise try the API, if it works again.
+      if (error.statusCode == 404) rethrow;
+      final fromApi = await _getApiDay(date);
+      if (_isPlaceholder(fromApi)) rethrow;
+      return fromApi;
+    }
+  }
+
+  Future<List<dynamic>> getApodRange(DateTime start, DateTime end) async {
+    try {
+      return await _site.getRange(start, end);
+    } on NasaApiException {
+      final fromApi = await _getApiRange(start, end);
+      if (fromApi.any((item) => item is Map && _isPlaceholder(item))) rethrow;
+      return fromApi;
+    }
+  }
+
+  Future<Map<String, dynamic>> _getApiDay(String date) async {
     final queryParameters = {
       ApiConstants.keyParameter: ApiConstants.nasaKey,
       ApiConstants.dateParameter: date,
@@ -64,7 +93,7 @@ class NetworkService {
     }
   }
 
-  Future<List<dynamic>> getApodRange(DateTime start, DateTime end) async {
+  Future<List<dynamic>> _getApiRange(DateTime start, DateTime end) async {
     final queryParameters = {
       ApiConstants.keyParameter: ApiConstants.nasaKey,
       'start_date': start.toIso8601String().split('T').first,

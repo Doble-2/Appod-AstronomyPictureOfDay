@@ -14,6 +14,10 @@ Aplicación Flutter multiplataforma (Web, Android, Desktop) para explorar Astron
 
 `lib/ui/responsive/responsive.dart` Breakpoints y `MaxWidthContainer`. `lib/utils/image_proxy.dart` Utilidad para proxificar imágenes en Web. `lib/ui/widgets/organisms/` Componentes adaptativos (layout, navigation, month selector, etc.).
 
+## Fuente de datos
+
+Las imágenes y los textos se leen de `science.nasa.gov` (`lib/data/nasa_site.dart`), adonde la NASA movió el archivo. `api.nasa.gov/planetary/apod` responde ahora con su logo como imagen, así que solo se usa como respaldo si el sitio falla y la API entrega datos válidos. El navegador puede leer ambos directamente, sin proxy.
+
 ## Ejecución local
 
 Requisitos: Flutter estable (3.32+), Dart 3.8+, Chrome para Web opcional.
