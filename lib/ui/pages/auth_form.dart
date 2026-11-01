@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
+import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 
 /// The login and register screens share everything except their wording.
 class AuthForm extends StatefulWidget {
@@ -74,8 +75,10 @@ class _AuthFormState extends State<AuthForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(widget.title, style: theme.textTheme.displaySmall?.copyWith(fontSize: 36)),
-                  const SizedBox(height: 28),
+                  const Align(alignment: Alignment.centerLeft, child: AppodLogo()),
+                  const SizedBox(height: 32),
+                  Text(widget.title, style: theme.textTheme.displaySmall),
+                  const SizedBox(height: 24),
                   TextFormField(
                     controller: _email,
                     decoration: InputDecoration(labelText: i10n.email),

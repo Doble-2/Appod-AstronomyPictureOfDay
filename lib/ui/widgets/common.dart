@@ -69,22 +69,31 @@ class ApodImage extends StatelessWidget {
   }
 }
 
-/// Frosted surface for anything that floats over content.
+enum GlassEdge { none, top, bottom }
+
+/// Frosted surface for bars that float over content.
 class Glass extends StatelessWidget {
   final Widget child;
   final double radius;
-  const Glass({super.key, required this.child, this.radius = 24});
+  final GlassEdge bordered;
+  const Glass({super.key, required this.child, this.radius = 24, this.bordered = GlassEdge.none});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isDark = scheme.brightness == Brightness.dark;
+    final line = BorderSide(color: scheme.outlineVariant);
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
         child: DecoratedBox(
-          decoration: BoxDecoration(color: scheme.surface.withValues(alpha: isDark ? 0.55 : 0.72)),
+          decoration: BoxDecoration(
+            color: scheme.surface.withValues(alpha: 0.88),
+            border: Border(
+              top: bordered == GlassEdge.top ? line : BorderSide.none,
+              bottom: bordered == GlassEdge.bottom ? line : BorderSide.none,
+            ),
+          ),
           child: child,
         ),
       ),
@@ -160,55 +169,82 @@ class _ApodCardState extends State<ApodCard> {
     final theme = Theme.of(context);
     final apod = widget.apod;
     final date = (apod['date'] ?? '') as String;
-    return AspectRatio(
-      aspectRatio: 1,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppTheme.radius),
-        child: Material(
-          color: theme.colorScheme.surfaceContainerHighest,
-          child: InkWell(
-            onHover: (value) => setState(() => _hover = value),
-            onTap: () async {
-              await Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(date));
-              widget.onReturned?.call();
-            },
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                AnimatedScale(
-                  scale: _hover ? 1.05 : 1,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutCubic,
-                  child: Hero(tag: 'apod-$date', child: ApodImage(url: (apod['url'] ?? '') as String, isVideo: apod['media_type'] == 'video')),
-                ),
-                const DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, stops: [0.45, 1], colors: [Colors.transparent, Color(0xCC000000)]),
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppTheme.radius),
+      hoverColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
+      onHover: (value) => setState(() => _hover = value),
+      onTap: () async {
+        await Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(date));
+        widget.onReturned?.call();
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppTheme.radius),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  AnimatedScale(
+                    scale: _hover ? 1.03 : 1,
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeOutCubic,
+                    child: Hero(tag: 'apod-$date', child: ApodImage(url: (apod['url'] ?? '') as String, isVideo: apod['media_type'] == 'video')),
                   ),
-                ),
-                Positioned(
-                  left: 12,
-                  right: 12,
-                  bottom: 12,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(longDate(date, Localizations.localeOf(context).languageCode), style: theme.textTheme.labelSmall?.copyWith(color: Colors.white70)),
-                      const SizedBox(height: 2),
-                      Text((apod['title'] ?? '') as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium?.copyWith(color: Colors.white)),
-                    ],
-                  ),
-                ),
-                if (widget.onRemove != null)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GlassIconButton(icon: Icons.favorite_rounded, tooltip: i10n.removeFromFavorites, onPressed: widget.onRemove!),
-                  ),
-              ],
+                  if (widget.onRemove != null)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GlassIconButton(icon: Icons.favorite_rounded, tooltip: i10n.removeFromFavorites, onPressed: widget.onRemove!),
+                    ),
+                ],
+              ),
             ),
           ),
-        ),
+          const SizedBox(height: 10),
+          // Two lines are always reserved, so every card in a row ends level.
+          SizedBox(
+            height: 38,
+            child: Text((apod['title'] ?? '') as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium),
+          ),
+          const SizedBox(height: 2),
+          Text(longDate(date, Localizations.localeOf(context).languageCode), style: theme.textTheme.labelSmall),
+        ],
+      ),
+    );
+  }
+}
+
+/// Grouped block for settings and similar content.
+class SectionGroup extends StatelessWidget {
+  final String title;
+  final Widget child;
+  const SectionGroup({super.key, required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: theme.textTheme.titleSmall),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(AppTheme.radius),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+            ),
+            child: child,
+          ),
+        ],
       ),
     );
   }
@@ -223,11 +259,11 @@ class ApodGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final columns = constraints.maxWidth >= 1000 ? 4 : constraints.maxWidth >= 600 ? 3 : 2;
-      const gap = 12.0;
+      const gap = 20.0;
       final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
       return Wrap(
         spacing: gap,
-        runSpacing: gap,
+        runSpacing: 28,
         children: [for (final child in children) SizedBox(width: width, child: child)],
       );
     });

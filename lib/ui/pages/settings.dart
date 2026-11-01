@@ -45,9 +45,9 @@ class _SettingsViewState extends State<SettingsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           Text(i10n.settings, style: theme.textTheme.displaySmall),
-          _Section(
+          SectionGroup(
             title: i10n.appeareance,
             child: SizedBox(
               width: double.infinity,
@@ -63,7 +63,7 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
           ),
-          _Section(
+          SectionGroup(
             title: i10n.language,
             child: SizedBox(
               width: double.infinity,
@@ -78,7 +78,7 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
           ),
-          _Section(
+          SectionGroup(
             title: i10n.account,
             child: _isLoggedIn
                 ? OutlinedButton(onPressed: _logout, child: Text(i10n.logout))
@@ -91,7 +91,7 @@ class _SettingsViewState extends State<SettingsView> {
                     ],
                   ),
           ),
-          _Section(
+          SectionGroup(
             title: i10n.about,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,27 +106,6 @@ class _SettingsViewState extends State<SettingsView> {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Section extends StatelessWidget {
-  final String title;
-  final Widget child;
-  const _Section({required this.title, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
-          child,
         ],
       ),
     );

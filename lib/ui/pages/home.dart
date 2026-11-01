@@ -7,7 +7,6 @@ import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
-import 'package:nasa_apod/ui/theme/app_theme.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 import 'package:nasa_apod/utils/apod_dates.dart';
@@ -64,14 +63,14 @@ class _HomeViewState extends State<HomeView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   _DayStrip(date: state.date),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 36),
                   Text(i10n.previousDays, style: Theme.of(context).textTheme.headlineMedium),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
                   ApodGrid(
                     children: loadingOthers
-                        ? [for (var i = 0; i < 8; i++) const AspectRatio(aspectRatio: 1, child: Skeleton())]
+                        ? [for (var i = 0; i < 8; i++) const AspectRatio(aspectRatio: 4 / 3, child: Skeleton())]
                         : [for (final apod in others) ApodCard(apod: apod)],
                   ),
                 ],
@@ -103,10 +102,11 @@ class _Hero extends StatelessWidget {
     final i10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
     final isDesktop = context.isDesktop;
-    final height = isDesktop ? (size.height * 0.8).clamp(480.0, 860.0) : (size.height * 0.74).clamp(420.0, 720.0);
+    final height = isDesktop ? (size.height * 0.74).clamp(460.0, 800.0) : (size.height * 0.62).clamp(380.0, 620.0);
     final data = apod;
     if (data == null) return SizedBox(height: height, width: double.infinity, child: const Skeleton(radius: 0));
     final shown = data['date'] as String;
+    final locale = Localizations.localeOf(context).languageCode;
     return SizedBox(
       height: height,
       width: double.infinity,
@@ -123,6 +123,8 @@ class _Hero extends StatelessWidget {
               label: '${data['title']}. ${i10n.readMore}',
               excludeSemantics: true,
               child: InkWell(
+                splashFactory: NoSplash.splashFactory,
+                hoverColor: Colors.transparent,
                 onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(shown)),
                 child: Stack(
                   fit: StackFit.expand,
@@ -135,9 +137,15 @@ class _Hero extends StatelessWidget {
                         child: ApodImage(url: (data['url'] ?? '') as String, isVideo: data['media_type'] == 'video'),
                       ),
                     ),
+                    // Darkens only the edges, so the header and title stay legible.
                     const DecoratedBox(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, stops: [0.45, 1], colors: [Colors.transparent, Color(0xE6000000)]),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: [0, 0.18, 0.55, 1],
+                          colors: [Color(0x8C000000), Colors.transparent, Colors.transparent, Color(0xD9000000)],
+                        ),
                       ),
                     ),
                   ],
@@ -148,11 +156,13 @@ class _Hero extends StatelessWidget {
           Positioned(
             left: 0,
             right: 0,
-            bottom: isDesktop ? 40 : 24,
+            bottom: isDesktop ? 44 : 24,
             child: IgnorePointer(
               child: PageBody(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 820),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 640),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     layoutBuilder: (current, previous) => Stack(alignment: Alignment.bottomLeft, children: [...previous, if (current != null) current]),
@@ -161,20 +171,16 @@ class _Hero extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(gradient: AppTheme.brandGradient, borderRadius: BorderRadius.circular(20)),
-                          child: Text(
-                            shown == todayIso() ? i10n.today : longDate(shown, Localizations.localeOf(context).languageCode),
-                            style: const TextStyle(color: AppTheme.onBrand, fontWeight: FontWeight.w600, fontSize: 12),
-                          ),
+                        Text(
+                          shown == todayIso() ? '${i10n.apodToday} · ${longDate(shown, locale)}' : longDate(shown, locale),
+                          style: theme.textTheme.labelMedium?.copyWith(color: Colors.white.withValues(alpha: 0.85), fontSize: 13),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
                         Text(
                           (data['title'] ?? '') as String,
-                          maxLines: 3,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.displaySmall?.copyWith(color: Colors.white, fontSize: isDesktop ? 56 : 34),
+                          style: theme.textTheme.displaySmall?.copyWith(color: Colors.white, fontSize: isDesktop ? 44 : 28),
                         ),
                         if (isDesktop) ...[
                           const SizedBox(height: 10),
@@ -182,12 +188,13 @@ class _Hero extends StatelessWidget {
                             (data['explanation'] ?? '') as String,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white70),
+                            style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white.withValues(alpha: 0.8)),
                           ),
                         ],
                       ],
                     ),
                   ),
+                ),
                 ),
               ),
             ),
@@ -204,7 +211,8 @@ class _Hero extends StatelessWidget {
   }
 }
 
-/// A row of days to tap through, with a calendar for jumping further back.
+/// A quiet row of days to tap through, under the current month, with a
+/// calendar for jumping further back.
 class _DayStrip extends StatefulWidget {
   final String date;
   const _DayStrip({required this.date});
@@ -214,7 +222,7 @@ class _DayStrip extends StatefulWidget {
 }
 
 class _DayStripState extends State<_DayStrip> {
-  static const _extent = 64.0;
+  static const _extent = 52.0;
   static const _count = 60;
   final _controller = ScrollController();
   bool _needsCenter = true;
@@ -222,8 +230,7 @@ class _DayStripState extends State<_DayStrip> {
   // The strip reaches back from today, or is centered on an older day.
   List<String> get _days {
     var anchor = shiftDay(widget.date, 15) ?? todayIso();
-    final today = DateTime.tryParse(todayIso())!;
-    final difference = today.difference(DateTime.parse(widget.date)).inDays;
+    final difference = DateTime.parse(todayIso()).difference(DateTime.parse(widget.date)).inDays;
     if (difference < 30) anchor = todayIso();
     return [
       for (var i = 0; i < _count; i++)
@@ -275,80 +282,78 @@ class _DayStripState extends State<_DayStrip> {
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final locale = Localizations.localeOf(context).languageCode;
     final days = _days;
-    return SizedBox(
-      height: 72,
-      child: Row(
-        children: [
-          Expanded(
+    final month = toBeginningOfSentenceCase(DateFormat.yMMMM(locale).format(DateTime.parse(widget.date)));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(child: Text(month, style: theme.textTheme.titleLarge)),
+            IconButton(tooltip: i10n.chooseDate, onPressed: _pick, icon: const Icon(Icons.calendar_month_outlined, size: 22)),
+          ],
+        ),
+        const SizedBox(height: 4),
+        SizedBox(
+          height: 64,
+          child: ShaderMask(
+            // Days fade out at the edge instead of being cut off.
+            shaderCallback: (rect) => const LinearGradient(colors: [Colors.white, Colors.white, Colors.transparent], stops: [0, 0.92, 1]).createShader(rect),
+            blendMode: BlendMode.dstIn,
             child: ScrollConfiguration(
-              behavior: ScrollConfiguration.of(context).copyWith(
-                scrollbars: false,
-                dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad},
-              ),
+              behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false, dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad}),
               child: NotificationListener<ScrollMetricsNotification>(
                 onNotification: (_) {
                   if (_needsCenter) _center();
                   return false;
                 },
                 child: ListView.builder(
-                controller: _controller,
-                scrollDirection: Axis.horizontal,
-                itemExtent: _extent,
-                itemCount: days.length,
-                itemBuilder: (context, index) {
-                  final day = days[index];
-                  final parsed = DateTime.parse(day);
-                  final selected = day == widget.date;
-                  final color = selected ? AppTheme.onBrand : scheme.onSurface;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Semantics(
-                      button: true,
-                      selected: selected,
-                      label: longDate(day, locale),
-                      excludeSemantics: true,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(18),
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          context.read<ApodBloc>().add(ChangeDate(day));
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                            gradient: selected ? AppTheme.brandGradient : null,
-                            color: selected ? null : scheme.surfaceContainerHighest,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(DateFormat.E(locale).format(parsed), style: TextStyle(color: selected ? color : scheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w500)),
-                              const SizedBox(height: 2),
-                              Text('${parsed.day}', style: TextStyle(color: color, fontFamily: AppTheme.display, fontSize: 20, fontWeight: FontWeight.w700)),
-                            ],
+                  controller: _controller,
+                  scrollDirection: Axis.horizontal,
+                  itemExtent: _extent,
+                  itemCount: days.length,
+                  itemBuilder: (context, index) {
+                    final day = days[index];
+                    final parsed = DateTime.parse(day);
+                    final selected = day == widget.date;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Semantics(
+                        button: true,
+                        selected: selected,
+                        label: longDate(day, locale),
+                        excludeSemantics: true,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            context.read<ApodBloc>().add(ChangeDate(day));
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: selected ? scheme.primary : Colors.transparent),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(DateFormat.E(locale).format(parsed), style: TextStyle(color: selected ? scheme.onPrimary : scheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500)),
+                                const SizedBox(height: 4),
+                                Text('${parsed.day}', style: TextStyle(color: selected ? scheme.onPrimary : scheme.onSurface, fontSize: 17, fontWeight: FontWeight.w600)),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 4),
-          IconButton.filled(
-            tooltip: i10n.chooseDate,
-            onPressed: _pick,
-            style: IconButton.styleFrom(backgroundColor: scheme.surfaceContainerHighest, foregroundColor: scheme.onSurface, minimumSize: const Size(56, 72), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
-            icon: const Icon(Icons.calendar_month_rounded),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

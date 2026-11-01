@@ -17,25 +17,32 @@ class GetAppWebPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           Text(i10n.getAppTitle, style: theme.textTheme.displaySmall),
-          const SizedBox(height: 16),
-          Text(i10n.getAppIntro, style: theme.textTheme.bodyLarge),
-          const SizedBox(height: 8),
-          Text(i10n.getAppNotInPlay, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: 24),
-          Wrap(
-            spacing: 16,
-            runSpacing: 8,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              FilledButton.icon(
-                onPressed: () => ul.launchUrl(Uri.base.resolve('appod.apk'), mode: ul.LaunchMode.platformDefault),
-                icon: const Icon(Icons.download_rounded, size: 18),
-                label: Text(i10n.getAppAction),
-              ),
-              Text('${i10n.getAppAndroidOnly} · 71 MB', style: theme.textTheme.labelSmall),
-            ],
+          SectionGroup(
+            title: i10n.getAppAndroidOnly,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(i10n.getAppIntro, style: theme.textTheme.bodyLarge),
+                const SizedBox(height: 8),
+                Text(i10n.getAppNotInPlay, style: theme.textTheme.bodyMedium),
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: () => ul.launchUrl(Uri.base.resolve('/appod.apk'), mode: ul.LaunchMode.platformDefault),
+                      icon: const Icon(Icons.download_rounded, size: 18),
+                      label: Text(i10n.getAppAction),
+                    ),
+                    Text('71 MB', style: theme.textTheme.labelSmall),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),

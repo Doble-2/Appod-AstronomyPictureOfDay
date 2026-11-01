@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 
 /// Appod's identity (logo, Nasa wordmark, blue and teal) on a modern app system:
-/// large radii, glass over photographs, and confident type.
+/// restrained color, clear hierarchy, and the photograph as the only spectacle.
 class AppTheme {
   static const display = 'SpaceGrotesk';
   static const text = 'Inter';
-  static const radius = 20.0;
-
-  /// The brand gradient, from the logo and splash screen.
-  static const brandGradient = LinearGradient(colors: [Color(0xFF3391FF), Color(0xFF00C6B5)]);
-  static const onBrand = Color(0xFF04101F);
+  static const radius = 14.0;
 
   static final dark = _build(const ColorScheme(
     brightness: Brightness.dark,
@@ -19,13 +15,13 @@ class AppTheme {
     onSecondary: Color(0xFF0A0E14),
     error: Color(0xFFFF6B6B),
     onError: Color(0xFF2A0A0A),
-    surface: Color(0xFF05060A),
+    surface: Color(0xFF0A0C10),
     onSurface: Color(0xFFEDEDEF),
     onSurfaceVariant: Color(0xFFA7ADB8),
-    surfaceContainer: Color(0xFF0E1118),
-    surfaceContainerHighest: Color(0xFF161A24),
+    surfaceContainer: Color(0xFF12151B),
+    surfaceContainerHighest: Color(0xFF1B1F27),
     outline: Color(0xFF4A5261),
-    outlineVariant: Color(0xFF1E2430),
+    outlineVariant: Color(0xFF242934),
   ));
 
   static final light = _build(const ColorScheme(
@@ -48,18 +44,18 @@ class AppTheme {
   static ThemeData _build(ColorScheme scheme) {
     final on = scheme.onSurface;
     final dim = scheme.onSurfaceVariant;
-    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(16));
+    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
     final textTheme = TextTheme(
-      displaySmall: TextStyle(fontFamily: display, fontWeight: FontWeight.w700, fontSize: 40, height: 1.08, letterSpacing: -1, color: on),
-      headlineMedium: TextStyle(fontFamily: display, fontWeight: FontWeight.w700, fontSize: 28, height: 1.15, letterSpacing: -0.5, color: on),
-      titleLarge: TextStyle(fontFamily: display, fontWeight: FontWeight.w600, fontSize: 20, height: 1.25, letterSpacing: -0.2, color: on),
-      titleMedium: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, height: 1.3, letterSpacing: -0.1, color: on),
-      titleSmall: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, height: 1.3, color: on),
-      bodyLarge: TextStyle(fontSize: 16, height: 1.6, color: on),
+      displaySmall: TextStyle(fontFamily: display, fontWeight: FontWeight.w600, fontSize: 32, height: 1.15, letterSpacing: -0.6, color: on),
+      headlineMedium: TextStyle(fontFamily: display, fontWeight: FontWeight.w600, fontSize: 24, height: 1.2, letterSpacing: -0.3, color: on),
+      titleLarge: TextStyle(fontFamily: display, fontWeight: FontWeight.w600, fontSize: 18, height: 1.3, letterSpacing: -0.1, color: on),
+      titleMedium: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, height: 1.35, color: on),
+      titleSmall: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, height: 1.3, color: on),
+      bodyLarge: TextStyle(fontSize: 15, height: 1.65, color: on),
       bodyMedium: TextStyle(fontSize: 14, height: 1.5, color: dim),
       labelLarge: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
       labelMedium: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: dim),
-      labelSmall: TextStyle(fontWeight: FontWeight.w500, fontSize: 12, height: 1.4, color: dim),
+      labelSmall: TextStyle(fontWeight: FontWeight.w400, fontSize: 12, height: 1.4, color: dim),
     );
     return ThemeData(
       useMaterial3: true,
@@ -71,14 +67,14 @@ class AppTheme {
       dividerColor: scheme.outlineVariant,
       dividerTheme: DividerThemeData(color: scheme.outlineVariant, space: 1, thickness: 1),
       appBarTheme: AppBarTheme(backgroundColor: Colors.transparent, foregroundColor: on, surfaceTintColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0),
-      filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(shape: shape, minimumSize: const Size(48, 48), padding: const EdgeInsets.symmetric(horizontal: 20))),
+      filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(shape: shape, minimumSize: const Size(48, 44), padding: const EdgeInsets.symmetric(horizontal: 18))),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(shape: shape, foregroundColor: on, side: BorderSide(color: scheme.outlineVariant), backgroundColor: scheme.surfaceContainerHighest, minimumSize: const Size(48, 48), padding: const EdgeInsets.symmetric(horizontal: 16)),
+        style: OutlinedButton.styleFrom(shape: shape, foregroundColor: on, side: BorderSide(color: scheme.outline.withValues(alpha: 0.5)), minimumSize: const Size(48, 44), padding: const EdgeInsets.symmetric(horizontal: 16)),
       ),
       textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(shape: shape, minimumSize: const Size(44, 44))),
       iconButtonTheme: IconButtonThemeData(style: IconButton.styleFrom(minimumSize: const Size(44, 44), foregroundColor: on)),
       segmentedButtonTheme: SegmentedButtonThemeData(
-        style: SegmentedButton.styleFrom(shape: shape, foregroundColor: on, selectedBackgroundColor: scheme.primary, selectedForegroundColor: scheme.onPrimary, side: BorderSide(color: scheme.outlineVariant), minimumSize: const Size(44, 48)),
+        style: SegmentedButton.styleFrom(shape: shape, foregroundColor: on, selectedBackgroundColor: scheme.primary.withValues(alpha: 0.16), selectedForegroundColor: scheme.primary, side: BorderSide(color: scheme.outlineVariant), minimumSize: const Size(44, 44)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

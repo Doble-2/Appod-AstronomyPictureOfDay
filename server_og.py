@@ -92,7 +92,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.wfile.write(html.encode())
             return
         # SPA: rutas sin archivo real → index.html
-        candidate = BUILD_DIR / parsed.path.lstrip("/")
+        candidate = BUILD_DIR / urllib.parse.unquote(parsed.path).lstrip("/")
         if parsed.path != "/" and not candidate.exists():
             self.path = "/index.html"
         super().do_GET()

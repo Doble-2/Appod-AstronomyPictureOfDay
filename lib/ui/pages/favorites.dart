@@ -45,7 +45,7 @@ class _FavoritesViewState extends State<FavoritesView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           Text(i10n.favorites, style: theme.textTheme.displaySmall),
           if (!_isLoggedIn) ...[
             const SizedBox(height: 8),

@@ -174,7 +174,7 @@ class _ApodViewState extends State<ApodView> {
           builder: (context, controller) => DecoratedBox(
             decoration: BoxDecoration(
               color: scheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 30, offset: Offset(0, -6))],
             ),
             child: ListView(
@@ -206,25 +206,33 @@ class _ApodViewState extends State<ApodView> {
       children: [
         Expanded(child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.contain))),
         Container(
-          width: 460,
+          width: 440,
           color: scheme.surface,
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(32, 40, 32, 40),
+            padding: const EdgeInsets.fromLTRB(36, 44, 36, 44),
             children: [
-              ..._story(apod, i10n, titleSize: 34),
+              ..._story(apod, i10n, titleSize: 28),
             ]..insertAll(_actionsIndex(apod), [
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    FilledButton.icon(
-                      onPressed: _toggleFavorite,
-                      icon: Icon(isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded, size: 18),
-                      label: Text(isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites),
-                    ),
-                    OutlinedButton.icon(onPressed: () => _share(apod), icon: const Icon(Icons.ios_share_rounded, size: 18), label: Text(i10n.share)),
+                    if (isFavorite)
+                      OutlinedButton.icon(
+                        onPressed: _toggleFavorite,
+                        icon: Icon(Icons.favorite_rounded, size: 18, color: scheme.primary),
+                        label: Text(i10n.removeFromFavorites),
+                      )
+                    else
+                      FilledButton.icon(
+                        onPressed: _toggleFavorite,
+                        icon: const Icon(Icons.favorite_border_rounded, size: 18),
+                        label: Text(i10n.addToFavorites),
+                      ),
+                    IconButton.outlined(tooltip: i10n.share, onPressed: () => _share(apod), icon: const Icon(Icons.ios_share_rounded, size: 18)),
                     if (isImage)
-                      OutlinedButton.icon(onPressed: () => _download(apod), icon: const Icon(Icons.download_rounded, size: 18), label: Text(i10n.downloadApod)),
+                      IconButton.outlined(tooltip: i10n.downloadApod, onPressed: () => _download(apod), icon: const Icon(Icons.download_rounded, size: 18)),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -238,13 +246,13 @@ class _ApodViewState extends State<ApodView> {
   // The actions go right after the date, title and credit.
   int _actionsIndex(Map<String, dynamic> apod) {
     final credit = (apod['copyright'] as String?)?.trim() ?? '';
-    return credit.isEmpty ? 4 : 6;
+    return credit.isEmpty ? 4 : 4;
   }
 
   void _share(Map<String, dynamic> apod) => shareApod(context, title: (apod['title'] ?? '') as String, date: _date, imageUrl: (apod['url'] ?? '') as String);
   void _download(Map<String, dynamic> apod) => saveNetworkImage(context, (apod['url'] ?? '') as String, (apod['title'] ?? '') as String);
 
-  List<Widget> _story(Map<String, dynamic> apod, AppLocalizations i10n, {double titleSize = 28}) {
+  List<Widget> _story(Map<String, dynamic> apod, AppLocalizations i10n, {double titleSize = 24}) {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final credit = (apod['copyright'] as String?)?.replaceAll('\n', ' ').trim() ?? '';
@@ -252,12 +260,12 @@ class _ApodViewState extends State<ApodView> {
     final previous = shiftDay(_date, -1);
     final next = shiftDay(_date, 1);
     return [
-      Text(longDate(_date, locale), style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary)),
-      const SizedBox(height: 6),
+      Text(longDate(_date, locale), style: theme.textTheme.labelMedium),
+      const SizedBox(height: 8),
       Text((apod['title'] ?? '') as String, style: theme.textTheme.headlineMedium?.copyWith(fontSize: titleSize)),
-      const SizedBox(height: 10),
+      const SizedBox(height: 16),
       if (credit.isNotEmpty) ...[
-        Text('${i10n.imageCredit}: $credit', style: theme.textTheme.bodyMedium),
+        Text('${i10n.imageCredit}: $credit', style: theme.textTheme.labelSmall),
         const SizedBox(height: 16),
       ],
       SelectableText(_translated ?? explanation, style: theme.textTheme.bodyLarge),
@@ -275,19 +283,21 @@ class _ApodViewState extends State<ApodView> {
           ),
         ),
       ],
-      const SizedBox(height: 20),
+      const SizedBox(height: 28),
+      const Divider(),
+      const SizedBox(height: 12),
       Row(
         children: [
           if (previous != null)
             Expanded(
-              child: OutlinedButton.icon(onPressed: () => _openDay(previous), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.previousDay)),
+              child: TextButton.icon(onPressed: () => _openDay(previous), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.previousDay)),
             ),
           if (previous != null && next != null) const SizedBox(width: 8),
           if (next != null)
             Expanded(
               child: Directionality(
                 textDirection: TextDirection.rtl,
-                child: OutlinedButton.icon(onPressed: () => _openDay(next), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.nextDay)),
+                child: TextButton.icon(onPressed: () => _openDay(next), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.nextDay)),
               ),
             ),
         ],
