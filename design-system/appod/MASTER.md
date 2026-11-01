@@ -1,43 +1,26 @@
-# Appod design system: Observatory
+# Appod design system
 
-The photograph leads and the interface steps back. The source of truth is `lib/ui/theme/app_theme.dart`; shared components are in `lib/ui/widgets/common.dart`.
+Appod's identity on a modern app system. The source of truth is `lib/ui/theme/app_theme.dart`; shared components are in `lib/ui/widgets/common.dart`.
 
-## Principles
+## Identity
 
-- Never crop a picture on its own page. It sits on black, in its own shape.
-- One accent, amber, for actions and the current item. No gradients or glows on the interface.
-- Text on a photograph is always white on a dark fade, in both themes.
-- Every empty or error state says what happened and offers the next step.
-- Text and buttons always have a label. Do not rely on an icon alone.
-
-## Color
-
-| Role | Dark | Light |
-|------|------|-------|
-| Background | `#0B0C0E` | `#F7F8F9` |
-| Surface | `#16181B` | `#EDEFF1` |
-| Raised surface | `#212429` | `#E1E3E6` |
-| Line | `#2A2D32` | `#D9DBDF` |
-| Text | `#F2F1EE` | `#15171A` |
-| Secondary text | `#A9ACB1` | `#585C63` |
-| Accent | `#F5B14C` | `#9A5200` |
-| Error | `#FF8A7A` | `#B3261E` |
+- Logo next to the APPOD wordmark in the Nasa font.
+- Brand gradient `#3391FF` to `#00C6B5`, for the selected item and the main highlight.
+- Blue accent: `#5E9EFF` on dark, `#1A73E8` on light. Teal: `#2DD4BF` on dark, `#00796B` on light.
+- Backgrounds: `#05060A` on dark, `#F6F8FC` on light.
 
 ## Type
 
-| Use | Font |
-|-----|------|
-| Titles | Newsreader 500 |
-| Interface and reading | IBM Plex Sans 400, 500, 600 |
-| Dates | IBM Plex Mono 400 |
-| APPOD wordmark only | Nasalization |
+Space Grotesk for titles, Inter for everything else. Both are bundled under the SIL Open Font License.
 
-All are bundled in `assets/`. Newsreader and IBM Plex are under the SIL Open Font License.
+## Principles
 
-## Layout
+- The photograph fills the screen. The interface floats over it as glass.
+- Swiping moves between days. Pictures fly from the card into their page.
+- Text on a photograph is white on a dark fade, in both themes.
+- Tapping a picture on its page always shows it whole and uncropped.
+- Corner radius 20 for cards, 16 for controls. Touch targets of at least 44.
 
-- Page width: 1240 at most; 760 for reading and settings; 440 for forms.
-- Side margins: 32 from 905 wide, otherwise 16.
-- Navigation: text tabs at the top from 905 wide, otherwise a bottom bar.
-- Grid: 4 columns from 1000 wide, 3 from 600, otherwise 2. Pictures are 4:3.
-- Corner radius: 8. Touch targets: at least 44.
+## Navigation
+
+Every address is defined in `lib/routes.dart`. Screens never write addresses by hand.

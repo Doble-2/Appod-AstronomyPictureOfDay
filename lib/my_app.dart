@@ -5,9 +5,10 @@ import 'package:nasa_apod/provider/theme_provider.dart';
 import 'package:nasa_apod/ui/main_screen.dart';
 import 'package:nasa_apod/ui/pages/apod.dart';
 import 'package:nasa_apod/ui/pages/register.dart';
+import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/ui/pages/login.dart';
+import 'package:nasa_apod/ui/pages/not_found.dart';
 import 'package:nasa_apod/ui/theme/app_theme.dart';
-import 'package:nasa_apod/utils/apod_dates.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatefulWidget {
@@ -44,12 +45,13 @@ class MyAppState extends State<MyApp> {
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             themeMode: themeProvider.themeMode,
-            initialRoute: '/',
+            initialRoute: AppRoutes.home,
             onGenerateRoute: _route,
             // A shared link opens that day on top of Home, so Back always has somewhere to go.
+            // Any address opens on top of Home, so Back always has somewhere to go.
             onGenerateInitialRoutes: (name) => [
-              _route(const RouteSettings(name: '/'))!,
-              if (name != '/' && _route(RouteSettings(name: name)) != null) _route(RouteSettings(name: name))!,
+              _route(const RouteSettings(name: AppRoutes.home)),
+              if (parseRoute(name).path != AppRoutes.home) _route(RouteSettings(name: name)),
             ],
           );
         },
@@ -57,33 +59,22 @@ class MyAppState extends State<MyApp> {
     );
   }
 
-  Route<void>? _route(RouteSettings settings) {
-    final name = settings.name ?? '';
-    final tab = switch (name) {
-      '/' || '/home' => 0,
-      '/favorites' => 1,
-      '/settings' => 2,
-      '/get-app' => 3,
-      _ => null,
-    };
-    if (tab != null) {
+  Route<void> _route(RouteSettings settings) {
+    final target = parseRoute(settings.name);
+    final named = RouteSettings(name: target.path, arguments: settings.arguments);
+    return switch (target.kind) {
       // Tabs swap instantly, like tabs.
-      return PageRouteBuilder<void>(
-        settings: settings,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-        pageBuilder: (context, _, __) => MainScreen(initialIndex: tab),
-      );
-    }
-    if (name == '/login') return _fade(settings, const LoginScreen());
-    if (name == '/register') return _fade(settings, const RegisterScreen());
-    // /apod/yyyy-MM-dd opens that day; /apod and the old /appod open today.
-    final day = RegExp(r'^/apod/(\d{4}-\d{2}-\d{2})$').firstMatch(name)?.group(1);
-    if (day != null) return _fade(settings, ApodView(date: day));
-    if (name == '/apod' || name == '/apod/' || name == '/appod') {
-      return _fade(RouteSettings(name: '/apod/${todayIso()}'), ApodView(date: todayIso()));
-    }
-    return null;
+      RouteKind.tab => PageRouteBuilder<void>(
+          settings: named,
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (context, _, __) => MainScreen(initialIndex: target.tab),
+        ),
+      RouteKind.day => _fade(named, ApodView(date: target.date)),
+      RouteKind.login => _fade(named, const LoginScreen()),
+      RouteKind.register => _fade(named, const RegisterScreen()),
+      RouteKind.notFound => _fade(named, const NotFoundPage()),
+    };
   }
 
   Route<void> _fade(RouteSettings settings, Widget page) {

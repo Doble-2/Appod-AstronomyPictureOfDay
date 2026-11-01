@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
+import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
+import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 import 'package:nasa_apod/ui/widgets/molecules/download_apod.dart';
 import 'package:nasa_apod/ui/widgets/molecules/share_apod.dart';
@@ -12,7 +15,8 @@ import 'package:nasa_apod/utils/image_proxy.dart';
 import 'package:url_launcher/url_launcher.dart' as ul;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
-/// One day of the archive: the picture first, then its story.
+/// One day of the archive. Phones: the photograph behind a draggable sheet.
+/// Large screens: the whole photograph beside a reading panel.
 class ApodView extends StatefulWidget {
   final String? date; // yyyy-MM-dd
   const ApodView({super.key, this.date});
@@ -43,14 +47,14 @@ class _ApodViewState extends State<ApodView> {
     final i10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     final wasFavorite = _favorites.contains(_date);
+    HapticFeedback.lightImpact();
+    setState(() => wasFavorite ? _favorites.remove(_date) : _favorites.add(_date));
     if (wasFavorite) {
       await AuthService().removeFavorite(_date);
     } else {
       await AuthService().addFavorite(_date);
     }
-    if (!mounted) return;
-    setState(() => wasFavorite ? _favorites.remove(_date) : _favorites.add(_date));
-    messenger.showSnackBar(SnackBar(content: Text(wasFavorite ? i10n.favoriteRemoved : i10n.favoriteAdded)));
+    if (mounted) messenger.showSnackBar(SnackBar(content: Text(wasFavorite ? i10n.favoriteRemoved : i10n.favoriteAdded)));
   }
 
   Future<void> _translate(String explanation, AppLocalizations i10n) async {
@@ -64,141 +68,240 @@ class _ApodViewState extends State<ApodView> {
     }
   }
 
-  void _openDay(String date) => Navigator.of(context).pushReplacementNamed('/apod/$date');
+  void _openDay(String? date) {
+    if (date != null) Navigator.of(context).pushReplacementNamed(AppRoutes.day(date));
+  }
+
+  void _back() {
+    // A shared link opens this page first, with nothing to go back to.
+    final navigator = Navigator.of(context);
+    navigator.canPop() ? navigator.pop() : navigator.pushReplacementNamed(AppRoutes.home);
+  }
+
+  // Swiping the photograph moves through the archive, as in a photo app.
+  void _swipe(DragEndDetails details) {
+    final speed = details.primaryVelocity ?? 0;
+    if (speed.abs() < 200) return;
+    _openDay(shiftDay(_date, speed < 0 ? -1 : 1));
+  }
 
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
+    final padding = MediaQuery.of(context).padding;
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () {
-            // A shared link opens this page first, with nothing to go back to.
-            final navigator = Navigator.of(context);
-            navigator.canPop() ? navigator.pop() : navigator.pushReplacementNamed('/home');
-          },
-        ),
-        title: const Text('APPOD', style: TextStyle(fontFamily: 'Nasa', fontSize: 20)),
-      ),
+      backgroundColor: Colors.black,
       body: BlocBuilder<ApodBloc, ApodState>(
         builder: (context, state) {
-          if (state.status == ApodStatus.failed) {
-            return StateMessage(
-              icon: Icons.cloud_off_rounded,
-              title: i10n.genericError,
-              body: apodErrorText(i10n, state.errorCode),
-              actionLabel: i10n.retry,
-              onAction: () => context.read<ApodBloc>().add(ChangeDate(_date)),
-            );
-          }
           final apod = state.apodData;
-          if (state.status != ApodStatus.success || apod == null || apod['date'] != _date) {
-            return const Center(child: CircularProgressIndicator());
+          final ready = state.status == ApodStatus.success && apod != null && apod['date'] == _date;
+          final Widget content;
+          if (state.status == ApodStatus.failed) {
+            content = ColoredBox(
+              color: Theme.of(context).colorScheme.surface,
+              child: StateMessage(
+                icon: Icons.cloud_off_rounded,
+                title: i10n.genericError,
+                body: apodErrorText(i10n, state.errorCode),
+                actionLabel: i10n.retry,
+                onAction: () => context.read<ApodBloc>().add(ChangeDate(_date)),
+              ),
+            );
+          } else if (!ready) {
+            content = const Skeleton(radius: 0);
+          } else {
+            content = context.isDesktop ? _wide(apod, i10n) : _phone(apod, i10n);
           }
-          return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 56),
-            child: Column(
-              children: [
-                _Stage(apod: apod),
-                const SizedBox(height: 28),
-                PageBody(maxWidth: 760, child: _article(apod, i10n)),
-              ],
-            ),
+          return Stack(
+            children: [
+              Positioned.fill(child: content),
+              Positioned(
+                top: padding.top + 12,
+                left: 12,
+                child: GlassIconButton(
+                  icon: Icons.arrow_back_rounded,
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                  onPressed: _back,
+                ),
+              ),
+            ],
           );
         },
       ),
     );
   }
 
-  Widget _article(Map<String, dynamic> apod, AppLocalizations i10n) {
+  Widget _phone(Map<String, dynamic> apod, AppLocalizations i10n) {
+    final scheme = Theme.of(context).colorScheme;
+    final size = MediaQuery.of(context).size;
+    final padding = MediaQuery.of(context).padding;
+    final isFavorite = _favorites.contains(_date);
+    final isImage = apod['media_type'] == 'image';
+    return Stack(
+      children: [
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: size.height * 0.66,
+          child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.cover)),
+        ),
+        Positioned(
+          top: padding.top + 12,
+          right: 12,
+          child: Row(
+            children: [
+              GlassIconButton(
+                icon: isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                color: isFavorite ? const Color(0xFFFF5A6E) : null,
+                tooltip: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
+                onPressed: _toggleFavorite,
+              ),
+              const SizedBox(width: 8),
+              GlassIconButton(icon: Icons.ios_share_rounded, tooltip: i10n.share, onPressed: () => _share(apod)),
+              if (isImage) ...[
+                const SizedBox(width: 8),
+                GlassIconButton(icon: Icons.download_rounded, tooltip: i10n.downloadApod, onPressed: () => _download(apod)),
+              ],
+            ],
+          ),
+        ),
+        DraggableScrollableSheet(
+          initialChildSize: 0.42,
+          minChildSize: 0.34,
+          maxChildSize: 0.94,
+          snap: true,
+          builder: (context, controller) => DecoratedBox(
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 30, offset: Offset(0, -6))],
+            ),
+            child: ListView(
+              controller: controller,
+              padding: EdgeInsets.fromLTRB(20, 10, 20, padding.bottom + 32),
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 18),
+                    decoration: BoxDecoration(color: scheme.outline, borderRadius: BorderRadius.circular(2)),
+                  ),
+                ),
+                ..._story(apod, i10n),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _wide(Map<String, dynamic> apod, AppLocalizations i10n) {
+    final isFavorite = _favorites.contains(_date);
+    final isImage = apod['media_type'] == 'image';
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Expanded(child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.contain))),
+        Container(
+          width: 460,
+          color: scheme.surface,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(32, 40, 32, 40),
+            children: [
+              ..._story(apod, i10n, titleSize: 34),
+            ]..insertAll(_actionsIndex(apod), [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: _toggleFavorite,
+                      icon: Icon(isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded, size: 18),
+                      label: Text(isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites),
+                    ),
+                    OutlinedButton.icon(onPressed: () => _share(apod), icon: const Icon(Icons.ios_share_rounded, size: 18), label: Text(i10n.share)),
+                    if (isImage)
+                      OutlinedButton.icon(onPressed: () => _download(apod), icon: const Icon(Icons.download_rounded, size: 18), label: Text(i10n.downloadApod)),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ]),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // The actions go right after the date, title and credit.
+  int _actionsIndex(Map<String, dynamic> apod) {
+    final credit = (apod['copyright'] as String?)?.trim() ?? '';
+    return credit.isEmpty ? 4 : 6;
+  }
+
+  void _share(Map<String, dynamic> apod) => shareApod(context, title: (apod['title'] ?? '') as String, date: _date, imageUrl: (apod['url'] ?? '') as String);
+  void _download(Map<String, dynamic> apod) => saveNetworkImage(context, (apod['url'] ?? '') as String, (apod['title'] ?? '') as String);
+
+  List<Widget> _story(Map<String, dynamic> apod, AppLocalizations i10n, {double titleSize = 28}) {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
-    final isImage = apod['media_type'] == 'image';
-    final isFavorite = _favorites.contains(_date);
-    final title = (apod['title'] ?? '') as String;
-    final url = (apod['url'] ?? '') as String;
-    final credit = (apod['copyright'] as String?)?.replaceAll('\n', ' ').trim();
+    final credit = (apod['copyright'] as String?)?.replaceAll('\n', ' ').trim() ?? '';
     final explanation = (apod['explanation'] ?? '') as String;
     final previous = shiftDay(_date, -1);
     final next = shiftDay(_date, 1);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(longDate(_date, locale), style: theme.textTheme.labelSmall?.copyWith(fontSize: 13)),
+    return [
+      Text(longDate(_date, locale), style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary)),
+      const SizedBox(height: 6),
+      Text((apod['title'] ?? '') as String, style: theme.textTheme.headlineMedium?.copyWith(fontSize: titleSize)),
+      const SizedBox(height: 10),
+      if (credit.isNotEmpty) ...[
+        Text('${i10n.imageCredit}: $credit', style: theme.textTheme.bodyMedium),
+        const SizedBox(height: 16),
+      ],
+      SelectableText(_translated ?? explanation, style: theme.textTheme.bodyLarge),
+      // NASA writes in English, so translation is only offered to other readers.
+      if (locale != 'en' && _translated == null) ...[
         const SizedBox(height: 8),
-        Text(title, style: theme.textTheme.displaySmall?.copyWith(fontSize: MediaQuery.of(context).size.width < 600 ? 32 : 44)),
-        if (credit != null && credit.isNotEmpty) ...[
-          const SizedBox(height: 10),
-          Text('${i10n.imageCredit}: $credit', style: theme.textTheme.bodyMedium),
-        ],
-        const SizedBox(height: 20),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            OutlinedButton.icon(
-              onPressed: _toggleFavorite,
-              icon: Icon(isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded, size: 18, color: isFavorite ? theme.colorScheme.primary : null),
-              label: Text(isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites),
-            ),
-            OutlinedButton.icon(
-              onPressed: () => shareApod(context, title: title, date: _date, imageUrl: url),
-              icon: const Icon(Icons.ios_share_rounded, size: 18),
-              label: Text(i10n.share),
-            ),
-            if (isImage)
-              OutlinedButton.icon(
-                onPressed: () => saveNetworkImage(context, url, title),
-                icon: const Icon(Icons.download_rounded, size: 18),
-                label: Text(i10n.downloadApod),
-              ),
-          ],
-        ),
-        const SizedBox(height: 28),
-        SelectableText(_translated ?? explanation, style: theme.textTheme.bodyLarge),
-        // NASA writes in English, so translation is only offered to other readers.
-        if (locale != 'en' && _translated == null) ...[
-          const SizedBox(height: 12),
-          TextButton.icon(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
             onPressed: _translating ? null : () => _translate(explanation, i10n),
             icon: _translating
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.translate_rounded, size: 18),
             label: Text(_translating ? i10n.translating : i10n.translate),
           ),
-        ],
-        const SizedBox(height: 36),
-        const Divider(),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            if (previous != null)
-              TextButton.icon(
-                onPressed: () => _openDay(previous),
-                icon: const Icon(Icons.chevron_left_rounded),
-                label: Text(i10n.previousDay),
-              ),
-            const Spacer(),
-            if (next != null)
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: TextButton.icon(
-                  onPressed: () => _openDay(next),
-                  icon: const Icon(Icons.chevron_left_rounded),
-                  label: Text(i10n.nextDay),
-                ),
-              ),
-          ],
         ),
       ],
-    );
+      const SizedBox(height: 20),
+      Row(
+        children: [
+          if (previous != null)
+            Expanded(
+              child: OutlinedButton.icon(onPressed: () => _openDay(previous), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.previousDay)),
+            ),
+          if (previous != null && next != null) const SizedBox(width: 8),
+          if (next != null)
+            Expanded(
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: OutlinedButton.icon(onPressed: () => _openDay(next), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.nextDay)),
+              ),
+            ),
+        ],
+      ),
+    ];
   }
 }
 
-/// The picture on black, never cropped. Tapping it opens the full view.
+/// The photograph. Tapping it opens the full, uncropped view.
 class _Stage extends StatelessWidget {
   final Map<String, dynamic> apod;
-  const _Stage({required this.apod});
+  final String date;
+  final BoxFit fit;
+  const _Stage({required this.apod, required this.date, required this.fit});
 
   void _openFullScreen(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
@@ -226,13 +329,8 @@ class _Stage extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topRight,
                 child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: IconButton(
-                    tooltip: i10n.close,
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: IconButton.styleFrom(backgroundColor: Colors.black54),
-                    icon: const Icon(Icons.close_rounded, color: Colors.white),
-                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: GlassIconButton(icon: Icons.close_rounded, tooltip: i10n.close, onPressed: () => Navigator.of(context).pop()),
                 ),
               ),
             ),
@@ -245,47 +343,23 @@ class _Stage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
-    final maxHeight = MediaQuery.of(context).size.height * 0.72;
     if (apod['media_type'] != 'image') {
       return ColoredBox(
         color: Colors.black,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxHeight * 16 / 9),
-            child: AspectRatio(aspectRatio: 16 / 9, child: _ApodVideo(url: apod['url'] as String)),
-          ),
-        ),
+        child: Center(child: AspectRatio(aspectRatio: 16 / 9, child: _ApodVideo(url: apod['url'] as String))),
       );
     }
-    return Container(
+    return ColoredBox(
       color: Colors.black,
-      width: double.infinity,
       child: Semantics(
         button: true,
         label: i10n.viewFullScreen,
-        child: Tooltip(
-          message: i10n.viewFullScreen,
-          child: InkWell(
-            onTap: () => _openFullScreen(context),
-            mouseCursor: SystemMouseCursors.zoomIn,
-            // The stage takes the picture's own shape, up to the height limit.
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: 240, maxHeight: maxHeight),
-              child: Center(
-                heightFactor: 1,
-                child: Image.network(
-                  proxiedImageUrl(apod['url'] as String),
-                  fit: BoxFit.contain,
-                  frameBuilder: (context, child, frame, sync) => AnimatedOpacity(
-                    opacity: sync || frame != null ? 1 : 0,
-                    duration: const Duration(milliseconds: 300),
-                    child: child,
-                  ),
-                  errorBuilder: (context, error, stack) =>
-                      Text(i10n.imageLoadError, style: const TextStyle(color: Colors.white)),
-                ),
-              ),
-            ),
+        child: InkWell(
+          onTap: () => _openFullScreen(context),
+          mouseCursor: SystemMouseCursors.zoomIn,
+          child: Hero(
+            tag: 'apod-$date',
+            child: ApodImage(url: apod['url'] as String, fit: fit, background: Colors.black),
           ),
         ),
       ),

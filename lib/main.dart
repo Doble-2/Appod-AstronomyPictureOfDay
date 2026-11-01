@@ -30,8 +30,8 @@ void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Asegúrate de que los widgets estén inicializados
   if (kIsWeb) {
-    // Usar hash strategy para URLs estables tipo #/apod/yyyy-MM-dd
-    setUrlStrategy(const HashUrlStrategy());
+    // Clean addresses such as /apod/yyyy-MM-dd. Old /#/ links are converted in web/index.html.
+    usePathUrlStrategy();
   }
   await initializeDateFormatting(); // Inicializa los datos de formato de fecha
   final (themeMode, locale) = await _preloadPrefs();

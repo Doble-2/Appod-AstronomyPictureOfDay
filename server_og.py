@@ -3,7 +3,7 @@
 
 - `/apod/YYYY-MM-DD` → HTML con og:image dinámico (la imagen de NASA de ese
   día). Los crawlers de WhatsApp/Telegram leen esta metadata para la preview;
-  los humanos son redirigidos a la SPA con hash (`/#/apod/YYYY-MM-DD`).
+  las personas reciben la app en esa misma dirección.
 - Cualquier otra ruta → archivos estáticos del build (SPA).
 
 Uso: NASA_KEY=<key> python3 server_og.py [puerto] [dir_build]
@@ -22,6 +22,7 @@ BUILD_DIR = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(__file__).parent / 
 NASA_KEY = os.environ.get("NASA_KEY", "")
 
 APOD_RE = re.compile(r"^/apod/(\d{4}-\d{2}-\d{2})/?$")
+BOT_RE = re.compile(r"facebookexternalhit|WhatsApp|Telegram|Twitterbot|Slackbot|Discordbot|LinkedInBot|bot|crawler|spider", re.I)
 
 
 def fetch_apod(date: str) -> dict | None:
@@ -51,7 +52,7 @@ def og_page(date: str) -> tuple[str, int]:
     if media_type == "video" and "youtube" in image:
         vid = image.split("/embed/")[-1].split("?")[0]
         image = f"https://img.youtube.com/vi/{vid}/hqdefault.jpg"
-    app_url = f"https://{os.environ.get('APP_HOST', 'localhost')}/#/apod/{date}"
+    app_url = f"https://{os.environ.get('APP_HOST', 'localhost')}/apod/{date}"
     html = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -65,10 +66,9 @@ def og_page(date: str) -> tuple[str, int]:
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Appod · {title}"/>
 <meta name="twitter:image" content="{image}"/>
-<meta http-equiv="refresh" content="0; url={app_url}"/>
 </head>
 <body>
-<p>Redirigiendo a Appod…</p>
+<p><a href="{app_url}">Abrir en Appod</a></p>
 </body>
 </html>"""
     return html, 200
@@ -81,7 +81,8 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         m = APOD_RE.match(parsed.path)
-        if m:
+        # People get the app at this same address; only link-preview bots need the OG page.
+        if m and BOT_RE.search(self.headers.get("User-Agent", "")):
             date = m.group(1)
             html, code = og_page(date)
             self.send_response(code)
@@ -90,7 +91,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(html.encode())
             return
-        # SPA: rutas sin archivo real → index.html (hash routing)
+        # SPA: rutas sin archivo real → index.html
         candidate = BUILD_DIR / parsed.path.lstrip("/")
         if parsed.path != "/" and not candidate.exists():
             self.path = "/index.html"

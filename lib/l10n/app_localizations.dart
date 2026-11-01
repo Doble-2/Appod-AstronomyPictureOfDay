@@ -613,6 +613,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show password'**
   String get showPassword;
+
+  /// No description provided for @pageNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This page doesn\'t exist'**
+  String get pageNotFound;
+
+  /// No description provided for @pageNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The address is wrong, or there is no picture for that date.'**
+  String get pageNotFoundBody;
 }
 
 class _AppLocalizationsDelegate

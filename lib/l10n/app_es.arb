@@ -85,5 +85,7 @@
   "imageSaved": "Imagen guardada en tu galería.",
   "permissionDenied": "Permite el acceso a tu galería para guardar imágenes.",
   "shareText": "Mira la imagen astronómica del {date}: {url}",
-  "showPassword": "Mostrar contraseña"
+  "showPassword": "Mostrar contraseña",
+  "pageNotFound": "Esta página no existe",
+  "pageNotFoundBody": "La dirección es incorrecta o no hay imagen para esa fecha."
 }

@@ -95,5 +95,7 @@
       }
     }
   },
-  "showPassword": "Show password"
+  "showPassword": "Show password",
+  "pageNotFound": "This page doesn't exist",
+  "pageNotFoundBody": "The address is wrong, or there is no picture for that date."
 }

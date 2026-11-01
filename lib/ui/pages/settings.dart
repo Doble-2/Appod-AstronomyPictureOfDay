@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
+import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/provider/locale_provider.dart';
 import 'package:nasa_apod/provider/theme_provider.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
@@ -30,7 +31,7 @@ class _SettingsViewState extends State<SettingsView> {
   Future<void> _logout() async {
     final navigator = Navigator.of(context);
     await widget.authService.logout();
-    if (mounted) navigator.pushNamed('/login');
+    if (mounted) navigator.pushReplacementNamed(AppRoutes.login);
   }
 
   @override
@@ -86,7 +87,7 @@ class _SettingsViewState extends State<SettingsView> {
                     children: [
                       Text(i10n.loginToSync, style: theme.textTheme.bodyMedium),
                       const SizedBox(height: 12),
-                      OutlinedButton(onPressed: () => Navigator.pushNamed(context, '/login'), child: Text(i10n.login)),
+                      OutlinedButton(onPressed: () => Navigator.pushNamed(context, AppRoutes.login), child: Text(i10n.login)),
                     ],
                   ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
+import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 
 /// The login and register screens share everything except their wording.
@@ -51,7 +52,7 @@ class _AuthFormState extends State<AuthForm> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (message != null && message.contains('Success')) {
-      navigator.pushNamedAndRemoveUntil('/', (route) => false);
+      navigator.pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
     } else {
       messenger.showSnackBar(SnackBar(content: Text(message ?? ''), backgroundColor: scheme.error));
     }

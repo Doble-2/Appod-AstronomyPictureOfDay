@@ -27,3 +27,11 @@ String longDate(String date, String locale) {
   final parsed = DateTime.tryParse(date);
   return parsed == null ? date : DateFormat.yMMMMd(locale).format(parsed);
 }
+
+/// Whether [date] is a real yyyy-MM-dd calendar day with a picture in the archive.
+bool isArchiveDay(String date) {
+  final parsed = DateTime.tryParse(date);
+  // DateTime rolls impossible days over (Feb 30 becomes March), so compare back.
+  if (parsed == null || _iso.format(parsed) != date) return false;
+  return !parsed.isBefore(firstApodDate) && !parsed.isAfter(_today());
+}

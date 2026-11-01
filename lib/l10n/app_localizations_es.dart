@@ -284,4 +284,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get showPassword => 'Mostrar contraseña';
+
+  @override
+  String get pageNotFound => 'Esta página no existe';
+
+  @override
+  String get pageNotFoundBody =>
+      'La dirección es incorrecta o no hay imagen para esa fecha.';
 }

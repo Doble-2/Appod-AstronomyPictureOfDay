@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
+import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 
@@ -52,7 +53,7 @@ class _FavoritesViewState extends State<FavoritesView> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(i10n.favoritesLocalHint, style: theme.textTheme.bodyMedium),
-                TextButton(onPressed: () => Navigator.of(context).pushNamed('/login'), child: Text(i10n.login)),
+                TextButton(onPressed: () => Navigator.of(context).pushNamed(AppRoutes.login), child: Text(i10n.login)),
               ],
             ),
           ],
@@ -72,7 +73,7 @@ class _FavoritesViewState extends State<FavoritesView> {
                   icon: Icons.favorite_border_rounded,
                   title: i10n.noFavoritesYet,
                   actionLabel: i10n.backToToday,
-                  onAction: () => Navigator.of(context).pushReplacementNamed('/home'),
+                  onAction: () => Navigator.of(context).pushReplacementNamed(AppRoutes.home),
                 ),
               ApodStatus.success => ApodGrid(
                   children: [
