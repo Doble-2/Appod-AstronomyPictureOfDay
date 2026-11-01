@@ -33,3 +33,9 @@ Entrances fade and rise, and lists arrive slightly staggered. Cards respond to p
 ## Navigation
 
 Every address is defined in `lib/routes.dart`. Screens never write addresses by hand.
+
+## Data and images
+
+- Pictures always use NASA's `dynamicimage` path, the only one that resizes on request (`resizableImageUrl`).
+- Days read from NASA stay in `ApodCache` across launches, because they never change. Images use `cached_network_image`.
+- When NASA can't be reached, home shows the newest saved day with a notice.

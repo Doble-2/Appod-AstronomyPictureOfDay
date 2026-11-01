@@ -308,4 +308,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get fromTheArchive => 'Del archivo';
+
+  @override
+  String get showingSaved => 'Sin conexión. Mostrando lo guardado.';
 }

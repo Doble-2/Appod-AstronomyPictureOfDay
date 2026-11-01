@@ -90,5 +90,6 @@
   "pageNotFoundBody": "La dirección es incorrecta o no hay imagen para esa fecha.",
   "onThisDay": "En este día",
   "yearsAgo": "{count, plural, =1{Hace 1 año} other{Hace {count} años}}",
-  "fromTheArchive": "Del archivo"
+  "fromTheArchive": "Del archivo",
+  "showingSaved": "Sin conexión. Mostrando lo guardado."
 }

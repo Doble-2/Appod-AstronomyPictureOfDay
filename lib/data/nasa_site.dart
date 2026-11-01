@@ -57,8 +57,8 @@ class NasaSiteSource {
       response = await http.get(uri).timeout(const Duration(seconds: 20));
     } on TimeoutException {
       throw const NasaApiException(statusCode: 504, message: 'Gateway Timeout');
-    } on http.ClientException catch (e) {
-      throw NasaApiException(message: e.message);
+    } on Exception catch (e) {
+      throw NasaApiException(message: '$e');
     }
     if (response.statusCode != 200) {
       throw NasaApiException(statusCode: response.statusCode, message: 'HTTP ${response.statusCode}');
@@ -67,6 +67,14 @@ class NasaSiteSource {
     if (body is! List) throw const NasaApiException(message: 'Unexpected response shape');
     return body.whereType<Map<String, dynamic>>().map(parseApodArticle).whereType<Map<String, dynamic>>().toList();
   }
+}
+
+/// A version of a NASA picture sized for the screen. Only NASA's dynamicimage
+/// path resizes on request: content/dam ignores ?w= and sends the full file,
+/// up to 6 MB where the resized one is 85 KB. GIFs are small and can't be resized.
+String resizableImageUrl(String base) {
+  if (base.toLowerCase().endsWith('.gif')) return base;
+  return '${base.replaceFirst('/content/dam/', '/dynamicimage/assets/')}?w=1280&fit=clip';
 }
 
 /// How a day's title may be written: old articles pad the day ("June 05").
@@ -109,8 +117,7 @@ Map<String, dynamic>? parseApodArticle(Map<String, dynamic> article) {
     final image = _text(source);
     final base = image.split('?').first;
     result['media_type'] = 'image';
-    // The site offers its pictures resized on request; 1280 is plenty on screen.
-    result['url'] = base.toLowerCase().endsWith('.gif') ? base : '$base?w=1280&fit=clip';
+    result['url'] = resizableImageUrl(base);
     result['hdurl'] = linkedImage == null ? base : _text(linkedImage.group(1)!);
   } else if (video != null) {
     result['media_type'] = 'video';

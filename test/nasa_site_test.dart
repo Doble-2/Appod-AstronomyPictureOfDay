@@ -78,6 +78,14 @@ void main() {
     expect(apodSearchTerms(DateTime(2021, 11, 25)), ['APOD: 2021 November 25']);
   });
 
+  test('asks for pictures on the path that actually resizes them', () {
+    expect(
+      resizableImageUrl('https://assets.science.nasa.gov/content/dam/science/cds/a.jpg'),
+      'https://assets.science.nasa.gov/dynamicimage/assets/science/cds/a.jpg?w=1280&fit=clip',
+    );
+    expect(resizableImageUrl('https://assets.science.nasa.gov/content/dam/a.GIF'), 'https://assets.science.nasa.gov/content/dam/a.GIF');
+  });
+
   test('ignores articles that are not APOD, or have nothing to show', () {
     expect(parseApodArticle(article('Hubble Sees a Galaxy', '<img src="$assets/a.jpg">')), isNull);
     expect(parseApodArticle(article('APOD: 2026 May 1 &#8211; Empty', '<p>No media</p>')), isNull);

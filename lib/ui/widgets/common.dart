@@ -1,6 +1,7 @@
 import 'dart:math' show max;
 import 'dart:ui' show ImageFilter;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/routes.dart';
@@ -56,16 +57,16 @@ class ApodImage extends StatelessWidget {
       children: [
         placeholder,
         if (hasThumbnail)
-          Image.network(
-            shown,
+          CachedNetworkImage(
+            imageUrl: shown,
             fit: fit,
-            frameBuilder: (context, child, frame, sync) => AnimatedOpacity(
-              opacity: sync || frame != null ? 1 : 0,
-              duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 350),
-              curve: Curves.easeOut,
-              child: child,
-            ),
-            errorBuilder: (context, error, stack) => Icon(Icons.broken_image_outlined, color: scheme.onSurfaceVariant),
+            width: double.infinity,
+            height: double.infinity,
+            // Cards decode at their own size, which saves a lot of memory on long walls.
+            memCacheWidth: thumbnail ? 640 : null,
+            fadeInDuration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 350),
+            fadeOutDuration: Duration.zero,
+            errorWidget: (context, url, error) => Icon(Icons.broken_image_outlined, color: scheme.onSurfaceVariant),
           ),
         if (isVideo)
           const Align(alignment: Alignment(0, -0.3), child: Icon(Icons.play_circle_outline_rounded, color: Colors.white, size: 40, shadows: [Shadow(blurRadius: 12)])),
@@ -113,7 +114,7 @@ class AppBackground extends StatelessWidget {
                   : ImageFiltered(
                       key: ValueKey(url),
                       imageFilter: ImageFilter.blur(sigmaX: 70, sigmaY: 70, tileMode: TileMode.clamp),
-                      child: Image.network(url, fit: BoxFit.cover, width: double.infinity, height: double.infinity, errorBuilder: (_, __, ___) => const SizedBox.expand()),
+                      child: CachedNetworkImage(imageUrl: url, fit: BoxFit.cover, width: double.infinity, height: double.infinity, errorWidget: (_, __, ___) => const SizedBox.expand()),
                     ),
             ),
           ),
@@ -151,6 +152,13 @@ const heroScrim = LinearGradient(
   stops: [0.62, 0.82, 1],
   colors: [Colors.transparent, Color(0xA6000000), Color(0xE6000000)],
 );
+
+/// Starts downloading a day's full picture, so it is ready when it comes on screen.
+void precacheApod(BuildContext context, Map? apod) {
+  final url = apod?['url'] as String?;
+  if (url == null || url.isEmpty || apod?['media_type'] == 'video') return;
+  precacheImage(CachedNetworkImageProvider(apodImageUrl(url)), context).ignore();
+}
 
 /// Fades and rises into place, a little later for each [index] in a list.
 class Reveal extends StatelessWidget {
@@ -314,6 +322,7 @@ class _ApodCardState extends State<ApodCard> {
                 onHover: (value) => setState(() => _hover = value),
                 onHighlightChanged: (value) => setState(() => _pressed = value),
                 onTap: () async {
+                  precacheApod(context, apod);
                   await Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(date));
                   setAmbientFrom(apod);
                   widget.onReturned?.call();

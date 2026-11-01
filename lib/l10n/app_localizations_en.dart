@@ -302,4 +302,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fromTheArchive => 'From the archive';
+
+  @override
+  String get showingSaved => 'No connection. Showing what is saved.';
 }

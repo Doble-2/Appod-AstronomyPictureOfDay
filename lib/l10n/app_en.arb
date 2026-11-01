@@ -107,5 +107,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "showingSaved": "No connection. Showing what is saved."
 }

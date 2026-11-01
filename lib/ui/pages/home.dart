@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:nasa_apod/data/apod_cache.dart';
 import 'package:nasa_apod/data/nasa.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/routes.dart';
@@ -33,6 +34,7 @@ class _HomeViewState extends State<HomeView> {
   final _seen = <String>{};
   bool _loadingArchive = false;
   bool _archiveFailed = false;
+  bool _showingSaved = false;
 
   @override
   void initState() {
@@ -41,7 +43,6 @@ class _HomeViewState extends State<HomeView> {
     final bloc = context.read<ApodBloc>();
     if (bloc.state.apodData == null) bloc.add(RefreshData());
     _scroll.addListener(_loadIfNearEnd);
-    _loadMore();
   }
 
   @override
@@ -98,9 +99,20 @@ class _HomeViewState extends State<HomeView> {
       // today's picture may not exist yet. Open the latest one instead of an error.
       listenWhen: (a, b) => a.status != b.status,
       listener: (context, state) {
-        if (state.status == ApodStatus.failed && state.errorCode == 404 && state.date == todayIso()) {
+        if (state.status == ApodStatus.success && state.date == todayIso()) {
+          setState(() => _showingSaved = false);
+        }
+        if (state.status != ApodStatus.failed || state.date != todayIso()) return;
+        if (state.errorCode == 404) {
           final yesterday = shiftDay(state.date, -1);
           if (yesterday != null) context.read<ApodBloc>().add(ChangeDate(yesterday));
+          return;
+        }
+        // NASA can't be reached: show the newest saved day rather than an error.
+        final saved = ApodCache.instance.latestDate;
+        if (saved != null) {
+          setState(() => _showingSaved = true);
+          context.read<ApodBloc>().add(ChangeDate(saved));
         }
       },
       builder: (context, state) {
@@ -109,6 +121,20 @@ class _HomeViewState extends State<HomeView> {
         final top = <Widget>[
           if (!context.isDesktop) const PageBody(child: Padding(padding: EdgeInsets.only(bottom: 14), child: AppodLogo())),
           PageBody(child: _Heading(date: state.date)),
+          if (_showingSaved)
+            PageBody(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.cloud_off_rounded, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(i10n.showingSaved, style: theme.textTheme.bodyMedium)),
+                    TextButton(onPressed: () => context.read<ApodBloc>().add(ChangeDate(todayIso())), child: Text(i10n.retry)),
+                  ],
+                ),
+              ),
+            ),
           const SizedBox(height: 18),
           if (state.status == ApodStatus.failed)
             PageBody(
@@ -125,11 +151,16 @@ class _HomeViewState extends State<HomeView> {
           const _GetAppNotice(),
           const SizedBox(height: 30),
           _OnThisDay(key: ValueKey('otd-${state.date}'), date: state.date),
-          const SizedBox(height: 30),
           PageBody(child: Text(i10n.fromTheArchive, style: theme.textTheme.headlineMedium)),
           const SizedBox(height: 14),
         ];
-        return ListView.builder(
+        return NotificationListener<ScrollMetricsNotification>(
+          // Loads the wall once it comes near, including after returning to this page.
+          onNotification: (_) {
+            _loadIfNearEnd();
+            return false;
+          },
+          child: ListView.builder(
           controller: _scroll,
           padding: EdgeInsets.only(top: Layout.topInset(context), bottom: Layout.bottomInset(context)),
           itemCount: top.length + _batches.length + 1,
@@ -165,6 +196,7 @@ class _HomeViewState extends State<HomeView> {
             }
             return const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator(strokeWidth: 2)));
           },
+          ),
         );
       },
     );
@@ -263,7 +295,11 @@ class _CarouselState extends State<_Carousel> {
   void _syncAmbient() {
     if (_page < widget.days.length) {
       final day = widget.days[_page] as Map;
-      WidgetsBinding.instance.addPostFrameCallback((_) => setAmbientFrom(day));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setAmbientFrom(day);
+        // The next card is ready before the swipe reaches it.
+        if (mounted && _page + 1 < widget.days.length) precacheApod(context, widget.days[_page + 1] as Map);
+      });
     }
   }
 
@@ -424,6 +460,7 @@ class _HeroCard extends StatelessWidget {
 }
 
 /// The same date in earlier years, which APOD's 30-year archive makes possible.
+/// Each card loads its own day when it scrolls near, so most never cost a request.
 class _OnThisDay extends StatefulWidget {
   final String date;
   const _OnThisDay({super.key, required this.date});
@@ -434,64 +471,108 @@ class _OnThisDay extends StatefulWidget {
 
 class _OnThisDayState extends State<_OnThisDay> {
   static const _yearsBack = [1, 2, 3, 5, 10, 15, 20, 25];
-  late final Future<List<(int, Map<String, dynamic>)>> _days = _load();
-
-  Future<List<(int, Map<String, dynamic>)>> _load() async {
-    final date = DateTime.parse(widget.date);
-    final service = NetworkService();
-    final results = await Future.wait(_yearsBack.map((years) async {
-      final past = DateFormat('yyyy-MM-dd').format(DateTime(date.year - years, date.month, date.day));
-      if (!isArchiveDay(past)) return null;
-      try {
-        return (years, await service.getApod(past));
-      } on Exception {
-        return null;
-      }
-    }));
-    return results.whereType<(int, Map<String, dynamic>)>().toList();
-  }
+  final _service = NetworkService();
+  bool _anyLoaded = false;
+  int _failures = 0;
 
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
     final isDesktop = context.isDesktop;
-    return FutureBuilder<List<(int, Map<String, dynamic>)>>(
-      future: _days,
-      builder: (context, snapshot) {
-        final days = snapshot.data ?? const [];
-        if (snapshot.connectionState == ConnectionState.done && days.isEmpty) return const SizedBox.shrink();
-        const cardWidth = 168.0;
-        final side = (MediaQuery.of(context).size.width - 1240).clamp(0.0, double.infinity) / 2 + (isDesktop ? 32.0 : 16.0);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PageBody(child: Text(i10n.onThisDay, style: Theme.of(context).textTheme.headlineMedium)),
-            const SizedBox(height: 14),
-            SizedBox(
-              height: cardWidth * 1.3 + 22,
-              child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false, dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad}),
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.fromLTRB(side, 0, side, 22),
-                  clipBehavior: Clip.none,
-                  itemCount: days.isEmpty ? 5 : days.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (context, index) => SizedBox(
-                    width: cardWidth,
-                    child: days.isEmpty
-                        ? const Skeleton()
-                        : Reveal(
-                            index: index,
-                            child: ApodCard(apod: days[index].$2, aspectRatio: 1 / 1.3, eyebrow: i10n.yearsAgo(days[index].$1)),
-                          ),
-                  ),
+    final date = DateTime.parse(widget.date);
+    final years = [
+      for (final years in _yearsBack)
+        if (isArchiveDay(DateFormat('yyyy-MM-dd').format(DateTime(date.year - years, date.month, date.day)))) years,
+    ];
+    // With nothing to show, as when offline, the section steps aside.
+    if (years.isEmpty || (!_anyLoaded && _failures >= 2)) return const SizedBox.shrink();
+    const cardWidth = 168.0;
+    final side = (MediaQuery.of(context).size.width - 1240).clamp(0.0, double.infinity) / 2 + (isDesktop ? 32.0 : 16.0);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PageBody(child: Text(i10n.onThisDay, style: Theme.of(context).textTheme.headlineMedium)),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: cardWidth * 1.3 + 22,
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false, dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad}),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.fromLTRB(side, 0, side - 12, 22),
+                clipBehavior: Clip.none,
+                itemCount: years.length,
+                itemBuilder: (context, index) => _PastDayCard(
+                  key: ValueKey(years[index]),
+                  years: years[index],
+                  date: DateFormat('yyyy-MM-dd').format(DateTime(date.year - years[index], date.month, date.day)),
+                  width: cardWidth,
+                  service: _service,
+                  onLoaded: () {
+                    if (!_anyLoaded && mounted) setState(() => _anyLoaded = true);
+                  },
+                  onFailed: () {
+                    if (mounted) setState(() => _failures++);
+                  },
                 ),
               ),
             ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PastDayCard extends StatefulWidget {
+  final int years;
+  final String date;
+  final double width;
+  final NetworkService service;
+  final VoidCallback onLoaded;
+  final VoidCallback onFailed;
+  const _PastDayCard({super.key, required this.years, required this.date, required this.width, required this.service, required this.onLoaded, required this.onFailed});
+
+  @override
+  State<_PastDayCard> createState() => _PastDayCardState();
+}
+
+class _PastDayCardState extends State<_PastDayCard> with AutomaticKeepAliveClientMixin {
+  late final Future<Map<String, dynamic>> _day = widget.service.getApod(widget.date);
+  bool _failed = false;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _day.then((_) => widget.onLoaded(), onError: (Object _) {
+      if (mounted) setState(() => _failed = true);
+      widget.onFailed();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    if (_failed) return const SizedBox.shrink();
+    final i10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: SizedBox(
+        width: widget.width,
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _day,
+          builder: (context, snapshot) {
+            final day = snapshot.data;
+            if (day == null) return const Align(alignment: Alignment.topCenter, child: AspectRatio(aspectRatio: 1 / 1.3, child: Skeleton()));
+            return Reveal(child: ApodCard(apod: day, aspectRatio: 1 / 1.3, eyebrow: i10n.yearsAgo(widget.years)));
+          },
+        ),
+      ),
     );
   }
 }

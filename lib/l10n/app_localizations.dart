@@ -643,6 +643,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From the archive'**
   String get fromTheArchive;
+
+  /// No description provided for @showingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Showing what is saved.'**
+  String get showingSaved;
 }
 
 class _AppLocalizationsDelegate
