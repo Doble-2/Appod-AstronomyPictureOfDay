@@ -9,9 +9,9 @@
   "pleaseLoginToSeeFavorites": "Please log in to see your favorites",
   "soon": "Soon",
   "appeareance": "Appearance",
-  "darkMode": "Dark Mode",
-  "lightMode": "Light Mode",
-  "systemMode": "System Mode",
+  "darkMode": "Dark",
+  "lightMode": "Light",
+  "systemMode": "System",
   "language": "Language",
   "english": "English",
   "spanish": "Spanish",
@@ -97,5 +97,26 @@
   },
   "showPassword": "Show password",
   "pageNotFound": "This page doesn't exist",
-  "pageNotFoundBody": "The address is wrong, or there is no picture for that date."
+  "pageNotFoundBody": "The address is wrong, or there is no picture for that date.",
+  "onThisDay": "On this day",
+  "yearsAgo": "{count, plural, =1{1 year ago} other{{count} years ago}}",
+  "minRead": "{minutes} min read",
+  "photoType": "Photo",
+  "videoType": "Video",
+  "fromTheArchive": "From the archive",
+  "thisWeek": "This week",
+  "@yearsAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@minRead": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }

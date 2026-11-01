@@ -73,6 +73,11 @@ void main() {
     }
   });
 
+  test('searches both ways a day can be written', () {
+    expect(apodSearchTerms(DateTime(1996, 6, 5)), ['APOD: 1996 June 5', 'APOD: 1996 June 05']);
+    expect(apodSearchTerms(DateTime(2021, 11, 25)), ['APOD: 2021 November 25']);
+  });
+
   test('ignores articles that are not APOD, or have nothing to show', () {
     expect(parseApodArticle(article('Hubble Sees a Galaxy', '<img src="$assets/a.jpg">')), isNull);
     expect(parseApodArticle(article('APOD: 2026 May 1 &#8211; Empty', '<p>No media</p>')), isNull);

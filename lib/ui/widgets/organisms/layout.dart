@@ -6,31 +6,14 @@ import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 
-/// App frame. On a page that opens with a photograph, the header sits clear
-/// on the image and turns solid once the page scrolls past it.
-class Layout extends StatefulWidget {
+/// App frame: content over the ambient color of the current picture, with a
+/// floating dock for navigation.
+class Layout extends StatelessWidget {
   final Widget child;
   final int currentIndex;
   final ValueChanged<int> onTap;
-  final bool immersive;
 
-  const Layout({super.key, required this.child, required this.currentIndex, required this.onTap, this.immersive = false});
-
-  static const headerHeight = 64.0;
-
-  @override
-  State<Layout> createState() => _LayoutState();
-}
-
-class _LayoutState extends State<Layout> {
-  bool _pastPhoto = false;
-
-  bool _onScroll(ScrollNotification notification) {
-    if (notification.metrics.axis != Axis.vertical) return false;
-    final past = notification.metrics.pixels > MediaQuery.of(context).size.height * 0.5;
-    if (past != _pastPhoto) setState(() => _pastPhoto = past);
-    return false;
-  }
+  const Layout({super.key, required this.child, required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -38,89 +21,59 @@ class _LayoutState extends State<Layout> {
     final isDesktop = context.isDesktop;
     final padding = MediaQuery.of(context).padding;
     final scheme = Theme.of(context).colorScheme;
-    final overPhoto = widget.immersive && !_pastPhoto;
     final items = <_NavItem>[
-      _NavItem(i10n.today, Icons.home_outlined, Icons.home_rounded),
+      _NavItem(i10n.today, Icons.auto_awesome_outlined, Icons.auto_awesome_rounded),
       _NavItem(i10n.favorites, Icons.favorite_border_rounded, Icons.favorite_rounded),
-      _NavItem(i10n.settings, Icons.settings_outlined, Icons.settings_rounded),
+      _NavItem(i10n.settings, Icons.tune_rounded, Icons.tune_rounded),
       if (kIsWeb) _NavItem(i10n.getApp, Icons.download_outlined, Icons.download_rounded),
     ];
-    final foreground = overPhoto ? Colors.white : scheme.onSurface;
-    final header = SizedBox(
-      height: Layout.headerHeight + padding.top,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(isDesktop ? 40 : 16, padding.top, isDesktop ? 28 : 16, 0),
-        child: Row(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: scheme.brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        body: Stack(
           children: [
-            AppodLogo(color: overPhoto ? Colors.white : scheme.primary),
-            const Spacer(),
+            const Positioned.fill(child: AppBackground()),
+            Positioned.fill(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(top: padding.top + (isDesktop ? 92 : 14), bottom: padding.bottom + (isDesktop ? 56 : 112)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!isDesktop)
+                      const Padding(padding: EdgeInsets.fromLTRB(20, 0, 20, 14), child: AppodLogo()),
+                    child,
+                  ],
+                ),
+              ),
+            ),
             if (isDesktop)
-              for (var i = 0; i < items.length; i++)
-                _TopTab(label: items[i].label, selected: i == widget.currentIndex, color: foreground, onTap: () => widget.onTap(i)),
+              Positioned(
+                top: padding.top + 16,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: _Dock(
+                    leading: const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: AppodLogo()),
+                    items: items,
+                    currentIndex: currentIndex,
+                    onTap: onTap,
+                    labeled: true,
+                  ),
+                ),
+              )
+            else
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: padding.bottom + 18,
+                child: Center(child: _Dock(items: items, currentIndex: currentIndex, onTap: onTap, labeled: false)),
+              ),
           ],
         ),
       ),
     );
-    final lightIcons = overPhoto || scheme.brightness == Brightness.dark;
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: lightIcons ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
-      child: Scaffold(
-      body: Stack(
-        children: [
-          const Positioned.fill(child: AppBackground()),
-          Positioned.fill(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: _onScroll,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.only(
-                  top: widget.immersive ? 0 : padding.top + Layout.headerHeight,
-                  bottom: padding.bottom + (isDesktop ? 64 : 104),
-                ),
-                child: widget.child,
-              ),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: overPhoto
-                  ? KeyedSubtree(key: const ValueKey('clear'), child: header)
-                  : Glass(key: const ValueKey('solid'), radius: 0, bordered: _Edge.bottom, child: header),
-            ),
-          ),
-          if (!isDesktop)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Glass(
-                radius: 0,
-                bordered: _Edge.top,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: padding.bottom),
-                  child: SizedBox(
-                    height: 60,
-                    child: Row(
-                      children: [
-                        for (var i = 0; i < items.length; i++)
-                          Expanded(child: _BottomTab(item: items[i], selected: i == widget.currentIndex, onTap: () => widget.onTap(i))),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-      ),
-    );
   }
 }
-
-typedef _Edge = GlassEdge;
 
 /// The logo next to the Nasa wordmark.
 class AppodLogo extends StatelessWidget {
@@ -151,76 +104,70 @@ class _NavItem {
   const _NavItem(this.label, this.icon, this.selectedIcon);
 }
 
-class _TopTab extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final Color color;
-  final VoidCallback onTap;
-  const _TopTab({required this.label, required this.selected, required this.color, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      selected: selected,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          TextButton(
-            onPressed: onTap,
-            style: TextButton.styleFrom(
-              foregroundColor: color.withValues(alpha: selected ? 1 : 0.72),
-              textStyle: TextStyle(fontWeight: selected ? FontWeight.w600 : FontWeight.w500, fontSize: 14),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-            child: Text(label),
-          ),
-          // The current tab is marked by more than its weight.
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-            width: selected ? 18 : 0,
-            height: 2,
-            margin: const EdgeInsets.only(bottom: 4),
-            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(1)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BottomTab extends StatelessWidget {
-  final _NavItem item;
-  final bool selected;
-  final VoidCallback onTap;
-  const _BottomTab({required this.item, required this.selected, required this.onTap});
+class _Dock extends StatelessWidget {
+  final Widget? leading;
+  final List<_NavItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  final bool labeled;
+  const _Dock({this.leading, required this.items, required this.currentIndex, required this.onTap, required this.labeled});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final color = selected ? scheme.primary : scheme.onSurfaceVariant;
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: item.label,
-      excludeSemantics: true,
-      child: InkResponse(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          onTap();
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedScale(
-              scale: selected ? 1.08 : 1,
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOutBack,
-              child: Icon(selected ? item.selectedIcon : item.icon, color: color, size: 24),
-            ),
-            const SizedBox(height: 3),
-            Text(item.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w500)),
-          ],
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 30, offset: Offset(0, 12))],
+      ),
+      child: Glass(
+        radius: 40,
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (leading != null) leading!,
+              for (var i = 0; i < items.length; i++)
+                Builder(builder: (context) {
+                  final selected = i == currentIndex;
+                  final item = items[i];
+                  final color = selected ? scheme.onPrimary : scheme.onSurface;
+                  return Tooltip(
+                    message: item.label,
+                    child: Semantics(
+                      button: true,
+                      selected: selected,
+                      label: item.label,
+                      excludeSemantics: true,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(30),
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          onTap(i);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 260),
+                          curve: Curves.easeOutCubic,
+                          height: 50,
+                          constraints: const BoxConstraints(minWidth: 58),
+                          padding: EdgeInsets.symmetric(horizontal: labeled ? 16 : 0),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: selected ? scheme.primary : Colors.transparent),
+                          child: labeled
+                              ? Center(widthFactor: 1, child: Text(item.label, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 13)))
+                              : AnimatedScale(
+                                  scale: selected ? 1.08 : 1,
+                                  duration: const Duration(milliseconds: 240),
+                                  curve: Curves.easeOutBack,
+                                  child: Icon(selected ? item.selectedIcon : item.icon, color: color, size: 24),
+                                ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+            ],
+          ),
         ),
       ),
     );

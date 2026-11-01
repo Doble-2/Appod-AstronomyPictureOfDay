@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/routes.dart';
+import 'package:nasa_apod/ui/theme/app_theme.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 
@@ -73,7 +74,11 @@ class _AuthFormState extends State<AuthForm> {
         padding: const EdgeInsets.only(top: 56, bottom: 48),
         child: PageBody(
           maxWidth: 440,
-          child: Form(
+          child: Glass(
+            radius: AppTheme.radiusHero,
+            child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Form(
             key: _formKey,
             child: AutofillGroup(
               child: Column(
@@ -127,6 +132,8 @@ class _AuthFormState extends State<AuthForm> {
                 ],
               ),
             ),
+          ),
+          ),
           ),
         ),
       ))),

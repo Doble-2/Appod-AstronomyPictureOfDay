@@ -17,7 +17,7 @@ class GetAppWebPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 28),
+          const SizedBox(height: 12),
           Text(i10n.getAppTitle, style: theme.textTheme.displaySmall),
           SectionGroup(
             title: i10n.getAppAndroidOnly,

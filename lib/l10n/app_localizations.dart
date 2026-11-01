@@ -155,19 +155,19 @@ abstract class AppLocalizations {
   /// No description provided for @darkMode.
   ///
   /// In en, this message translates to:
-  /// **'Dark Mode'**
+  /// **'Dark'**
   String get darkMode;
 
   /// No description provided for @lightMode.
   ///
   /// In en, this message translates to:
-  /// **'Light Mode'**
+  /// **'Light'**
   String get lightMode;
 
   /// No description provided for @systemMode.
   ///
   /// In en, this message translates to:
-  /// **'System Mode'**
+  /// **'System'**
   String get systemMode;
 
   /// No description provided for @language.
@@ -625,6 +625,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The address is wrong, or there is no picture for that date.'**
   String get pageNotFoundBody;
+
+  /// No description provided for @onThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'On this day'**
+  String get onThisDay;
+
+  /// No description provided for @yearsAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 year ago} other{{count} years ago}}'**
+  String yearsAgo(int count);
+
+  /// No description provided for @minRead.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min read'**
+  String minRead(int minutes);
+
+  /// No description provided for @photoType.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get photoType;
+
+  /// No description provided for @videoType.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get videoType;
+
+  /// No description provided for @fromTheArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'From the archive'**
+  String get fromTheArchive;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
 }
 
 class _AppLocalizationsDelegate

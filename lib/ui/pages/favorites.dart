@@ -45,7 +45,7 @@ class _FavoritesViewState extends State<FavoritesView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 28),
+          const SizedBox(height: 12),
           Text(i10n.favorites, style: theme.textTheme.displaySmall),
           if (!_isLoggedIn) ...[
             const SizedBox(height: 8),
@@ -75,11 +75,9 @@ class _FavoritesViewState extends State<FavoritesView> {
                   actionLabel: i10n.backToToday,
                   onAction: () => Navigator.of(context).pushReplacementNamed(AppRoutes.home),
                 ),
-              ApodStatus.success => ApodGrid(
-                  children: [
-                    for (final apod in state.favoriteApodData)
-                      ApodCard(apod: apod as Map, onRemove: () => _remove(apod['date'] as String), onReturned: _reload),
-                  ],
+              ApodStatus.success => ApodMasonry<dynamic>(
+                  items: state.favoriteApodData,
+                  builder: (apod, shape) => ApodCard(apod: apod as Map, aspectRatio: shape, onRemove: () => _remove(apod['date'] as String), onReturned: _reload),
                 ),
             },
           ),

@@ -1,31 +1,32 @@
 # Appod design system
 
-Appod's identity on a modern app system. The source of truth is `lib/ui/theme/app_theme.dart`; shared components are in `lib/ui/widgets/common.dart`.
+Appod's identity in a showcase-level app. The source of truth is `lib/ui/theme/app_theme.dart`; shared components are in `lib/ui/widgets/common.dart`.
 
 ## Identity
 
 - Logo next to the APPOD wordmark in the Nasa font.
-- Brand gradient `#3391FF` to `#00C6B5`, only on the splash screen. The interface uses solid blue.
-- Blue accent: `#5E9EFF` on dark, `#1A73E8` on light. Teal: `#2DD4BF` on dark, `#00796B` on light.
-- Backgrounds: `#0A0C10` on dark, `#F6F8FC` on light.
+- Blue accent: `#5E9EFF` on dark, `#1A73E8` on light. Backgrounds: `#0A0C10` on dark, `#F6F8FC` on light.
+- Brand gradient `#3391FF` to `#00C6B5`, only on the splash screen.
 
 ## Type
 
-Space Grotesk for titles, Inter for everything else. Both are bundled under the SIL Open Font License.
+Space Grotesk, big and tight, for titles. Inter for everything else. Both are bundled under the SIL Open Font License.
 
-## Principles
+## Signature elements
 
-- The photograph fills the screen. The interface stays quiet: bars are clear over a photo and solid over content.
-- Swiping moves between days. Pictures fly from the card into their page.
-- Text on a photograph is white on a dark fade, in both themes.
-- Tapping a picture on its page always shows it whole and uncropped.
-- Corner radius 14 for cards, 12 for controls, 8 for small marks, 20 for sheets and dialogs. Touch targets of at least 44.
+- **Ambient color:** the picture in focus, heavily blurred, tints the whole screen behind a legibility veil.
+- **Carousel:** big cards with neighbors peeking in, scaling as they move.
+- **Photo glass:** dark glass with white text for anything on a photograph, in both themes.
+- **Floating dock:** navigation and a day's actions are glass pills that float over content.
+- **Masonry wall:** the archive in columns of varied heights.
 
-## Motion and texture
+## Shape
 
-- Entrances fade and rise; lists arrive slightly staggered. Everything is 140 to 500 ms, except the photo settling for 1600 ms.
-- Motion turns off when the system asks for reduced motion (`reduceMotion` in `common.dart`).
-- A faint, fixed star field sits behind the dark theme only. It never moves.
+Radius 32 for hero cards, sheets and panels; 24 for cards and groups; 16 for controls; pills for buttons and chips. Touch targets of at least 44.
+
+## Motion
+
+Entrances fade and rise, and lists arrive slightly staggered. Cards respond to press and hover, and pictures fly into their page. Everything turns off when the system asks for reduced motion (`reduceMotion` in `common.dart`).
 
 ## Navigation
 

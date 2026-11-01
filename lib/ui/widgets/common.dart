@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
@@ -74,40 +73,89 @@ class ApodImage extends StatelessWidget {
 /// Whether the reader asked for less motion in their system settings.
 bool reduceMotion(BuildContext context) => MediaQuery.of(context).disableAnimations;
 
-/// A faint field of stars behind the dark interface. Fixed, so it never distracts.
+/// The picture currently in focus. It tints the whole screen behind the interface.
+final ambientPicture = ValueNotifier<String?>(null);
+
+/// Sets the ambient picture from a day of the archive; videos without a thumbnail clear it.
+void setAmbientFrom(Map? apod) {
+  final url = (apod?['url'] ?? '') as String;
+  final isVideo = apod?['media_type'] == 'video';
+  final resolved = apodImageUrl(url);
+  if (url.isEmpty || (isVideo && resolved == proxiedImageUrl(url))) return;
+  // A very small version is enough, since it is heavily blurred.
+  ambientPicture.value = resolved.replaceFirst('w=1280', 'w=240');
+}
+
+/// The screen's backdrop: the picture in focus, blurred into pure color.
 class AppBackground extends StatelessWidget {
   const AppBackground({super.key});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // Stars only exist at night: on a light page they would read as dust.
-    if (scheme.brightness == Brightness.light) return const SizedBox.expand();
+    final isDark = scheme.brightness == Brightness.dark;
     return RepaintBoundary(
-      child: CustomPaint(painter: _StarsPainter(scheme.onSurface, 0.2), size: Size.infinite),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ColoredBox(color: scheme.surface),
+          ValueListenableBuilder<String?>(
+            valueListenable: ambientPicture,
+            builder: (context, url, _) => AnimatedSwitcher(
+              duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 900),
+              child: url == null
+                  ? const SizedBox.expand()
+                  : ImageFiltered(
+                      key: ValueKey(url),
+                      imageFilter: ImageFilter.blur(sigmaX: 70, sigmaY: 70, tileMode: TileMode.clamp),
+                      child: Image.network(url, fit: BoxFit.cover, width: double.infinity, height: double.infinity, errorBuilder: (_, __, ___) => const SizedBox.expand()),
+                    ),
+            ),
+          ),
+          // A veil keeps text legible over any picture.
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  scheme.surface.withValues(alpha: isDark ? 0.45 : 0.62),
+                  scheme.surface.withValues(alpha: isDark ? 0.82 : 0.9),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _StarsPainter extends CustomPainter {
-  final Color color;
-  final double strength;
-  _StarsPainter(this.color, this.strength);
+/// Dark glass with white content, for anything sitting on a photograph.
+class PhotoGlass extends StatelessWidget {
+  final Widget child;
+  final double radius;
+  final EdgeInsets padding;
+  const PhotoGlass({super.key, required this.child, this.radius = 24, this.padding = const EdgeInsets.all(14)});
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final random = Random(1995); // The year APOD began, and the same sky every time.
-    final paint = Paint();
-    final stars = (size.width * size.height / 7000).round().clamp(40, 400);
-    for (var i = 0; i < stars; i++) {
-      final brightness = pow(random.nextDouble(), 3).toDouble();
-      paint.color = color.withValues(alpha: (0.15 + brightness * 0.85) * strength);
-      canvas.drawCircle(Offset(random.nextDouble() * size.width, random.nextDouble() * size.height), 0.4 + brightness * 0.7, paint);
-    }
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+        child: Container(
+          padding: padding,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.38),
+            borderRadius: BorderRadius.circular(radius),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+          ),
+          child: child,
+        ),
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(_StarsPainter old) => old.color != color || old.strength != strength;
 }
 
 /// Fades and rises into place, a little later for each [index] in a list.
@@ -164,7 +212,7 @@ class Glass extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: scheme.surface.withValues(alpha: 0.88),
+            color: scheme.surfaceContainerHighest.withValues(alpha: 0.72),
             border: Border(
               top: bordered == GlassEdge.top ? line : BorderSide.none,
               bottom: bordered == GlassEdge.bottom ? line : BorderSide.none,
@@ -229,9 +277,11 @@ class Skeleton extends StatelessWidget {
 /// One day of the archive: a photograph with its title on it.
 class ApodCard extends StatefulWidget {
   final Map apod;
+  final double aspectRatio;
+  final String? eyebrow;
   final VoidCallback? onRemove;
   final VoidCallback? onReturned;
-  const ApodCard({super.key, required this.apod, this.onRemove, this.onReturned});
+  const ApodCard({super.key, required this.apod, this.aspectRatio = 4 / 5, this.eyebrow, this.onRemove, this.onReturned});
 
   @override
   State<ApodCard> createState() => _ApodCardState();
@@ -245,86 +295,87 @@ class _ApodCardState extends State<ApodCard> {
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final calm = reduceMotion(context);
     final apod = widget.apod;
     final date = (apod['date'] ?? '') as String;
     return AnimatedScale(
-      scale: _pressed && !calm ? 0.98 : 1,
-      duration: const Duration(milliseconds: 140),
+      scale: _pressed && !calm ? 0.97 : 1,
+      duration: const Duration(milliseconds: 160),
       curve: Curves.easeOut,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppTheme.radius),
-        hoverColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        splashFactory: NoSplash.splashFactory,
-        onHover: (value) => setState(() => _hover = value),
-        onHighlightChanged: (value) => setState(() => _pressed = value),
-        onTap: () async {
-          await Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(date));
-          widget.onReturned?.call();
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 4 / 3,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppTheme.radius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? (_hover ? 0.5 : 0.3) : (_hover ? 0.18 : 0.08)),
-                      blurRadius: _hover ? 24 : 14,
-                      offset: Offset(0, _hover ? 10 : 5),
+      child: AspectRatio(
+        aspectRatio: widget.aspectRatio,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTheme.radius),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: _hover ? 0.42 : 0.24), blurRadius: _hover ? 28 : 18, offset: Offset(0, _hover ? 14 : 8))],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppTheme.radius),
+            child: Material(
+              color: theme.colorScheme.surfaceContainerHighest,
+              child: InkWell(
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                splashFactory: NoSplash.splashFactory,
+                onHover: (value) => setState(() => _hover = value),
+                onHighlightChanged: (value) => setState(() => _pressed = value),
+                onTap: () async {
+                  await Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(date));
+                  setAmbientFrom(apod);
+                  widget.onReturned?.call();
+                },
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    AnimatedScale(
+                      scale: _hover && !calm ? 1.05 : 1,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOutCubic,
+                      child: Hero(
+                        tag: 'apod-$date',
+                        flightShuttleBuilder: roundedFlight,
+                        child: ApodImage(url: (apod['url'] ?? '') as String, isVideo: apod['media_type'] == 'video'),
+                      ),
                     ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppTheme.radius),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      AnimatedScale(
-                        scale: _hover && !calm ? 1.04 : 1,
-                        duration: const Duration(milliseconds: 450),
-                        curve: Curves.easeOutCubic,
-                        child: Hero(
-                          tag: 'apod-$date',
-                          flightShuttleBuilder: roundedFlight,
-                          child: ApodImage(url: (apod['url'] ?? '') as String, isVideo: apod['media_type'] == 'video'),
-                        ),
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, stops: [0.5, 1], colors: [Colors.transparent, Color(0xD0000000)]),
                       ),
-                      // A hairline keeps dark pictures from melting into the background.
-                      IgnorePointer(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppTheme.radius),
-                            border: Border.all(color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08)),
+                    ),
+                    Positioned(
+                      left: 14,
+                      right: 14,
+                      bottom: 14,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.eyebrow ?? longDate(date, Localizations.localeOf(context).languageCode),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white.withValues(alpha: 0.78), fontSize: 11),
                           ),
-                        ),
+                          const SizedBox(height: 3),
+                          Text(
+                            (apod['title'] ?? '') as String,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontFamily: AppTheme.display, fontWeight: FontWeight.w600, fontSize: 15, height: 1.18, letterSpacing: -0.2, color: Colors.white),
+                          ),
+                        ],
                       ),
-                      if (widget.onRemove != null)
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: GlassIconButton(icon: Icons.favorite_rounded, tooltip: i10n.removeFromFavorites, onPressed: widget.onRemove!),
-                        ),
-                    ],
-                  ),
+                    ),
+                    if (widget.onRemove != null)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GlassIconButton(icon: Icons.favorite_rounded, color: const Color(0xFFFF5A6E), tooltip: i10n.removeFromFavorites, onPressed: widget.onRemove!),
+                      ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            // Two lines are always reserved, so every card in a row ends level.
-            SizedBox(
-              height: 38,
-              child: Text((apod['title'] ?? '') as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium),
-            ),
-            const SizedBox(height: 2),
-            Text(longDate(date, Localizations.localeOf(context).languageCode), style: theme.textTheme.labelSmall),
-          ],
+          ),
         ),
       ),
     );
@@ -349,11 +400,11 @@ class SectionGroup extends StatelessWidget {
           const SizedBox(height: 10),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainer,
+              color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.62),
               borderRadius: BorderRadius.circular(AppTheme.radius),
-              border: Border.all(color: theme.colorScheme.outlineVariant),
+              border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.08)),
             ),
             child: child,
           ),
@@ -363,23 +414,41 @@ class SectionGroup extends StatelessWidget {
   }
 }
 
-/// Grid of archive days, sized to the screen.
-class ApodGrid extends StatelessWidget {
-  final List<Widget> children;
-  const ApodGrid({super.key, required this.children});
+/// A Pinterest-style wall: columns of pictures with varied heights.
+class ApodMasonry<T> extends StatelessWidget {
+  final List<T> items;
+  final Widget Function(T item, double aspectRatio) builder;
+  const ApodMasonry({super.key, required this.items, required this.builder});
+
+  // Width over height. The repeating rhythm keeps both columns ending close together.
+  static const _shapes = [0.8, 1.05, 1.1, 0.72, 0.9, 1.0];
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final columns = constraints.maxWidth >= 1000 ? 4 : constraints.maxWidth >= 600 ? 3 : 2;
-      const gap = 20.0;
-      final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
-      return Wrap(
-        spacing: gap,
-        runSpacing: 28,
+      final count = constraints.maxWidth >= 1000 ? 4 : constraints.maxWidth >= 600 ? 3 : 2;
+      const gap = 12.0;
+      final columns = List.generate(count, (_) => <Widget>[]);
+      final heights = List.filled(count, 0.0);
+      for (var i = 0; i < items.length; i++) {
+        final shape = _shapes[i % _shapes.length];
+        var shortest = 0;
+        for (var c = 1; c < count; c++) {
+          if (heights[c] < heights[shortest] - 0.01) shortest = c;
+        }
+        heights[shortest] += 1 / shape;
+        columns[shortest].add(Padding(
+          padding: const EdgeInsets.only(bottom: gap),
+          child: Reveal(index: i, child: builder(items[i], shape)),
+        ));
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (var i = 0; i < children.length; i++)
-            Reveal(key: children[i].key, index: i, child: SizedBox(width: width, child: children[i])),
+          for (var c = 0; c < count; c++) ...[
+            if (c > 0) const SizedBox(width: gap),
+            Expanded(child: Column(children: columns[c])),
+          ],
         ],
       );
     });

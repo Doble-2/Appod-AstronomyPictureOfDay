@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
 /// Appod's identity (logo, Nasa wordmark, blue and teal) on a modern app system:
-/// restrained color, clear hierarchy, and the photograph as the only spectacle.
+/// the photograph colors the whole screen, with big type, big radii and glass.
 class AppTheme {
   static const display = 'SpaceGrotesk';
   static const text = 'Inter';
-  // Radius scale: cards 14, controls 12, small marks 8, sheets and dialogs 20.
-  static const radius = 14.0;
-  static const radiusControl = 12.0;
-  static const radiusSheet = 20.0;
+  // Radius scale: hero 32, cards and groups 24, controls 16, small marks 10.
+  static const radiusHero = 32.0;
+  static const radius = 24.0;
+  static const radiusControl = 16.0;
+  static const radiusSheet = 32.0;
 
   static final dark = _build(const ColorScheme(
     brightness: Brightness.dark,
@@ -47,11 +48,13 @@ class AppTheme {
   static ThemeData _build(ColorScheme scheme) {
     final on = scheme.onSurface;
     final dim = scheme.onSurfaceVariant;
-    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
+    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusControl));
+    const pill = StadiumBorder();
     final textTheme = TextTheme(
-      displaySmall: TextStyle(fontFamily: display, fontWeight: FontWeight.w600, fontSize: 32, height: 1.15, letterSpacing: -0.6, color: on),
-      headlineMedium: TextStyle(fontFamily: display, fontWeight: FontWeight.w600, fontSize: 24, height: 1.2, letterSpacing: -0.3, color: on),
-      titleLarge: TextStyle(fontFamily: display, fontWeight: FontWeight.w600, fontSize: 18, height: 1.3, letterSpacing: -0.1, color: on),
+      displayLarge: TextStyle(fontFamily: display, fontWeight: FontWeight.w700, fontSize: 48, height: 1.02, letterSpacing: -1.8, color: on),
+      displaySmall: TextStyle(fontFamily: display, fontWeight: FontWeight.w700, fontSize: 38, height: 1.05, letterSpacing: -1.2, color: on),
+      headlineMedium: TextStyle(fontFamily: display, fontWeight: FontWeight.w700, fontSize: 26, height: 1.12, letterSpacing: -0.7, color: on),
+      titleLarge: TextStyle(fontFamily: display, fontWeight: FontWeight.w600, fontSize: 19, height: 1.25, letterSpacing: -0.3, color: on),
       titleMedium: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, height: 1.35, color: on),
       titleSmall: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, height: 1.3, color: on),
       bodyLarge: TextStyle(fontSize: 15, height: 1.65, color: on),
@@ -86,11 +89,11 @@ class AppTheme {
       dividerColor: scheme.outlineVariant,
       dividerTheme: DividerThemeData(color: scheme.outlineVariant, space: 1, thickness: 1),
       appBarTheme: AppBarTheme(backgroundColor: Colors.transparent, foregroundColor: on, surfaceTintColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0),
-      filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(shape: shape, minimumSize: const Size(48, 44), padding: const EdgeInsets.symmetric(horizontal: 18))),
+      filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(shape: pill, minimumSize: const Size(48, 48), padding: const EdgeInsets.symmetric(horizontal: 18))),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(shape: shape, foregroundColor: on, side: BorderSide(color: scheme.outline.withValues(alpha: 0.5)), minimumSize: const Size(48, 44), padding: const EdgeInsets.symmetric(horizontal: 16)),
+        style: OutlinedButton.styleFrom(shape: pill, foregroundColor: on, side: BorderSide(color: scheme.outline.withValues(alpha: 0.5)), minimumSize: const Size(48, 48), padding: const EdgeInsets.symmetric(horizontal: 16)),
       ),
-      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(shape: shape, minimumSize: const Size(44, 44))),
+      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(shape: pill, minimumSize: const Size(44, 44))),
       iconButtonTheme: IconButtonThemeData(style: IconButton.styleFrom(minimumSize: const Size(44, 44), foregroundColor: on)),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: SegmentedButton.styleFrom(shape: shape, foregroundColor: on, selectedBackgroundColor: scheme.primary.withValues(alpha: 0.16), selectedForegroundColor: scheme.primary, side: BorderSide(color: scheme.outlineVariant), minimumSize: const Size(44, 44)),

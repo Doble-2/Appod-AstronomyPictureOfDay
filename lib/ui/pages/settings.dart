@@ -45,7 +45,7 @@ class _SettingsViewState extends State<SettingsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 28),
+          const SizedBox(height: 12),
           Text(i10n.settings, style: theme.textTheme.displaySmall),
           SectionGroup(
             title: i10n.appeareance,

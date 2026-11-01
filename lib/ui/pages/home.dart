@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:nasa_apod/data/nasa.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
+import 'package:nasa_apod/ui/theme/app_theme.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
-import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 import 'package:nasa_apod/utils/apod_dates.dart';
 
 class HomeView extends StatefulWidget {
@@ -19,6 +20,9 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  // Days the carousel shows; the wall below continues from there.
+  static const _carouselDays = 5;
+
   @override
   void initState() {
     super.initState();
@@ -30,49 +34,60 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
-    final top = MediaQuery.of(context).padding.top + Layout.headerHeight;
-    return BlocBuilder<ApodBloc, ApodState>(
+    final theme = Theme.of(context);
+    return BlocConsumer<ApodBloc, ApodState>(
+      // NASA publishes around midnight in New York, so ahead of that time zone
+      // today's picture may not exist yet. Open the latest one instead of an error.
+      listenWhen: (a, b) => a.status != b.status,
+      listener: (context, state) {
+        if (state.status == ApodStatus.failed && state.errorCode == 404 && state.date == todayIso()) {
+          final yesterday = shiftDay(state.date, -1);
+          if (yesterday != null) context.read<ApodBloc>().add(ChangeDate(yesterday));
+        }
+      },
       builder: (context, state) {
         if (state.status == ApodStatus.failed) {
-          return Padding(
-            padding: EdgeInsets.only(top: top + 8),
-            child: PageBody(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _DayStrip(date: state.date),
-                  StateMessage(
-                    icon: Icons.cloud_off_rounded,
-                    title: i10n.genericError,
-                    body: apodErrorText(i10n, state.errorCode),
-                    actionLabel: i10n.retry,
-                    onAction: () => context.read<ApodBloc>().add(RefreshData()),
-                  ),
-                ],
-              ),
+          return PageBody(
+            child: StateMessage(
+              icon: Icons.cloud_off_rounded,
+              title: i10n.genericError,
+              body: apodErrorText(i10n, state.errorCode),
+              actionLabel: i10n.retry,
+              onAction: () => context.read<ApodBloc>().add(RefreshData()),
             ),
           );
         }
         final others = state.multipleApodData.where((a) => a['url'] != null).toList();
-        final loadingOthers = state.multiplestatus == ApodStatus.loading && others.isEmpty;
+        final current = state.apodData;
+        final carousel = [if (current != null) current, ...others.take(_carouselDays - 1)];
+        final wall = others.skip(_carouselDays - 1).toList();
+        final loading = state.multiplestatus == ApodStatus.loading && others.isEmpty;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Hero(apod: state.apodData, date: state.date),
+            PageBody(child: _Heading(date: state.date)),
+            const SizedBox(height: 18),
+            _Carousel(key: ValueKey(state.date), days: carousel, date: state.date),
+            const SizedBox(height: 34),
+            _OnThisDay(key: ValueKey('otd-${state.date}'), date: state.date),
+            const SizedBox(height: 34),
             PageBody(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
-                  _DayStrip(date: state.date),
-                  const SizedBox(height: 36),
-                  Text(i10n.previousDays, style: Theme.of(context).textTheme.headlineMedium),
-                  const SizedBox(height: 16),
-                  ApodGrid(
-                    children: loadingOthers
-                        ? [for (var i = 0; i < 8; i++) const AspectRatio(aspectRatio: 4 / 3, child: Skeleton())]
-                        : [for (final apod in others) ApodCard(key: ValueKey(apod['date']), apod: apod)],
-                  ),
+                  Text(i10n.fromTheArchive, style: theme.textTheme.headlineMedium),
+                  const SizedBox(height: 14),
+                  if (loading)
+                    ApodMasonry<int>(
+                      items: List.generate(8, (i) => i),
+                      builder: (_, shape) => AspectRatio(aspectRatio: shape, child: const Skeleton()),
+                    )
+                  else
+                    ApodMasonry<dynamic>(
+                      key: ValueKey('wall-${state.date}'),
+                      items: wall,
+                      builder: (apod, shape) => ApodCard(apod: apod as Map, aspectRatio: shape),
+                    ),
                 ],
               ),
             ),
@@ -83,224 +98,16 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-/// The picture of the day, edge to edge. Swipe to move between days.
-class _Hero extends StatelessWidget {
-  final Map<String, dynamic>? apod;
+/// A big, plain statement of where the reader is in time.
+class _Heading extends StatelessWidget {
   final String date;
-  const _Hero({required this.apod, required this.date});
+  const _Heading({required this.date});
 
-  void _go(BuildContext context, int days) {
-    final target = shiftDay(date, days);
-    if (target == null) return;
-    HapticFeedback.selectionClick();
-    context.read<ApodBloc>().add(ChangeDate(target));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final i10n = AppLocalizations.of(context)!;
-    final size = MediaQuery.of(context).size;
-    final isDesktop = context.isDesktop;
-    final height = isDesktop ? (size.height * 0.74).clamp(460.0, 800.0) : (size.height * 0.62).clamp(380.0, 620.0);
-    final data = apod;
-    if (data == null) return SizedBox(height: height, width: double.infinity, child: const Skeleton(radius: 0));
-    final shown = data['date'] as String;
-    final locale = Localizations.localeOf(context).languageCode;
-    return SizedBox(
-      height: height,
-      width: double.infinity,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          GestureDetector(
-            onHorizontalDragEnd: (details) {
-              final speed = details.primaryVelocity ?? 0;
-              if (speed.abs() > 200) _go(context, speed < 0 ? -1 : 1);
-            },
-            child: Semantics(
-              button: true,
-              label: '${data['title']}. ${i10n.readMore}',
-              excludeSemantics: true,
-              child: InkWell(
-                splashFactory: NoSplash.splashFactory,
-                hoverColor: Colors.transparent,
-                onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(shown)),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    AnimatedSwitcher(
-                      duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 500),
-                      child: Hero(
-                        key: ValueKey(shown),
-                        tag: 'apod-$shown',
-                        child: _SettlingImage(url: (data['url'] ?? '') as String, isVideo: data['media_type'] == 'video'),
-                      ),
-                    ),
-                    // Darkens only the edges, so the header and title stay legible.
-                    const DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: [0, 0.18, 0.55, 1],
-                          colors: [Color(0x8C000000), Colors.transparent, Colors.transparent, Color(0xD9000000)],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: isDesktop ? 44 : 24,
-            child: IgnorePointer(
-              child: PageBody(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 640),
-                  child: AnimatedSwitcher(
-                    duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 380),
-                    switchInCurve: Curves.easeOutCubic,
-                    transitionBuilder: (child, animation) => FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(position: Tween(begin: const Offset(0, 0.06), end: Offset.zero).animate(animation), child: child),
-                    ),
-                    // Only the new text is shown, so two titles never overlap.
-                    layoutBuilder: (current, previous) => current ?? const SizedBox.shrink(),
-                    child: Column(
-                      key: ValueKey(shown),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          shown == todayIso() ? '${i10n.apodToday} · ${longDate(shown, locale)}' : longDate(shown, locale),
-                          style: theme.textTheme.labelMedium?.copyWith(color: Colors.white.withValues(alpha: 0.85), fontSize: 13),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          (data['title'] ?? '') as String,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.displaySmall?.copyWith(color: Colors.white, fontSize: isDesktop ? 44 : 28),
-                        ),
-                        if (isDesktop) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                            (data['explanation'] ?? '') as String,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white.withValues(alpha: 0.8)),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-                ),
-              ),
-            ),
-          ),
-          if (isDesktop) ...[
-            if (shiftDay(date, -1) != null)
-              Positioned(left: 24, top: 0, bottom: 0, child: Center(child: GlassIconButton(icon: Icons.chevron_left_rounded, tooltip: i10n.previousDay, onPressed: () => _go(context, -1)))),
-            if (shiftDay(date, 1) != null)
-              Positioned(right: 24, top: 0, bottom: 0, child: Center(child: GlassIconButton(icon: Icons.chevron_right_rounded, tooltip: i10n.nextDay, onPressed: () => _go(context, 1)))),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// The photograph eases out of a slight zoom when it arrives.
-class _SettlingImage extends StatelessWidget {
-  final String url;
-  final bool isVideo;
-  const _SettlingImage({required this.url, required this.isVideo});
-
-  @override
-  Widget build(BuildContext context) {
-    final image = ApodImage(url: url, isVideo: isVideo);
-    if (reduceMotion(context)) return image;
-    return ClipRect(
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 1.05, end: 1),
-        duration: const Duration(milliseconds: 1600),
-        curve: Curves.easeOutCubic,
-        child: image,
-        builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
-      ),
-    );
-  }
-}
-
-/// A quiet row of days to tap through, under the current month, with a
-/// calendar for jumping further back.
-class _DayStrip extends StatefulWidget {
-  final String date;
-  const _DayStrip({required this.date});
-
-  @override
-  State<_DayStrip> createState() => _DayStripState();
-}
-
-class _DayStripState extends State<_DayStrip> {
-  static const _extent = 52.0;
-  static const _count = 60;
-  final _controller = ScrollController();
-  bool _needsCenter = true;
-
-  // The strip reaches back from today, or is centered on an older day.
-  List<String> get _days {
-    var anchor = shiftDay(widget.date, 15) ?? todayIso();
-    final difference = DateTime.parse(todayIso()).difference(DateTime.parse(widget.date)).inDays;
-    if (difference < 30) anchor = todayIso();
-    return [
-      for (var i = 0; i < _count; i++)
-        if (shiftDay(anchor, -i) != null) shiftDay(anchor, -i)!,
-    ];
-  }
-
-  void _center() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Under another page the strip has no size yet; it centers once it has one.
-      if (!_controller.hasClients || !_controller.position.hasViewportDimension) return;
-      _needsCenter = false;
-      final index = _days.indexOf(widget.date);
-      if (index < 0) return;
-      final target = index * _extent - _controller.position.viewportDimension / 2 + _extent / 2;
-      _controller.animateTo(target.clamp(0, _controller.position.maxScrollExtent), duration: const Duration(milliseconds: 350), curve: Curves.easeOutCubic);
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _center();
-  }
-
-  @override
-  void didUpdateWidget(_DayStrip old) {
-    super.didUpdateWidget(old);
-    if (old.date != widget.date) _center();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pick() async {
+  Future<void> _pick(BuildContext context) async {
     final bloc = context.read<ApodBloc>();
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.tryParse(widget.date) ?? DateTime.now(),
+      initialDate: DateTime.tryParse(date) ?? DateTime.now(),
       firstDate: firstApodDate,
       lastDate: DateTime.now(),
     );
@@ -311,84 +118,317 @@ class _DayStripState extends State<_DayStrip> {
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     final locale = Localizations.localeOf(context).languageCode;
-    final days = _days;
-    final month = toBeginningOfSentenceCase(DateFormat.yMMMM(locale).format(DateTime.parse(widget.date)));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final isToday = date == todayIso();
+    final parsed = DateTime.tryParse(date) ?? DateTime.now();
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Row(
-          children: [
-            Expanded(child: Text(month, style: theme.textTheme.titleLarge)),
-            IconButton(tooltip: i10n.chooseDate, onPressed: _pick, icon: const Icon(Icons.calendar_month_outlined, size: 22)),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                toBeginningOfSentenceCase(DateFormat.MMMEd(locale).format(parsed)),
+                style: theme.textTheme.labelMedium?.copyWith(fontSize: 13),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                isToday ? i10n.today : DateFormat.yMMMd(locale).format(parsed),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.displayLarge,
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 4),
-        SizedBox(
-          height: 68,
-          child: ShaderMask(
-            // Days fade out at the edge instead of being cut off.
-            shaderCallback: (rect) => const LinearGradient(colors: [Colors.white, Colors.white, Colors.transparent], stops: [0, 0.92, 1]).createShader(rect),
-            blendMode: BlendMode.dstIn,
-            child: ScrollConfiguration(
-              behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false, dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad}),
-              child: NotificationListener<ScrollMetricsNotification>(
-                onNotification: (_) {
-                  if (_needsCenter) _center();
-                  return false;
+        if (!isToday)
+          IconButton.filledTonal(
+            tooltip: i10n.backToToday,
+            onPressed: () => context.read<ApodBloc>().add(ChangeDate(todayIso())),
+            icon: const Icon(Icons.today_rounded),
+          ),
+        const SizedBox(width: 6),
+        IconButton.filled(
+          tooltip: i10n.chooseDate,
+          onPressed: () => _pick(context),
+          style: IconButton.styleFrom(minimumSize: const Size(52, 52), backgroundColor: theme.colorScheme.primary, foregroundColor: theme.colorScheme.onPrimary),
+          icon: const Icon(Icons.calendar_month_rounded),
+        ),
+      ],
+    );
+  }
+}
+
+/// Big cards with the neighbors peeking in. The one in focus colors the screen.
+class _Carousel extends StatefulWidget {
+  final List<dynamic> days;
+  final String date;
+  const _Carousel({super.key, required this.days, required this.date});
+
+  @override
+  State<_Carousel> createState() => _CarouselState();
+}
+
+class _CarouselState extends State<_Carousel> {
+  PageController? _controller;
+  int _page = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final width = MediaQuery.of(context).size.width;
+    final fraction = width < 600 ? 0.86 : (820 / width).clamp(0.4, 0.8);
+    if (_controller == null || _controller!.viewportFraction != fraction) {
+      _controller?.dispose();
+      _controller = PageController(viewportFraction: fraction, initialPage: _page);
+    }
+    _syncAmbient();
+  }
+
+  @override
+  void didUpdateWidget(_Carousel old) {
+    super.didUpdateWidget(old);
+    _syncAmbient();
+  }
+
+  void _syncAmbient() {
+    if (_page < widget.days.length) {
+      final day = widget.days[_page] as Map;
+      WidgetsBinding.instance.addPostFrameCallback((_) => setAmbientFrom(day));
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  void _step(int by) => _controller?.animateToPage(_page + by, duration: const Duration(milliseconds: 420), curve: Curves.easeOutCubic);
+
+  @override
+  Widget build(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
+    final isDesktop = context.isDesktop;
+    final height = isDesktop ? (size.height * 0.62).clamp(420.0, 700.0) : (size.height * 0.58).clamp(380.0, 620.0);
+    final calm = reduceMotion(context);
+    if (widget.days.isEmpty) {
+      return SizedBox(height: height, child: const PageBody(child: Skeleton(radius: AppTheme.radiusHero)));
+    }
+    return SizedBox(
+      height: height,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false, dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad}),
+            child: PageView.builder(
+              // Lets the cards' shadows spread beyond the carousel.
+              clipBehavior: Clip.none,
+              controller: _controller,
+              itemCount: widget.days.length,
+              onPageChanged: (page) {
+                HapticFeedback.selectionClick();
+                setState(() => _page = page);
+                _syncAmbient();
+              },
+              itemBuilder: (context, index) => AnimatedBuilder(
+                animation: _controller!,
+                builder: (context, child) {
+                  final position = _controller!.hasClients && _controller!.position.haveDimensions ? _controller!.page ?? _page.toDouble() : _page.toDouble();
+                  final distance = (position - index).abs().clamp(0.0, 1.0);
+                  return Transform.scale(
+                    scale: calm ? 1 : 1 - distance * 0.08,
+                    child: Opacity(opacity: 1 - distance * 0.35, child: child),
+                  );
                 },
-                child: ListView.builder(
-                  controller: _controller,
-                  scrollDirection: Axis.horizontal,
-                  itemExtent: _extent,
-                  itemCount: days.length,
-                  itemBuilder: (context, index) {
-                    final day = days[index];
-                    final parsed = DateTime.parse(day);
-                    final selected = day == widget.date;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: Semantics(
-                        button: true,
-                        selected: selected,
-                        label: longDate(day, locale),
-                        excludeSemantics: true,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            context.read<ApodBloc>().add(ChangeDate(day));
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: selected ? scheme.primary : Colors.transparent),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(DateFormat.E(locale).format(parsed), style: TextStyle(color: selected ? scheme.onPrimary : scheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500)),
-                                const SizedBox(height: 2),
-                                Text('${parsed.day}', style: TextStyle(color: selected ? scheme.onPrimary : scheme.onSurface, fontSize: 17, fontWeight: FontWeight.w600, fontFeatures: const [FontFeature.tabularFigures()])),
-                                const SizedBox(height: 3),
-                                // A dot marks today, wherever the reader is in the strip.
-                                Container(
-                                  width: 4,
-                                  height: 4,
-                                  decoration: BoxDecoration(shape: BoxShape.circle, color: day != todayIso() ? Colors.transparent : (selected ? scheme.onPrimary : scheme.primary)),
-                                ),
-                              ],
-                            ),
-                          ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: _HeroCard(day: widget.days[index] as Map),
+                ),
+              ),
+            ),
+          ),
+          if (isDesktop && _page > 0)
+            Positioned(left: 24, child: GlassIconButton(icon: Icons.chevron_left_rounded, tooltip: i10n.nextDay, onPressed: () => _step(-1))),
+          if (isDesktop && _page < widget.days.length - 1)
+            Positioned(right: 24, child: GlassIconButton(icon: Icons.chevron_right_rounded, tooltip: i10n.previousDay, onPressed: () => _step(1))),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroCard extends StatelessWidget {
+  final Map day;
+  const _HeroCard({required this.day});
+
+  @override
+  Widget build(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final date = day['date'] as String;
+    final title = (day['title'] ?? '') as String;
+    final credit = (day['copyright'] as String?)?.trim() ?? '';
+    final locale = Localizations.localeOf(context).languageCode;
+    final isDesktop = context.isDesktop;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppTheme.radiusHero),
+          boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 30, offset: Offset(0, 14))],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppTheme.radiusHero),
+          child: Semantics(
+            button: true,
+            label: '$title. ${i10n.readMore}',
+            excludeSemantics: true,
+            child: Material(
+              color: Colors.black,
+              child: InkWell(
+                splashFactory: NoSplash.splashFactory,
+                hoverColor: Colors.transparent,
+                onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.day(date)),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Hero(
+                      tag: 'apod-$date',
+                      flightShuttleBuilder: roundedFlight,
+                      child: ApodImage(url: (day['url'] ?? '') as String, isVideo: day['media_type'] == 'video', background: Colors.black),
+                    ),
+                    Positioned(
+                      top: 14,
+                      left: 14,
+                      child: PhotoGlass(
+                        radius: 20,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                        child: Text(
+                          date == todayIso() ? i10n.apodToday : longDate(date, locale),
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
                         ),
                       ),
-                    );
-                  },
+                    ),
+                    Positioned(
+                      left: 12,
+                      right: 12,
+                      bottom: 12,
+                      child: PhotoGlass(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.headlineMedium?.copyWith(color: Colors.white, fontSize: isDesktop ? 30 : 23),
+                                  ),
+                                  if (credit.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(credit, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 12)),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              width: 46,
+                              height: 46,
+                              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                              child: const Icon(Icons.north_east_rounded, color: Colors.black, size: 21),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
         ),
-      ],
+      ),
+    );
+  }
+}
+
+/// The same date in earlier years, which APOD's 30-year archive makes possible.
+class _OnThisDay extends StatefulWidget {
+  final String date;
+  const _OnThisDay({super.key, required this.date});
+
+  @override
+  State<_OnThisDay> createState() => _OnThisDayState();
+}
+
+class _OnThisDayState extends State<_OnThisDay> {
+  static const _yearsBack = [1, 2, 3, 5, 10, 15, 20, 25];
+  late final Future<List<(int, Map<String, dynamic>)>> _days = _load();
+
+  Future<List<(int, Map<String, dynamic>)>> _load() async {
+    final date = DateTime.parse(widget.date);
+    final service = NetworkService();
+    final results = await Future.wait(_yearsBack.map((years) async {
+      final past = DateFormat('yyyy-MM-dd').format(DateTime(date.year - years, date.month, date.day));
+      if (!isArchiveDay(past)) return null;
+      try {
+        return (years, await service.getApod(past));
+      } on Exception {
+        return null;
+      }
+    }));
+    return results.whereType<(int, Map<String, dynamic>)>().toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+    final isDesktop = context.isDesktop;
+    return FutureBuilder<List<(int, Map<String, dynamic>)>>(
+      future: _days,
+      builder: (context, snapshot) {
+        final days = snapshot.data ?? const [];
+        if (snapshot.connectionState == ConnectionState.done && days.isEmpty) return const SizedBox.shrink();
+        const cardWidth = 168.0;
+        final side = (MediaQuery.of(context).size.width - 1240).clamp(0.0, double.infinity) / 2 + (isDesktop ? 32.0 : 16.0);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageBody(child: Text(i10n.onThisDay, style: Theme.of(context).textTheme.headlineMedium)),
+            const SizedBox(height: 14),
+            SizedBox(
+              height: cardWidth * 1.3 + 22,
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false, dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad}),
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.fromLTRB(side, 0, side, 22),
+                  clipBehavior: Clip.none,
+                  itemCount: days.isEmpty ? 5 : days.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) => SizedBox(
+                    width: cardWidth,
+                    child: days.isEmpty
+                        ? const Skeleton()
+                        : Reveal(
+                            index: index,
+                            child: ApodCard(apod: days[index].$2, aspectRatio: 1 / 1.3, eyebrow: i10n.yearsAgo(days[index].$1)),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

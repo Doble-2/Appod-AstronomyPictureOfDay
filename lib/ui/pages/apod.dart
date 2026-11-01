@@ -17,7 +17,7 @@ import 'package:url_launcher/url_launcher.dart' as ul;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 /// One day of the archive. Phones: the photograph behind a draggable sheet.
-/// Large screens: the whole photograph beside a reading panel.
+/// Large screens: the photograph and a glass reading panel, floating side by side.
 class ApodView extends StatefulWidget {
   final String? date; // yyyy-MM-dd
   const ApodView({super.key, this.date});
@@ -31,6 +31,7 @@ class _ApodViewState extends State<ApodView> {
   List<String> _favorites = [];
   String? _translated;
   bool _translating = false;
+  String? _ambientFor;
 
   @override
   void initState() {
@@ -90,49 +91,47 @@ class _ApodViewState extends State<ApodView> {
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
     final padding = MediaQuery.of(context).padding;
+    final isDesktop = context.isDesktop;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-      backgroundColor: Colors.black,
-      body: BlocBuilder<ApodBloc, ApodState>(
-        builder: (context, state) {
-          final apod = state.apodData;
-          final ready = state.status == ApodStatus.success && apod != null && apod['date'] == _date;
-          final Widget content;
-          if (state.status == ApodStatus.failed) {
-            content = ColoredBox(
-              color: Theme.of(context).colorScheme.surface,
-              child: StateMessage(
-                icon: Icons.cloud_off_rounded,
-                title: i10n.genericError,
-                body: apodErrorText(i10n, state.errorCode),
-                actionLabel: i10n.retry,
-                onAction: () => context.read<ApodBloc>().add(ChangeDate(_date)),
+        body: Stack(
+          children: [
+            const Positioned.fill(child: AppBackground()),
+            Positioned.fill(
+              child: BlocBuilder<ApodBloc, ApodState>(
+                builder: (context, state) {
+                  final apod = state.apodData;
+                  final ready = state.status == ApodStatus.success && apod != null && apod['date'] == _date;
+                  if (ready && _ambientFor != _date) {
+                    _ambientFor = _date;
+                    WidgetsBinding.instance.addPostFrameCallback((_) => setAmbientFrom(apod));
+                  }
+                  if (state.status == ApodStatus.failed) {
+                    return StateMessage(
+                      icon: Icons.cloud_off_rounded,
+                      title: i10n.genericError,
+                      body: apodErrorText(i10n, state.errorCode),
+                      actionLabel: i10n.retry,
+                      onAction: () => context.read<ApodBloc>().add(ChangeDate(_date)),
+                    );
+                  }
+                  if (!ready) return _Loading(wide: isDesktop);
+                  return isDesktop ? _wide(apod, i10n) : _phone(apod, i10n);
+                },
               ),
-            );
-          } else if (!ready) {
-            content = context.isDesktop
-                ? Row(children: [const Expanded(child: Skeleton(radius: 0)), SizedBox(width: 440, child: ColoredBox(color: Theme.of(context).colorScheme.surface, child: const _StorySkeleton()))])
-                : Column(children: [const Expanded(flex: 3, child: Skeleton(radius: 0)), Expanded(flex: 2, child: ColoredBox(color: Theme.of(context).colorScheme.surface, child: const _StorySkeleton()))]);
-          } else {
-            content = context.isDesktop ? _wide(apod, i10n) : _phone(apod, i10n);
-          }
-          return Stack(
-            children: [
-              Positioned.fill(child: content),
-              Positioned(
-                top: padding.top + 12,
-                left: 12,
-                child: GlassIconButton(
-                  icon: Icons.arrow_back_rounded,
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                  onPressed: _back,
-                ),
+            ),
+            Positioned(
+              top: padding.top + (isDesktop ? 28 : 12),
+              left: isDesktop ? 28 : 12,
+              child: GlassIconButton(
+                icon: Icons.arrow_back_rounded,
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                onPressed: _back,
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -141,140 +140,174 @@ class _ApodViewState extends State<ApodView> {
     final scheme = Theme.of(context).colorScheme;
     final size = MediaQuery.of(context).size;
     final padding = MediaQuery.of(context).padding;
-    final isFavorite = _favorites.contains(_date);
-    final isImage = apod['media_type'] == 'image';
     return Stack(
       children: [
         Positioned(
           top: 0,
           left: 0,
           right: 0,
-          height: size.height * 0.66,
-          child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.cover)),
-        ),
-        Positioned(
-          top: padding.top + 12,
-          right: 12,
-          child: Row(
-            children: [
-              GlassIconButton(
-                icon: isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                color: isFavorite ? const Color(0xFFFF5A6E) : null,
-                tooltip: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
-                onPressed: _toggleFavorite,
-              ),
-              const SizedBox(width: 8),
-              GlassIconButton(icon: Icons.ios_share_rounded, tooltip: i10n.share, onPressed: () => _share(apod)),
-              if (isImage) ...[
-                const SizedBox(width: 8),
-                GlassIconButton(icon: Icons.download_rounded, tooltip: i10n.downloadApod, onPressed: () => _download(apod)),
-              ],
-            ],
-          ),
+          height: size.height * 0.68,
+          child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.cover, radius: 0)),
         ),
         DraggableScrollableSheet(
-          initialChildSize: 0.42,
-          minChildSize: 0.34,
+          initialChildSize: 0.44,
+          minChildSize: 0.36,
           maxChildSize: 0.94,
           snap: true,
-          builder: (context, controller) => DecoratedBox(
-            decoration: BoxDecoration(
-              color: scheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusSheet)),
-              border: Border(top: BorderSide(color: scheme.outlineVariant)),
-              boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 30, offset: Offset(0, -6))],
-            ),
-            child: ListView(
-              controller: controller,
-              padding: EdgeInsets.fromLTRB(20, 10, 20, padding.bottom + 32),
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 18),
-                    decoration: BoxDecoration(color: scheme.outline, borderRadius: BorderRadius.circular(2)),
+          builder: (context, controller) => ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusSheet)),
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: scheme.surface),
+              child: ListView(
+                controller: controller,
+                padding: EdgeInsets.fromLTRB(22, 10, 22, padding.bottom + 104),
+                children: [
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 5,
+                      margin: const EdgeInsets.only(bottom: 18),
+                      decoration: BoxDecoration(color: scheme.outline, borderRadius: BorderRadius.circular(3)),
+                    ),
                   ),
-                ),
-                ..._story(apod, i10n),
-              ],
+                  ..._story(apod, i10n, titleSize: 32),
+                ],
+              ),
             ),
           ),
         ),
+        // Text fades out beneath the dock instead of running behind it.
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: padding.bottom + 110,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, stops: const [0, 0.55], colors: [scheme.surface.withValues(alpha: 0), scheme.surface]),
+              ),
+            ),
+          ),
+        ),
+        Positioned(left: 0, right: 0, bottom: padding.bottom + 16, child: Center(child: _actionDock(apod, i10n))),
       ],
     );
   }
 
   Widget _wide(Map<String, dynamic> apod, AppLocalizations i10n) {
-    final isFavorite = _favorites.contains(_date);
-    final isImage = apod['media_type'] == 'image';
-    final scheme = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Expanded(child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.contain))),
-        Container(
-          width: 440,
-          decoration: BoxDecoration(color: scheme.surface, border: Border(left: BorderSide(color: scheme.outlineVariant))),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(36, 44, 36, 44),
-            children: [
-              ..._story(apod, i10n, titleSize: 28),
-            ]..insertAll(_actionsIndex(apod), [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    if (isFavorite)
-                      OutlinedButton.icon(
-                        onPressed: _toggleFavorite,
-                        icon: Icon(Icons.favorite_rounded, size: 18, color: scheme.primary),
-                        label: Text(i10n.removeFromFavorites),
-                      )
-                    else
-                      FilledButton.icon(
-                        onPressed: _toggleFavorite,
-                        icon: const Icon(Icons.favorite_border_rounded, size: 18),
-                        label: Text(i10n.addToFavorites),
-                      ),
-                    IconButton.outlined(tooltip: i10n.share, onPressed: () => _share(apod), icon: const Icon(Icons.ios_share_rounded, size: 18)),
-                    if (isImage)
-                      IconButton.outlined(tooltip: i10n.downloadApod, onPressed: () => _download(apod), icon: const Icon(Icons.download_rounded, size: 18)),
-                  ],
-                ),
-                const SizedBox(height: 20),
-              ]),
+    final padding = MediaQuery.of(context).padding;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, padding.top + 16, 16, padding.bottom + 16),
+      child: Row(
+        children: [
+          Expanded(child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.contain, radius: AppTheme.radiusHero))),
+          const SizedBox(width: 16),
+          SizedBox(
+            width: 460,
+            child: Glass(
+              radius: AppTheme.radiusHero,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(32, 36, 32, 24),
+                      children: _story(apod, i10n, titleSize: 38),
+                    ),
+                  ),
+                  Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 20), child: _actionDock(apod, i10n)),
+                ],
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  // The actions go right after the date, title and credit.
-  int _actionsIndex(Map<String, dynamic> apod) {
-    final credit = (apod['copyright'] as String?)?.trim() ?? '';
-    return credit.isEmpty ? 4 : 4;
+  /// The day's actions, always within reach.
+  Widget _actionDock(Map<String, dynamic> apod, AppLocalizations i10n) {
+    final scheme = Theme.of(context).colorScheme;
+    final isFavorite = _favorites.contains(_date);
+    final isImage = apod['media_type'] == 'image';
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 26, offset: Offset(0, 10))],
+      ),
+      child: Glass(
+        radius: 40,
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                decoration: BoxDecoration(color: isFavorite ? const Color(0xFFFF5A6E) : scheme.primary, borderRadius: BorderRadius.circular(30)),
+                child: Semantics(
+                  button: true,
+                  label: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
+                  excludeSemantics: true,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(30),
+                    onTap: _toggleFavorite,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 260),
+                            switchInCurve: Curves.easeOutBack,
+                            transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                            child: Icon(isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded, key: ValueKey(isFavorite), size: 20, color: isFavorite ? Colors.white : scheme.onPrimary),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(i10n.favorites, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: isFavorite ? Colors.white : scheme.onPrimary)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              IconButton(tooltip: i10n.share, onPressed: () => _share(apod), icon: const Icon(Icons.ios_share_rounded, size: 21)),
+              if (isImage) IconButton(tooltip: i10n.downloadApod, onPressed: () => _download(apod), icon: const Icon(Icons.download_rounded, size: 22)),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _share(Map<String, dynamic> apod) => shareApod(context, title: (apod['title'] ?? '') as String, date: _date, imageUrl: (apod['url'] ?? '') as String);
   void _download(Map<String, dynamic> apod) => saveNetworkImage(context, (apod['url'] ?? '') as String, (apod['title'] ?? '') as String);
 
-  List<Widget> _story(Map<String, dynamic> apod, AppLocalizations i10n, {double titleSize = 24}) {
+  List<Widget> _story(Map<String, dynamic> apod, AppLocalizations i10n, {required double titleSize}) {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final credit = (apod['copyright'] as String?)?.replaceAll('\n', ' ').trim() ?? '';
     final explanation = (apod['explanation'] ?? '') as String;
     final previous = shiftDay(_date, -1);
     final next = shiftDay(_date, 1);
+    final minutes = (explanation.split(' ').length / 200).ceil().clamp(1, 60);
+    final isImage = apod['media_type'] == 'image';
     return [
-      Text(longDate(_date, locale), style: theme.textTheme.labelMedium),
+      Text(longDate(_date, locale), style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontSize: 13)),
       const SizedBox(height: 8),
-      Text((apod['title'] ?? '') as String, style: theme.textTheme.headlineMedium?.copyWith(fontSize: titleSize)),
+      Text((apod['title'] ?? '') as String, style: theme.textTheme.displaySmall?.copyWith(fontSize: titleSize)),
       const SizedBox(height: 16),
-      if (credit.isNotEmpty) ...[
-        Text('${i10n.imageCredit}: $credit', style: theme.textTheme.labelSmall),
-        const SizedBox(height: 16),
-      ],
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          _InfoChip(icon: isImage ? Icons.image_outlined : Icons.play_circle_outline_rounded, label: isImage ? i10n.photoType : i10n.videoType),
+          _InfoChip(icon: Icons.schedule_rounded, label: i10n.minRead(minutes)),
+          if (credit.isNotEmpty) _InfoChip(icon: Icons.camera_alt_outlined, label: credit),
+        ],
+      ),
+      const SizedBox(height: 20),
       SelectableText(_translated ?? explanation, style: theme.textTheme.bodyLarge),
       // NASA writes in English, so translation is only offered to other readers.
       if (locale != 'en' && _translated == null) ...[
@@ -290,21 +323,17 @@ class _ApodViewState extends State<ApodView> {
           ),
         ),
       ],
-      const SizedBox(height: 28),
-      const Divider(),
-      const SizedBox(height: 12),
+      const SizedBox(height: 24),
       Row(
         children: [
           if (previous != null)
-            Expanded(
-              child: TextButton.icon(onPressed: () => _openDay(previous), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.previousDay)),
-            ),
+            Expanded(child: OutlinedButton.icon(onPressed: () => _openDay(previous), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.previousDay, maxLines: 1, overflow: TextOverflow.ellipsis))),
           if (previous != null && next != null) const SizedBox(width: 8),
           if (next != null)
             Expanded(
               child: Directionality(
                 textDirection: TextDirection.rtl,
-                child: TextButton.icon(onPressed: () => _openDay(next), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.nextDay)),
+                child: OutlinedButton.icon(onPressed: () => _openDay(next), icon: const Icon(Icons.chevron_left_rounded), label: Text(i10n.nextDay, maxLines: 1, overflow: TextOverflow.ellipsis)),
               ),
             ),
         ],
@@ -313,29 +342,61 @@ class _ApodViewState extends State<ApodView> {
   }
 }
 
-/// The shape of the story while it loads.
-class _StorySkeleton extends StatelessWidget {
-  const _StorySkeleton();
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _InfoChip({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(28, 40, 28, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(color: scheme.onSurface.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(20)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(width: 120, child: Skeleton(height: 12, radius: 6)),
-          SizedBox(height: 16),
-          Skeleton(height: 28, radius: 8),
-          SizedBox(height: 24),
-          Skeleton(height: 12, radius: 6),
-          SizedBox(height: 10),
-          Skeleton(height: 12, radius: 6),
-          SizedBox(height: 10),
-          SizedBox(width: 200, child: Skeleton(height: 12, radius: 6)),
+          Icon(icon, size: 15, color: scheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Flexible(child: Text(label, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: scheme.onSurface))),
         ],
       ),
     );
+  }
+}
+
+/// The shape of the page while it loads.
+class _Loading extends StatelessWidget {
+  final bool wide;
+  const _Loading({required this.wide});
+
+  static const _story = Padding(
+    padding: EdgeInsets.fromLTRB(28, 36, 28, 0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(width: 120, child: Skeleton(height: 12, radius: 6)),
+        SizedBox(height: 16),
+        Skeleton(height: 36, radius: 12),
+        SizedBox(height: 24),
+        Skeleton(height: 12, radius: 6),
+        SizedBox(height: 10),
+        Skeleton(height: 12, radius: 6),
+        SizedBox(height: 10),
+        SizedBox(width: 200, child: Skeleton(height: 12, radius: 6)),
+      ],
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    if (wide) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Row(children: [Expanded(child: Skeleton(radius: AppTheme.radiusHero)), SizedBox(width: 476, child: _story)]),
+      );
+    }
+    return const Column(children: [Expanded(flex: 3, child: Skeleton(radius: 0)), Expanded(flex: 2, child: _story)]);
   }
 }
 
@@ -344,7 +405,8 @@ class _Stage extends StatelessWidget {
   final Map<String, dynamic> apod;
   final String date;
   final BoxFit fit;
-  const _Stage({required this.apod, required this.date, required this.fit});
+  final double radius;
+  const _Stage({required this.apod, required this.date, required this.fit, required this.radius});
 
   void _openFullScreen(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
@@ -386,28 +448,31 @@ class _Stage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
+    final Widget child;
     if (apod['media_type'] != 'image') {
-      return ColoredBox(
+      child = ColoredBox(
         color: Colors.black,
         child: Center(child: AspectRatio(aspectRatio: 16 / 9, child: _ApodVideo(url: apod['url'] as String))),
       );
-    }
-    return ColoredBox(
-      color: Colors.black,
-      child: Semantics(
-        button: true,
-        label: i10n.viewFullScreen,
-        child: InkWell(
-          onTap: () => _openFullScreen(context),
-          mouseCursor: SystemMouseCursors.zoomIn,
-          child: Hero(
-            tag: 'apod-$date',
-            flightShuttleBuilder: roundedFlight,
-            child: ApodImage(url: apod['url'] as String, fit: fit, background: Colors.black),
+    } else {
+      child = ColoredBox(
+        color: Colors.black,
+        child: Semantics(
+          button: true,
+          label: i10n.viewFullScreen,
+          child: InkWell(
+            onTap: () => _openFullScreen(context),
+            mouseCursor: SystemMouseCursors.zoomIn,
+            child: Hero(
+              tag: 'apod-$date',
+              flightShuttleBuilder: roundedFlight,
+              child: ApodImage(url: apod['url'] as String, fit: fit, background: Colors.black),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
+    return ClipRRect(borderRadius: BorderRadius.circular(radius), child: child);
   }
 }
 

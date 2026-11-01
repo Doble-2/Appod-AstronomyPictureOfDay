@@ -8,32 +8,50 @@ import 'package:nasa_apod/data/nasa.dart';
 ///
 /// api.nasa.gov/planetary/apod now answers with the NASA logo as the picture,
 /// "NASA Science" as the title, and sometimes another day's text. The site's
-/// article feed has the real picture, title, credit and explanation for every
-/// day since 1995, and browsers may read it directly.
+/// article feed has the real picture, title, credit and explanation, and
+/// browsers may read it directly.
 class NasaSiteSource {
   static final _articles = Uri.parse('https://science.nasa.gov/wp-json/wp/v2/image-article');
 
   /// The day's article, or a 404 [NasaApiException] if there is none.
   Future<Map<String, dynamic>> getDay(String date) async {
     final day = DateTime.parse(date);
+    // shortcut: the date filter skips about 1 day in 5 that do exist, for no
+    // visible reason, so title search covers those. Replace both if NASA fixes
+    // its API or publishes an official feed for the archive.
     // per_page must be above 1: with 1, this endpoint can answer with an empty list.
-    final items = await _fetch(day, day, perPage: 5);
-    for (final item in items) {
-      if (item['date'] == date) return item;
+    final byDate = await _fetch(day, day, perPage: 5);
+    final found = _forDate(byDate, date);
+    if (found != null) return found;
+    for (final term in apodSearchTerms(day)) {
+      final bySearch = await _request({'search': term, 'per_page': '20', '_fields': 'date,title,content'});
+      final match = _forDate(bySearch, date);
+      if (match != null) return match;
     }
     throw NasaApiException(statusCode: 404, message: 'No APOD for $date');
   }
 
+  static Map<String, dynamic>? _forDate(List<Map<String, dynamic>> items, String date) {
+    for (final item in items) {
+      if (item['date'] == date) return item;
+    }
+    return null;
+  }
+
   Future<List<Map<String, dynamic>>> getRange(DateTime start, DateTime end) => _fetch(start, end, perPage: 100);
 
-  Future<List<Map<String, dynamic>>> _fetch(DateTime start, DateTime end, {required int perPage}) async {
-    final uri = _articles.replace(queryParameters: {
+  Future<List<Map<String, dynamic>>> _fetch(DateTime start, DateTime end, {required int perPage}) {
+    return _request({
       // "after" leaves out the exact moment, and old articles are dated at 00:00:00.
       'after': '${_iso(DateTime(start.year, start.month, start.day - 1))}T23:59:59',
       'before': '${_iso(end)}T23:59:59',
       'per_page': '$perPage',
       '_fields': 'date,title,content',
     });
+  }
+
+  Future<List<Map<String, dynamic>>> _request(Map<String, String> query) async {
+    final uri = _articles.replace(queryParameters: query);
     final http.Response response;
     try {
       response = await http.get(uri).timeout(const Duration(seconds: 20));
@@ -49,6 +67,16 @@ class NasaSiteSource {
     if (body is! List) throw const NasaApiException(message: 'Unexpected response shape');
     return body.whereType<Map<String, dynamic>>().map(parseApodArticle).whereType<Map<String, dynamic>>().toList();
   }
+}
+
+/// How a day's title may be written: old articles pad the day ("June 05").
+List<String> apodSearchTerms(DateTime day) {
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  final prefix = 'APOD: ${day.year} ${months[day.month - 1]}';
+  return [
+    '$prefix ${day.day}',
+    if (day.day < 10) '$prefix ${day.day.toString().padLeft(2, '0')}',
+  ];
 }
 
 String _iso(DateTime d) =>

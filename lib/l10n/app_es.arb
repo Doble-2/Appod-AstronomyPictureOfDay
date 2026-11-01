@@ -9,9 +9,9 @@
   "pleaseLoginToSeeFavorites": "Por favor, inicia sesión para ver tus favoritos",
   "soon": "Pronto",
   "appeareance": "Apariencia",
-  "darkMode": "Modo oscuro",
-  "lightMode": "Modo claro",
-  "systemMode": "Modo sistema",
+  "darkMode": "Oscuro",
+  "lightMode": "Claro",
+  "systemMode": "Sistema",
   "language": "Idioma",
   "english": "Inglés",
   "spanish": "Español",
@@ -87,5 +87,12 @@
   "shareText": "Mira la imagen astronómica del {date}: {url}",
   "showPassword": "Mostrar contraseña",
   "pageNotFound": "Esta página no existe",
-  "pageNotFoundBody": "La dirección es incorrecta o no hay imagen para esa fecha."
+  "pageNotFoundBody": "La dirección es incorrecta o no hay imagen para esa fecha.",
+  "onThisDay": "En este día",
+  "yearsAgo": "{count, plural, =1{Hace 1 año} other{Hace {count} años}}",
+  "minRead": "{minutes} min de lectura",
+  "photoType": "Foto",
+  "videoType": "Vídeo",
+  "fromTheArchive": "Del archivo",
+  "thisWeek": "Esta semana"
 }

@@ -36,13 +36,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appeareance => 'Appearance';
 
   @override
-  String get darkMode => 'Dark Mode';
+  String get darkMode => 'Dark';
 
   @override
-  String get lightMode => 'Light Mode';
+  String get lightMode => 'Light';
 
   @override
-  String get systemMode => 'System Mode';
+  String get systemMode => 'System';
 
   @override
   String get language => 'Language';
@@ -285,4 +285,35 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pageNotFoundBody =>
       'The address is wrong, or there is no picture for that date.';
+
+  @override
+  String get onThisDay => 'On this day';
+
+  @override
+  String yearsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count years ago',
+      one: '1 year ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minRead(int minutes) {
+    return '$minutes min read';
+  }
+
+  @override
+  String get photoType => 'Photo';
+
+  @override
+  String get videoType => 'Video';
+
+  @override
+  String get fromTheArchive => 'From the archive';
+
+  @override
+  String get thisWeek => 'This week';
 }
