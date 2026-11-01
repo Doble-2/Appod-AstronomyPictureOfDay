@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
@@ -98,6 +99,14 @@ class _SettingsViewState extends State<SettingsView> {
               children: [
                 Text(i10n.aboutBody, style: theme.textTheme.bodyMedium),
                 const SizedBox(height: 12),
+                if (kIsWeb) ...[
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, AppRoutes.getApp),
+                    icon: const Icon(Icons.download_rounded, size: 18),
+                    label: Text(i10n.getApp),
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 OutlinedButton.icon(
                   onPressed: () => ul.launchUrl(Uri.parse(_repository), mode: ul.LaunchMode.externalApplication),
                   icon: const Icon(Icons.open_in_new_rounded, size: 18),

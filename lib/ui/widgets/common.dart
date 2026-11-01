@@ -1,3 +1,4 @@
+import 'dart:math' show max;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
@@ -39,13 +40,16 @@ class ApodImage extends StatelessWidget {
   final bool isVideo;
   final BoxFit fit;
   final Color? background;
-  const ApodImage({super.key, required this.url, this.isVideo = false, this.fit = BoxFit.cover, this.background});
+  /// Loads a smaller version, for cards.
+  final bool thumbnail;
+  const ApodImage({super.key, required this.url, this.isVideo = false, this.fit = BoxFit.cover, this.background, this.thumbnail = false});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final resolved = apodImageUrl(url);
     final hasThumbnail = !isVideo || resolved != proxiedImageUrl(url);
+    final shown = thumbnail ? resolved.replaceFirst('w=1280', 'w=640') : resolved;
     final placeholder = ColoredBox(color: background ?? scheme.surfaceContainerHighest);
     return Stack(
       fit: StackFit.expand,
@@ -53,7 +57,7 @@ class ApodImage extends StatelessWidget {
         placeholder,
         if (hasThumbnail)
           Image.network(
-            resolved,
+            shown,
             fit: fit,
             frameBuilder: (context, child, frame, sync) => AnimatedOpacity(
               opacity: sync || frame != null ? 1 : 0,
@@ -64,7 +68,7 @@ class ApodImage extends StatelessWidget {
             errorBuilder: (context, error, stack) => Icon(Icons.broken_image_outlined, color: scheme.onSurfaceVariant),
           ),
         if (isVideo)
-          const Center(child: Icon(Icons.play_circle_outline_rounded, color: Colors.white, size: 48, shadows: [Shadow(blurRadius: 12)])),
+          const Align(alignment: Alignment(0, -0.3), child: Icon(Icons.play_circle_outline_rounded, color: Colors.white, size: 40, shadows: [Shadow(blurRadius: 12)])),
       ],
     );
   }
@@ -93,7 +97,8 @@ class AppBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isDark = scheme.brightness == Brightness.dark;
+    // Tinted light backgrounds read as dirty, so light mode stays clean.
+    if (scheme.brightness == Brightness.light) return ColoredBox(color: scheme.surface);
     return RepaintBoundary(
       child: Stack(
         fit: StackFit.expand,
@@ -119,8 +124,8 @@ class AppBackground extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  scheme.surface.withValues(alpha: isDark ? 0.45 : 0.62),
-                  scheme.surface.withValues(alpha: isDark ? 0.82 : 0.9),
+                  scheme.surface.withValues(alpha: 0.45),
+                  scheme.surface.withValues(alpha: 0.82),
                 ],
               ),
             ),
@@ -131,32 +136,21 @@ class AppBackground extends StatelessWidget {
   }
 }
 
-/// Dark glass with white content, for anything sitting on a photograph.
-class PhotoGlass extends StatelessWidget {
-  final Widget child;
-  final double radius;
-  final EdgeInsets padding;
-  const PhotoGlass({super.key, required this.child, this.radius = 24, this.padding = const EdgeInsets.all(14)});
+/// Darkens the lower part of a card's photograph, so its white text stays legible.
+const photoScrim = LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  stops: [0.42, 0.7, 1],
+  colors: [Colors.transparent, Color(0xB8000000), Color(0xE6000000)],
+);
 
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.38),
-            borderRadius: BorderRadius.circular(radius),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-          ),
-          child: child,
-        ),
-      ),
-    );
-  }
-}
+/// The same for a large card, where the text takes up less of the picture.
+const heroScrim = LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  stops: [0.62, 0.82, 1],
+  colors: [Colors.transparent, Color(0xA6000000), Color(0xE6000000)],
+);
 
 /// Fades and rises into place, a little later for each [index] in a list.
 class Reveal extends StatelessWidget {
@@ -212,7 +206,7 @@ class Glass extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest.withValues(alpha: 0.72),
+            color: scheme.brightness == Brightness.dark ? scheme.surfaceContainerHighest.withValues(alpha: 0.72) : Colors.white.withValues(alpha: 0.82),
             border: Border(
               top: bordered == GlassEdge.top ? line : BorderSide.none,
               bottom: bordered == GlassEdge.bottom ? line : BorderSide.none,
@@ -334,14 +328,10 @@ class _ApodCardState extends State<ApodCard> {
                       child: Hero(
                         tag: 'apod-$date',
                         flightShuttleBuilder: roundedFlight,
-                        child: ApodImage(url: (apod['url'] ?? '') as String, isVideo: apod['media_type'] == 'video'),
+                        child: ApodImage(url: (apod['url'] ?? '') as String, isVideo: apod['media_type'] == 'video', thumbnail: true),
                       ),
                     ),
-                    const DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, stops: [0.5, 1], colors: [Colors.transparent, Color(0xD0000000)]),
-                      ),
-                    ),
+                    const DecoratedBox(decoration: BoxDecoration(gradient: photoScrim)),
                     Positioned(
                       left: 14,
                       right: 14,
@@ -350,15 +340,15 @@ class _ApodCardState extends State<ApodCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.eyebrow ?? longDate(date, Localizations.localeOf(context).languageCode),
+                            widget.eyebrow ?? shortDate(date, Localizations.localeOf(context).languageCode),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white.withValues(alpha: 0.78), fontSize: 11),
+                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, fontSize: 11),
                           ),
                           const SizedBox(height: 3),
                           Text(
                             (apod['title'] ?? '') as String,
-                            maxLines: 3,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontFamily: AppTheme.display, fontWeight: FontWeight.w600, fontSize: 15, height: 1.18, letterSpacing: -0.2, color: Colors.white),
                           ),
@@ -367,12 +357,49 @@ class _ApodCardState extends State<ApodCard> {
                     ),
                     if (widget.onRemove != null)
                       Positioned(
-                        top: 8,
-                        right: 8,
-                        child: GlassIconButton(icon: Icons.favorite_rounded, color: const Color(0xFFFF5A6E), tooltip: i10n.removeFromFavorites, onPressed: widget.onRemove!),
+                        top: 2,
+                        right: 2,
+                        child: _SmallPhotoButton(icon: Icons.favorite_rounded, tooltip: i10n.removeFromFavorites, onPressed: widget.onRemove!),
                       ),
                   ],
                 ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A small mark on a photograph, with a full-size touch area around it.
+class _SmallPhotoButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+  const _SmallPhotoButton({required this.icon, required this.tooltip, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        button: true,
+        label: tooltip,
+        excludeSemantics: true,
+        onTap: onPressed,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onPressed,
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                child: Icon(icon, color: Colors.white, size: 16),
               ),
             ),
           ),
@@ -423,25 +450,45 @@ class ApodMasonry<T> extends StatelessWidget {
   // Width over height. The repeating rhythm keeps both columns ending close together.
   static const _shapes = [0.8, 1.05, 1.1, 0.72, 0.9, 1.0];
 
+  /// Places each item in the shortest column, then stretches each column's
+  /// last card so all columns end level. [gap] is relative to a column's width.
+  static List<List<(int, double)>> _layout(int length, int count, double gap) {
+    final columns = List.generate(count, (_) => <(int, double)>[]);
+    final heights = List.filled(count, 0.0);
+    for (var i = 0; i < length; i++) {
+      final shape = _shapes[i % _shapes.length];
+      var shortest = 0;
+      for (var c = 1; c < count; c++) {
+        if (heights[c] < heights[shortest] - 0.01) shortest = c;
+      }
+      columns[shortest].add((i, shape));
+      heights[shortest] += 1 / shape + gap;
+    }
+    final tallest = heights.reduce(max);
+    for (var c = 0; c < count; c++) {
+      if (columns[c].isEmpty) continue;
+      final (index, shape) = columns[c].last;
+      columns[c].last = (index, 1 / (1 / shape + tallest - heights[c]));
+    }
+    return columns;
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final count = constraints.maxWidth >= 1000 ? 4 : constraints.maxWidth >= 600 ? 3 : 2;
       const gap = 12.0;
-      final columns = List.generate(count, (_) => <Widget>[]);
-      final heights = List.filled(count, 0.0);
-      for (var i = 0; i < items.length; i++) {
-        final shape = _shapes[i % _shapes.length];
-        var shortest = 0;
-        for (var c = 1; c < count; c++) {
-          if (heights[c] < heights[shortest] - 0.01) shortest = c;
-        }
-        heights[shortest] += 1 / shape;
-        columns[shortest].add(Padding(
-          padding: const EdgeInsets.only(bottom: gap),
-          child: Reveal(index: i, child: builder(items[i], shape)),
-        ));
-      }
+      final slots = _layout(items.length, count, gap / ((constraints.maxWidth - gap * (count - 1)) / count));
+      final columns = [
+        for (final column in slots)
+          [
+            for (final (index, shape) in column)
+              Padding(
+                padding: const EdgeInsets.only(bottom: gap),
+                child: Reveal(index: index, child: builder(items[index], shape)),
+              ),
+          ],
+      ];
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

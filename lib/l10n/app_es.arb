@@ -65,7 +65,7 @@
   "imageLoadError": "No se pudo cargar esta imagen.",
   "imageCredit": "Crédito",
   "about": "Acerca de",
-  "aboutBody": "Appod muestra la imagen astronómica del día de la NASA. Las imágenes y los textos pertenecen a la NASA y a sus autores acreditados.",
+  "aboutBody": "Appod muestra la imagen astronómica del día de la NASA. Las imágenes y los textos pertenecen a la NASA y a sus autores acreditados. Appod no está afiliada a la NASA ni cuenta con su respaldo.",
   "sourceCode": "Código fuente en GitHub",
   "loginToSync": "Inicia sesión para conservar tus favoritos entre dispositivos.",
   "favoritesError": "No se pudieron cargar tus favoritos.",
@@ -90,9 +90,5 @@
   "pageNotFoundBody": "La dirección es incorrecta o no hay imagen para esa fecha.",
   "onThisDay": "En este día",
   "yearsAgo": "{count, plural, =1{Hace 1 año} other{Hace {count} años}}",
-  "minRead": "{minutes} min de lectura",
-  "photoType": "Foto",
-  "videoType": "Vídeo",
-  "fromTheArchive": "Del archivo",
-  "thisWeek": "Esta semana"
+  "fromTheArchive": "Del archivo"
 }

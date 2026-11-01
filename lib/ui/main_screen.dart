@@ -16,6 +16,8 @@ class MainScreen extends StatelessWidget {
     final authService = AuthService();
     return Layout(
       currentIndex: initialIndex,
+      // Home builds its endless wall lazily, so it scrolls itself.
+      scrollable: initialIndex != 0,
       // Each tab has its own route, so the web address always matches the screen.
       onTap: (i) {
         if (i != initialIndex) Navigator.of(context).pushReplacementNamed(AppRoutes.tabs[i]);

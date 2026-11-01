@@ -16,9 +16,11 @@ Space Grotesk, big and tight, for titles. Inter for everything else. Both are bu
 
 - **Ambient color:** the picture in focus, heavily blurred, tints the whole screen behind a legibility veil.
 - **Carousel:** big cards with neighbors peeking in, scaling as they move.
-- **Photo glass:** dark glass with white text for anything on a photograph, in both themes.
-- **Floating dock:** navigation and a day's actions are glass pills that float over content.
-- **Masonry wall:** the archive in columns of varied heights.
+- **Photo scrim:** white text on a dark fade over photographs, in both themes (`photoScrim`, `heroScrim`).
+- **Dark first:** the default theme. Ambient color exists only there; light mode stays clean.
+- **Floating dock:** on phones, navigation floats as a glass pill; on large screens it is a glass header. A day's actions also float.
+- **Masonry wall:** an endless wall of random stretches of the 30-year archive.
+- **Credit:** a picture's author is shown wherever the picture is the focus, and travels with it when shared.
 
 ## Shape
 

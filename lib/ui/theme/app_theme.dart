@@ -30,7 +30,7 @@ class AppTheme {
 
   static final light = _build(const ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFF1A73E8),
+    primary: Color(0xFF1669D6),
     onPrimary: Color(0xFFFFFFFF),
     secondary: Color(0xFF00796B),
     onSecondary: Color(0xFFFFFFFF),

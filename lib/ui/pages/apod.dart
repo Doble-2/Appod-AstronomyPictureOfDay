@@ -146,12 +146,12 @@ class _ApodViewState extends State<ApodView> {
           top: 0,
           left: 0,
           right: 0,
-          height: size.height * 0.68,
+          height: size.height * 0.6,
           child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.cover, radius: 0)),
         ),
         DraggableScrollableSheet(
-          initialChildSize: 0.44,
-          minChildSize: 0.36,
+          initialChildSize: 0.5,
+          minChildSize: 0.42,
           maxChildSize: 0.94,
           snap: true,
           builder: (context, controller) => ClipRRect(
@@ -170,7 +170,7 @@ class _ApodViewState extends State<ApodView> {
                       decoration: BoxDecoration(color: scheme.outline, borderRadius: BorderRadius.circular(3)),
                     ),
                   ),
-                  ..._story(apod, i10n, titleSize: 32),
+                  ..._story(apod, i10n, titleSize: 28),
                 ],
               ),
             ),
@@ -201,7 +201,7 @@ class _ApodViewState extends State<ApodView> {
       padding: EdgeInsets.fromLTRB(16, padding.top + 16, 16, padding.bottom + 16),
       child: Row(
         children: [
-          Expanded(child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.contain, radius: AppTheme.radiusHero))),
+          Expanded(child: GestureDetector(onHorizontalDragEnd: _swipe, child: _Stage(apod: apod, date: _date, fit: BoxFit.contain, radius: AppTheme.radiusHero, backdrop: Colors.transparent))),
           const SizedBox(width: 16),
           SizedBox(
             width: 460,
@@ -212,7 +212,7 @@ class _ApodViewState extends State<ApodView> {
                   Expanded(
                     child: ListView(
                       padding: const EdgeInsets.fromLTRB(32, 36, 32, 24),
-                      children: _story(apod, i10n, titleSize: 38),
+                      children: _story(apod, i10n, titleSize: 34),
                     ),
                   ),
                   Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 20), child: _actionDock(apod, i10n)),
@@ -230,7 +230,7 @@ class _ApodViewState extends State<ApodView> {
     final scheme = Theme.of(context).colorScheme;
     final isFavorite = _favorites.contains(_date);
     final isImage = apod['media_type'] == 'image';
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
         boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 26, offset: Offset(0, 10))],
@@ -238,42 +238,26 @@ class _ApodViewState extends State<ApodView> {
       child: Glass(
         radius: 40,
         child: Padding(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                decoration: BoxDecoration(color: isFavorite ? const Color(0xFFFF5A6E) : scheme.primary, borderRadius: BorderRadius.circular(30)),
-                child: Semantics(
-                  button: true,
-                  label: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
-                  excludeSemantics: true,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(30),
-                    onTap: _toggleFavorite,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 260),
-                            switchInCurve: Curves.easeOutBack,
-                            transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-                            child: Icon(isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded, key: ValueKey(isFavorite), size: 20, color: isFavorite ? Colors.white : scheme.onPrimary),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(i10n.favorites, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: isFavorite ? Colors.white : scheme.onPrimary)),
-                        ],
-                      ),
-                    ),
-                  ),
+              IconButton(
+                tooltip: isFavorite ? i10n.removeFromFavorites : i10n.addToFavorites,
+                onPressed: _toggleFavorite,
+                icon: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 260),
+                  switchInCurve: Curves.easeOutBack,
+                  transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                  child: Icon(isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded, key: ValueKey(isFavorite), color: isFavorite ? scheme.primary : null),
                 ),
               ),
               const SizedBox(width: 4),
               IconButton(tooltip: i10n.share, onPressed: () => _share(apod), icon: const Icon(Icons.ios_share_rounded, size: 21)),
-              if (isImage) IconButton(tooltip: i10n.downloadApod, onPressed: () => _download(apod), icon: const Icon(Icons.download_rounded, size: 22)),
+              if (isImage) ...[
+                const SizedBox(width: 4),
+                IconButton(tooltip: i10n.downloadApod, onPressed: () => _download(apod), icon: const Icon(Icons.download_rounded, size: 22)),
+              ],
             ],
           ),
         ),
@@ -281,7 +265,7 @@ class _ApodViewState extends State<ApodView> {
     );
   }
 
-  void _share(Map<String, dynamic> apod) => shareApod(context, title: (apod['title'] ?? '') as String, date: _date, imageUrl: (apod['url'] ?? '') as String);
+  void _share(Map<String, dynamic> apod) => shareApod(context, title: (apod['title'] ?? '') as String, date: _date, imageUrl: (apod['url'] ?? '') as String, credit: apod['copyright'] as String?);
   void _download(Map<String, dynamic> apod) => saveNetworkImage(context, (apod['url'] ?? '') as String, (apod['title'] ?? '') as String);
 
   List<Widget> _story(Map<String, dynamic> apod, AppLocalizations i10n, {required double titleSize}) {
@@ -291,23 +275,15 @@ class _ApodViewState extends State<ApodView> {
     final explanation = (apod['explanation'] ?? '') as String;
     final previous = shiftDay(_date, -1);
     final next = shiftDay(_date, 1);
-    final minutes = (explanation.split(' ').length / 200).ceil().clamp(1, 60);
-    final isImage = apod['media_type'] == 'image';
     return [
       Text(longDate(_date, locale), style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontSize: 13)),
       const SizedBox(height: 8),
       Text((apod['title'] ?? '') as String, style: theme.textTheme.displaySmall?.copyWith(fontSize: titleSize)),
-      const SizedBox(height: 16),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          _InfoChip(icon: isImage ? Icons.image_outlined : Icons.play_circle_outline_rounded, label: isImage ? i10n.photoType : i10n.videoType),
-          _InfoChip(icon: Icons.schedule_rounded, label: i10n.minRead(minutes)),
-          if (credit.isNotEmpty) _InfoChip(icon: Icons.camera_alt_outlined, label: credit),
-        ],
-      ),
-      const SizedBox(height: 20),
+      const SizedBox(height: 10),
+      if (credit.isNotEmpty) ...[
+        Text('${i10n.imageCredit}: $credit', style: theme.textTheme.bodyMedium),
+        const SizedBox(height: 16),
+      ],
       SelectableText(_translated ?? explanation, style: theme.textTheme.bodyLarge),
       // NASA writes in English, so translation is only offered to other readers.
       if (locale != 'en' && _translated == null) ...[
@@ -339,29 +315,6 @@ class _ApodViewState extends State<ApodView> {
         ],
       ),
     ];
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _InfoChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(color: scheme.onSurface.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(20)),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 15, color: scheme.onSurfaceVariant),
-          const SizedBox(width: 6),
-          Flexible(child: Text(label, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: scheme.onSurface))),
-        ],
-      ),
-    );
   }
 }
 
@@ -406,7 +359,8 @@ class _Stage extends StatelessWidget {
   final String date;
   final BoxFit fit;
   final double radius;
-  const _Stage({required this.apod, required this.date, required this.fit, required this.radius});
+  final Color backdrop;
+  const _Stage({required this.apod, required this.date, required this.fit, required this.radius, this.backdrop = Colors.black});
 
   void _openFullScreen(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
@@ -430,6 +384,16 @@ class _Stage extends StatelessWidget {
                 ),
               ),
             ),
+            if (apod['copyright'] != null)
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text('${i10n.imageCredit}: ${apod['copyright']}', style: const TextStyle(color: Colors.white, fontSize: 12, shadows: [Shadow(blurRadius: 6)])),
+                  ),
+                ),
+              ),
             SafeArea(
               child: Align(
                 alignment: Alignment.topRight,
@@ -456,7 +420,7 @@ class _Stage extends StatelessWidget {
       );
     } else {
       child = ColoredBox(
-        color: Colors.black,
+        color: backdrop,
         child: Semantics(
           button: true,
           label: i10n.viewFullScreen,
@@ -466,7 +430,7 @@ class _Stage extends StatelessWidget {
             child: Hero(
               tag: 'apod-$date',
               flightShuttleBuilder: roundedFlight,
-              child: ApodImage(url: apod['url'] as String, fit: fit, background: Colors.black),
+              child: ApodImage(url: apod['url'] as String, fit: fit, background: backdrop),
             ),
           ),
         ),

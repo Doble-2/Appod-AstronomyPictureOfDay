@@ -491,7 +491,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutBody.
   ///
   /// In en, this message translates to:
-  /// **'Appod shows NASA\'s Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors.'**
+  /// **'Appod shows NASA\'s Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors. Appod is not affiliated with or endorsed by NASA.'**
   String get aboutBody;
 
   /// No description provided for @sourceCode.
@@ -638,35 +638,11 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 year ago} other{{count} years ago}}'**
   String yearsAgo(int count);
 
-  /// No description provided for @minRead.
-  ///
-  /// In en, this message translates to:
-  /// **'{minutes} min read'**
-  String minRead(int minutes);
-
-  /// No description provided for @photoType.
-  ///
-  /// In en, this message translates to:
-  /// **'Photo'**
-  String get photoType;
-
-  /// No description provided for @videoType.
-  ///
-  /// In en, this message translates to:
-  /// **'Video'**
-  String get videoType;
-
   /// No description provided for @fromTheArchive.
   ///
   /// In en, this message translates to:
   /// **'From the archive'**
   String get fromTheArchive;
-
-  /// No description provided for @thisWeek.
-  ///
-  /// In en, this message translates to:
-  /// **'This week'**
-  String get thisWeek;
 }
 
 class _AppLocalizationsDelegate

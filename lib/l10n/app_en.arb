@@ -65,7 +65,7 @@
   "imageLoadError": "Couldn't load this image.",
   "imageCredit": "Credit",
   "about": "About",
-  "aboutBody": "Appod shows NASA's Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors.",
+  "aboutBody": "Appod shows NASA's Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors. Appod is not affiliated with or endorsed by NASA.",
   "sourceCode": "Source code on GitHub",
   "loginToSync": "Log in to keep your favorites across devices.",
   "favoritesError": "Couldn't load your favorites.",
@@ -100,21 +100,10 @@
   "pageNotFoundBody": "The address is wrong, or there is no picture for that date.",
   "onThisDay": "On this day",
   "yearsAgo": "{count, plural, =1{1 year ago} other{{count} years ago}}",
-  "minRead": "{minutes} min read",
-  "photoType": "Photo",
-  "videoType": "Video",
   "fromTheArchive": "From the archive",
-  "thisWeek": "This week",
   "@yearsAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
-      }
-    }
-  },
-  "@minRead": {
-    "placeholders": {
-      "minutes": {
         "type": "int"
       }
     }

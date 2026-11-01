@@ -213,7 +213,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get aboutBody =>
-      'Appod muestra la imagen astronómica del día de la NASA. Las imágenes y los textos pertenecen a la NASA y a sus autores acreditados.';
+      'Appod muestra la imagen astronómica del día de la NASA. Las imágenes y los textos pertenecen a la NASA y a sus autores acreditados. Appod no está afiliada a la NASA ni cuenta con su respaldo.';
 
   @override
   String get sourceCode => 'Código fuente en GitHub';
@@ -307,19 +307,5 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String minRead(int minutes) {
-    return '$minutes min de lectura';
-  }
-
-  @override
-  String get photoType => 'Foto';
-
-  @override
-  String get videoType => 'Vídeo';
-
-  @override
   String get fromTheArchive => 'Del archivo';
-
-  @override
-  String get thisWeek => 'Esta semana';
 }

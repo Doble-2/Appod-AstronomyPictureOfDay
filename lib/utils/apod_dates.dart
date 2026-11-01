@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:intl/intl.dart';
 
 final _iso = DateFormat('yyyy-MM-dd');
@@ -34,4 +36,19 @@ bool isArchiveDay(String date) {
   // DateTime rolls impossible days over (Feb 30 becomes March), so compare back.
   if (parsed == null || _iso.format(parsed) != date) return false;
   return !parsed.isBefore(firstApodDate) && !parsed.isAfter(_today());
+}
+
+/// A random stretch of [days] days, for browsing the archive. It stays clear
+/// of the last month, which home already shows.
+(DateTime, DateTime) randomArchiveWindow(Random random, DateTime now, {int days = 14}) {
+  final last = DateTime(now.year, now.month, now.day - 30);
+  final span = last.difference(firstApodDate).inDays - days;
+  final start = DateTime(firstApodDate.year, firstApodDate.month, firstApodDate.day + random.nextInt(span));
+  return (start, DateTime(start.year, start.month, start.day + days - 1));
+}
+
+/// A compact date such as "Oct 26, 2026", for small spaces.
+String shortDate(String date, String locale) {
+  final parsed = DateTime.tryParse(date);
+  return parsed == null ? date : DateFormat.yMMMd(locale).format(parsed);
 }

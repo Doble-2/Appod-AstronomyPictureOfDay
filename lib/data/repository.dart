@@ -104,7 +104,7 @@ class ApodRepositoryImpl {
   return data;
   }
 
-  Future<List> getMultipleApod(String date, {int count = 14}) async {
+  Future<List> getMultipleApod(String date, {int count = 6}) async {
   await _cache.ensureLoaded();
     final DateFormat format = DateFormat('yyyy-MM-dd');
     DateTime target = format.parse(date);

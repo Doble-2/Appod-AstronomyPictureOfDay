@@ -16,10 +16,14 @@ Future<void> shareApod(
   required String title,
   required String date,
   required String imageUrl,
+  String? credit,
 }) async {
   final appUrl = _appUrl(date);
   final i10n = AppLocalizations.of(context)!;
-  final text = i10n.shareText(date, appUrl);
+  final text = [
+    i10n.shareText(date, appUrl),
+    if (credit != null && credit.trim().isNotEmpty) '${i10n.imageCredit}: ${credit.trim()}',
+  ].join('\n');
 
   // Capturar antes del await para evitar usar context tras un async gap.
   final messenger = ScaffoldMessenger.of(context);

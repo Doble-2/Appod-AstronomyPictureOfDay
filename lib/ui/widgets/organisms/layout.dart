@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,14 +5,21 @@ import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 
-/// App frame: content over the ambient color of the current picture, with a
-/// floating dock for navigation.
+/// App frame: a glass header on large screens, a floating dock on phones.
 class Layout extends StatelessWidget {
   final Widget child;
   final int currentIndex;
   final ValueChanged<int> onTap;
+  /// False when the page scrolls itself, to build long lists lazily.
+  final bool scrollable;
 
-  const Layout({super.key, required this.child, required this.currentIndex, required this.onTap});
+  const Layout({super.key, required this.child, required this.currentIndex, required this.onTap, this.scrollable = true});
+
+  static const _headerHeight = 68.0;
+
+  /// Space a page must leave clear at the top and bottom.
+  static double topInset(BuildContext context) => MediaQuery.of(context).padding.top + (context.isDesktop ? _headerHeight + 28 : 14);
+  static double bottomInset(BuildContext context) => MediaQuery.of(context).padding.bottom + (context.isDesktop ? 56 : 112);
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +28,9 @@ class Layout extends StatelessWidget {
     final padding = MediaQuery.of(context).padding;
     final scheme = Theme.of(context).colorScheme;
     final items = <_NavItem>[
-      _NavItem(i10n.today, Icons.auto_awesome_outlined, Icons.auto_awesome_rounded),
+      _NavItem(i10n.today, Icons.nights_stay_outlined, Icons.nights_stay_rounded),
       _NavItem(i10n.favorites, Icons.favorite_border_rounded, Icons.favorite_rounded),
-      _NavItem(i10n.settings, Icons.tune_rounded, Icons.tune_rounded),
-      if (kIsWeb) _NavItem(i10n.getApp, Icons.download_outlined, Icons.download_rounded),
+      _NavItem(i10n.settings, Icons.settings_outlined, Icons.settings_rounded),
     ];
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: scheme.brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
@@ -34,30 +39,48 @@ class Layout extends StatelessWidget {
           children: [
             const Positioned.fill(child: AppBackground()),
             Positioned.fill(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.only(top: padding.top + (isDesktop ? 92 : 14), bottom: padding.bottom + (isDesktop ? 56 : 112)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (!isDesktop)
-                      const Padding(padding: EdgeInsets.fromLTRB(20, 0, 20, 14), child: AppodLogo()),
-                    child,
-                  ],
-                ),
-              ),
+              child: scrollable
+                  ? SingleChildScrollView(
+                      padding: EdgeInsets.only(top: topInset(context), bottom: bottomInset(context)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!isDesktop) const PageBody(child: Padding(padding: EdgeInsets.only(bottom: 14), child: AppodLogo())),
+                          child,
+                        ],
+                      ),
+                    )
+                  : child,
             ),
             if (isDesktop)
               Positioned(
-                top: padding.top + 16,
+                top: 0,
                 left: 0,
                 right: 0,
-                child: Center(
-                  child: _Dock(
-                    leading: const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: AppodLogo()),
-                    items: items,
-                    currentIndex: currentIndex,
-                    onTap: onTap,
-                    labeled: true,
+                child: Glass(
+                  radius: 0,
+                  bordered: GlassEdge.bottom,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: padding.top),
+                    child: SizedBox(
+                      height: _headerHeight,
+                      child: PageBody(
+                        child: SizedBox(
+                          height: _headerHeight,
+                          child: Row(
+                            children: [
+                              const AppodLogo(),
+                              const Spacer(),
+                              for (var i = 0; i < items.length; i++)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: _Tab(item: items[i], selected: i == currentIndex, labeled: true, onTap: () => onTap(i)),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               )
@@ -66,7 +89,27 @@ class Layout extends StatelessWidget {
                 left: 0,
                 right: 0,
                 bottom: padding.bottom + 18,
-                child: Center(child: _Dock(items: items, currentIndex: currentIndex, onTap: onTap, labeled: false)),
+                child: Center(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(40),
+                      boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 30, offset: Offset(0, 12))],
+                    ),
+                    child: Glass(
+                      radius: 40,
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var i = 0; i < items.length; i++)
+                              _Tab(item: items[i], selected: i == currentIndex, labeled: i == currentIndex, onTap: () => onTap(i)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
           ],
         ),
@@ -104,68 +147,51 @@ class _NavItem {
   const _NavItem(this.label, this.icon, this.selectedIcon);
 }
 
-class _Dock extends StatelessWidget {
-  final Widget? leading;
-  final List<_NavItem> items;
-  final int currentIndex;
-  final ValueChanged<int> onTap;
+class _Tab extends StatelessWidget {
+  final _NavItem item;
+  final bool selected;
   final bool labeled;
-  const _Dock({this.leading, required this.items, required this.currentIndex, required this.onTap, required this.labeled});
+  final VoidCallback onTap;
+  const _Tab({required this.item, required this.selected, required this.labeled, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40),
-        boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 30, offset: Offset(0, 12))],
-      ),
-      child: Glass(
-        radius: 40,
-        child: Padding(
-          padding: const EdgeInsets.all(6),
+    final color = selected ? scheme.onPrimary : scheme.onSurface;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: item.label,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(30),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+          height: 48,
+          constraints: const BoxConstraints(minWidth: 56),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: selected ? scheme.primary : Colors.transparent),
           child: Row(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (leading != null) leading!,
-              for (var i = 0; i < items.length; i++)
-                Builder(builder: (context) {
-                  final selected = i == currentIndex;
-                  final item = items[i];
-                  final color = selected ? scheme.onPrimary : scheme.onSurface;
-                  return Tooltip(
-                    message: item.label,
-                    child: Semantics(
-                      button: true,
-                      selected: selected,
-                      label: item.label,
-                      excludeSemantics: true,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(30),
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          onTap(i);
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 260),
-                          curve: Curves.easeOutCubic,
-                          height: 50,
-                          constraints: const BoxConstraints(minWidth: 58),
-                          padding: EdgeInsets.symmetric(horizontal: labeled ? 16 : 0),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: selected ? scheme.primary : Colors.transparent),
-                          child: labeled
-                              ? Center(widthFactor: 1, child: Text(item.label, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 13)))
-                              : AnimatedScale(
-                                  scale: selected ? 1.08 : 1,
-                                  duration: const Duration(milliseconds: 240),
-                                  curve: Curves.easeOutBack,
-                                  child: Icon(selected ? item.selectedIcon : item.icon, color: color, size: 24),
-                                ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+              Icon(selected ? item.selectedIcon : item.icon, color: color, size: 22),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeOutCubic,
+                child: labeled
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(item.label, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 13)),
+                      )
+                    : const SizedBox.shrink(),
+              ),
             ],
           ),
         ),

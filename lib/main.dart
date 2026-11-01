@@ -18,7 +18,8 @@ Future<(ThemeMode, Locale)> _preloadPrefs() async {
   final themeMode = switch (themeStr) {
     'light' => ThemeMode.light,
     'dark' => ThemeMode.dark,
-    'system' || _ => ThemeMode.system,
+    'system' => ThemeMode.system,
+    _ => ThemeMode.dark,
   };
   // locale
   final localeCode = prefs.getString('localeCode') ?? 'en';
