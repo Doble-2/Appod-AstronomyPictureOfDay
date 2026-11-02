@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:nasa_apod/app_router.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,14 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
+  late final AppRouterDelegate _router = AppRouterDelegate(routeBuilder: _route);
+
+  @override
+  void dispose() {
+    _router.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     // Gestión de estado solo con Provider, navegación con MaterialApp
@@ -39,7 +48,7 @@ class MyAppState extends State<MyApp> {
           // Espera a que ambos providers hayan cargado persistencia.
           // Ya se inyectaron valores iniciales, no se requiere espera.
 
-          return MaterialApp(
+          return MaterialApp.router(
             debugShowCheckedModeBanner: false,
             locale: localeProvider.selectedLanguage,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -49,14 +58,8 @@ class MyAppState extends State<MyApp> {
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             themeMode: themeProvider.themeMode,
-            initialRoute: AppRoutes.home,
-            onGenerateRoute: _route,
-            // A shared link opens that day on top of Home, so Back always has somewhere to go.
-            // Any address opens on top of Home, so Back always has somewhere to go.
-            onGenerateInitialRoutes: (name) => [
-              _route(const RouteSettings(name: AppRoutes.home)),
-              if (parseRoute(name).path != AppRoutes.home) _route(RouteSettings(name: name)),
-            ],
+            routerDelegate: _router,
+            routeInformationParser: const AppRouteParser(),
           );
         },
       ),

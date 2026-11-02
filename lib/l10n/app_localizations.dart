@@ -494,6 +494,12 @@ abstract class AppLocalizations {
   /// **'Appod shows NASA\'s Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors. Appod is not affiliated with or endorsed by NASA.'**
   String get aboutBody;
 
+  /// No description provided for @unofficialNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unofficial app · Not affiliated with NASA'**
+  String get unofficialNotice;
+
   /// No description provided for @sourceCode.
   ///
   /// In en, this message translates to:

@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nasa_apod/data/firebase.dart';
 import 'package:nasa_apod/data/nasa.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
+import 'package:nasa_apod/app_router.dart';
 import 'package:nasa_apod/routes.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/ui/theme/app_theme.dart';
@@ -89,7 +89,7 @@ class _ApodViewState extends State<ApodView> {
   void _onPageChanged(int index) {
     HapticFeedback.selectionClick();
     // The web address follows the day, so a reload or a shared link lands here.
-    if (kIsWeb) SystemNavigator.routeInformationUpdated(uri: Uri.parse(AppRoutes.day(_dateAt(index))), replace: true);
+    AppRouterDelegate.maybeOf(context)?.replaceCurrentPath(context, AppRoutes.day(_dateAt(index)));
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {

@@ -66,6 +66,7 @@
   "imageCredit": "Credit",
   "about": "About",
   "aboutBody": "Appod shows NASA's Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors. Appod is not affiliated with or endorsed by NASA.",
+  "unofficialNotice": "Unofficial app · Not affiliated with NASA",
   "sourceCode": "Source code on GitHub",
   "loginToSync": "Log in to keep your favorites across devices.",
   "favoritesError": "Couldn't load your favorites.",
