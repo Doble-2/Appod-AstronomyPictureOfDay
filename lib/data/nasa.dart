@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:nasa_apod/data/apod_cache.dart';
+import 'package:nasa_apod/data/nasa_site.dart';
+import 'package:nasa_apod/utils/apod_dates.dart';
 // dotenv eliminado: se usarán constantes en tiempo de compilación via --dart-define
 
 class ApiConstants {
@@ -25,7 +28,62 @@ class NasaApiException implements Exception {
 }
 
 class NetworkService {
+  final _site = NasaSiteSource();
+
+  /// The official API now answers with this placeholder instead of the picture.
+  static bool _isPlaceholder(Map item) =>
+      item['title'] == 'NASA Science' || '${item['url']}'.contains('nasa-logo');
+
+  /// A day from the cache, or from NASA, which then fills the cache.
   Future<Map<String, dynamic>> getApod(String date) async {
+    final cache = ApodCache.instance;
+    await cache.ensureLoaded();
+    final cached = cache.get(date);
+    if (cached != null) return cached;
+    if (cache.isMissing(date)) throw NasaApiException(statusCode: 404, message: 'No APOD for $date');
+    final day = await _fetchDay(date);
+    cache.put(date, day);
+    return day;
+  }
+
+  Future<Map<String, dynamic>> _fetchDay(String date) async {
+    try {
+      return await _site.getDay(date);
+    } on NasaApiException catch (error) {
+      // No article is a real answer. Otherwise try the API, if it works again.
+      if (error.statusCode == 404) {
+        // Today's picture may simply not be out yet, so only past days are remembered.
+        if (date.compareTo(todayIso()) < 0) ApodCache.instance.markMissing(date);
+        rethrow;
+      }
+      final fromApi = await _getApiDay(date);
+      if (_isPlaceholder(fromApi)) rethrow;
+      return fromApi;
+    }
+  }
+
+  /// A stretch of days from NASA, all of which join the cache.
+  Future<List<dynamic>> getApodRange(DateTime start, DateTime end) async {
+    final cache = ApodCache.instance;
+    await cache.ensureLoaded();
+    final days = await _fetchRange(start, end);
+    for (final day in days) {
+      if (day is Map<String, dynamic> && day['date'] is String) cache.put(day['date'] as String, day);
+    }
+    return days;
+  }
+
+  Future<List<dynamic>> _fetchRange(DateTime start, DateTime end) async {
+    try {
+      return await _site.getRange(start, end);
+    } on NasaApiException {
+      final fromApi = await _getApiRange(start, end);
+      if (fromApi.any((item) => item is Map && _isPlaceholder(item))) rethrow;
+      return fromApi;
+    }
+  }
+
+  Future<Map<String, dynamic>> _getApiDay(String date) async {
     final queryParameters = {
       ApiConstants.keyParameter: ApiConstants.nasaKey,
       ApiConstants.dateParameter: date,
@@ -64,7 +122,7 @@ class NetworkService {
     }
   }
 
-  Future<List<dynamic>> getApodRange(DateTime start, DateTime end) async {
+  Future<List<dynamic>> _getApiRange(DateTime start, DateTime end) async {
     final queryParameters = {
       ApiConstants.keyParameter: ApiConstants.nasaKey,
       'start_date': start.toIso8601String().split('T').first,

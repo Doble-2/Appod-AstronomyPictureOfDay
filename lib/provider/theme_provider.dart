@@ -9,7 +9,7 @@ class ThemeProvider extends ChangeNotifier {
   ThemeMode _themeMode;
 
   ThemeProvider({ThemeMode? initial})
-      : _themeMode = initial ?? ThemeMode.system;
+      : _themeMode = initial ?? ThemeMode.dark;
 
   ThemeMode get themeMode => _themeMode;
 

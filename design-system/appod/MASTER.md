@@ -1,208 +1,41 @@
-# Design System Master File
+# Appod design system
 
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+Appod's identity in a showcase-level app. The source of truth is `lib/ui/theme/app_theme.dart`; shared components are in `lib/ui/widgets/common.dart`.
 
----
+## Identity
 
-**Project:** Appod
-**Generated:** 2026-08-02 10:49:21
-**Category:** Space Tech / Aerospace
+- Logo next to the APPOD wordmark in the Nasa font.
+- Blue accent: `#5E9EFF` on dark, `#1A73E8` on light. Backgrounds: `#0A0C10` on dark, `#F6F8FC` on light.
+- Brand gradient `#3391FF` to `#00C6B5`, only on the splash screen.
 
----
+## Type
 
-## Global Rules
+Space Grotesk, big and tight, for titles. Inter for everything else. Both are bundled under the SIL Open Font License.
 
-### Color Palette
+## Signature elements
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#4338CA` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#6366F1` | `--color-secondary` |
-| Accent/CTA | `#7C3AED` | `--color-accent` |
-| Background | `#0F172A` | `--color-background` |
-| Foreground | `#FFFFFF` | `--color-foreground` |
-| Muted | `#131936` | `--color-muted` |
-| Border | `rgba(255,255,255,0.08)` | `--color-border` |
-| Destructive | `#DC2626` | `--color-destructive` |
-| Ring | `#4338CA` | `--color-ring` |
+- **Ambient color:** the picture in focus, heavily blurred, tints the whole screen behind a legibility veil.
+- **Carousel:** big cards with neighbors peeking in, scaling as they move.
+- **Photo scrim:** white text on a dark fade over photographs, in both themes (`photoScrim`, `heroScrim`).
+- **Dark first:** the default theme. Ambient color exists only there; light mode stays clean.
+- **Floating dock:** on phones, navigation floats as a glass pill; on large screens it is a glass header. A day's actions also float.
+- **Masonry wall:** an endless wall of random stretches of the 30-year archive.
+- **Credit:** a picture's author is shown wherever the picture is the focus, and travels with it when shared.
 
-**Color Notes:** Night indigo + dream violet on dark
+## Shape
 
-### Typography
+Radius 32 for hero cards, sheets and panels; 24 for cards and groups; 16 for controls; pills for buttons and chips. Touch targets of at least 44.
 
-- **Heading Font:** Space Grotesk
-- **Body Font:** Inter
-- **Mood:** web3, bitcoin, defi, digital gold, fintech, crypto, trustless, luminescent, precision, dark
-- **Google Fonts:** [Space Grotesk + Inter](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap)
+## Motion
 
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap');
-```
+Entrances fade and rise, and lists arrive slightly staggered. Cards respond to press and hover, and pictures fly into their page. Everything turns off when the system asks for reduced motion (`reduceMotion` in `common.dart`).
 
-### Spacing Variables
+## Navigation
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
+Every address is defined in `lib/routes.dart`. Screens never write addresses by hand.
 
-### Shadow Depths
+## Data and images
 
-| Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
-
----
-
-## Component Specs
-
-### Buttons
-
-```css
-/* Primary Button */
-.btn-primary {
-  background: #7C3AED;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #4338CA;
-  border: 2px solid #4338CA;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
-
-### Cards
-
-```css
-.card {
-  background: #0F172A;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
-
-### Inputs
-
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
-
-.input:focus {
-  border-color: #4338CA;
-  outline: none;
-  box-shadow: 0 0 0 3px #4338CA20;
-}
-```
-
-### Modals
-
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
-```
-
----
-
-## Style Guidelines
-
-**Style:** Dark Mode (OLED)
-
-**Keywords:** Dark theme, low light, high contrast, deep black, midnight blue, eye-friendly, OLED, night mode, power efficient
-
-**Best For:** Night-mode apps, coding platforms, entertainment, eye-strain prevention, OLED devices, low-light
-
-**Key Effects:** Minimal glow (text-shadow: 0 0 10px), dark-to-light transitions, low white emission, high readability, visible focus
-
-### Page Pattern
-
-**Pattern Name:** Immersive/Interactive Experience
-
-- **Conversion Strategy:** 40% higher engagement. Performance trade-off. Provide skip option. Mobile fallback essential.
-- **CTA Placement:** After interaction complete + Skip option for impatient users
-- **Section Order:** 1. Full-screen interactive element, 2. Guided product tour, 3. Key benefits revealed, 4. CTA after completion
-
----
-
-## Anti-Patterns (Do NOT Use)
-
-- ❌ Generic design
-- ❌ No immersion
-
-### Additional Forbidden Patterns
-
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
-
----
-
-## Pre-Delivery Checklist
-
-Before delivering any UI code, verify:
-
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+- Pictures always use NASA's `dynamicimage` path, the only one that resizes on request (`resizableImageUrl`).
+- Days read from NASA stay in `ApodCache` across launches, because they never change. Images use `cached_network_image`.
+- When NASA can't be reached, home shows the newest saved day with a notice.

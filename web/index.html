@@ -2,7 +2,7 @@
 <html>
   <head>
     <link rel="canonical" href="/" />
-    <meta name="theme-color" content="#111111" />
+    <meta name="theme-color" content="#0a0c10" />
     <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
@@ -66,237 +66,117 @@
     <link rel="manifest" href="manifest.json" />
     
     <style id="splash-screen-style">
+      @font-face {
+        font-family: "Nasa";
+        src: url("assets/assets/nasalization-rg.ttf") format("truetype");
+        font-display: block;
+      }
       html,
       body {
         height: 100%;
         margin: 0;
-      }
-      body {
-        background: #f5f6fa;
-        font-family: "Inter", system-ui, Arial, sans-serif;
-      }
-      @media (prefers-color-scheme: dark) {
-        body {
-          background: #0a0e14;
-        }
+        background: #0a0c10;
       }
       .splash {
         position: fixed;
         inset: 0;
+        z-index: 9999;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        z-index: 9999;
-        overflow: hidden;
-        background: linear-gradient(135deg, #f5f6fa 0%, #e6e9f0 100%);
-      }
-      @media (prefers-color-scheme: dark) {
-        .splash {
-          background: radial-gradient(
-            circle at 30% 30%,
-            #1a1f2a 0%,
-            #0a0e14 70%
-          );
-        }
+        background: #0a0c10;
+        transition: opacity 320ms ease, transform 320ms ease;
       }
       .splash.fade-out {
         opacity: 0;
-        transition: opacity 0.45s ease;
+        transform: scale(1.03);
+        pointer-events: none;
       }
-      .splash-content {
-        width: 100%;
-        height: 100%;
-        max-width: 720px;
-        margin: 0 auto;
-        padding: clamp(16px, 3vh, 36px) clamp(20px, 5vw, 48px);
-        box-sizing: border-box;
+      .splash-brand {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        gap: 1.9rem;
-        text-align: center;
+        gap: 12px;
+        color: #5e9eff;
+        animation: splash-in 500ms ease-out both;
       }
-      .splash-content > * {
-        flex-shrink: 0;
+      .splash-mark {
+        width: 34px;
+        height: 34px;
+        display: block;
       }
-      .splash-logo {
-        animation: fadeIn 0.5s ease both;
-      }
-      .splash-content .logo {
-        width: min(170px, 42vw);
-        height: auto;
-        filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
-        animation: scaleIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
-      }
-      .splash-center {
-        animation: fadeIn 0.55s 0.05s ease both;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.9rem;
-      }
-      .bottom-tagline {
-        animation: fadeIn 0.6s 0.1s ease both;
-      }
-      @media (max-height: 620px) {
-        .splash-content {
-          padding-top: 24px;
-          padding-bottom: 24px;
-        }
-        .splash-content .logo {
-          width: min(160px, 50vw);
-        }
-        .tagline {
-          margin: 1rem 0 0.6rem;
-        }
-      }
-      @media (max-width: 480px) {
-        .splash-content {
-          padding: 32px 28px;
-        }
-        .splash-content .logo {
-          width: 170px;
-        }
-      }
-      .tagline {
-        position: relative;
-        margin: 0.4rem 0 0;
-        font-size: clamp(0.9rem, 1.35vw, 1.05rem);
-        font-weight: 600;
-        letter-spacing: 0.6px;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.55rem;
-        padding: 0.45rem 0.85rem;
-        border-radius: 14px;
-        background: linear-gradient(90deg, #3391ff, #00c6b5);
-        color: #fff;
-        box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.35);
-      }
-      @media (prefers-color-scheme: dark) {
-        .tagline {
-          box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.6);
-        }
-      }
-      .tagline .by-badge {
-        font-size: 0.55em;
-        letter-spacing: 0.9px;
-        text-transform: uppercase;
-        font-weight: 700;
-        padding: 0.25rem 0.55rem 0.23rem;
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.35);
-        border-radius: 999px;
+      .splash-name {
+        font: 40px "Nasa", system-ui, sans-serif;
         line-height: 1;
-        color: #fff;
       }
-      @media (prefers-color-scheme: dark) {
-        .tagline .by-badge {
-          background: rgba(255, 255, 255, 0.18);
-          border-color: rgba(255, 255, 255, 0.4);
-        }
-      }
-      .brand-link {
-        position: relative;
-        text-decoration: none;
-        color: #fff;
-        font-weight: 700;
-        letter-spacing: 0.4px;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        transition: opacity 0.35s ease, filter 0.35s ease;
-        text-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
-      }
-      .brand-link:hover {
-        opacity: 0.9;
-        filter: brightness(1.08);
-      }
-      .loader {
-        width: 54px;
-        height: 4px;
-        border-radius: 2px;
-        background: rgba(0, 0, 0, 0.08);
-        margin: 0 auto;
-        position: relative;
+      .splash-track {
+        width: 120px;
+        height: 2px;
+        margin-top: 26px;
         overflow: hidden;
+        border-radius: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        animation: splash-in 500ms 120ms ease-out both;
       }
-      .loader::before {
+      .splash-track::before {
         content: "";
-        position: absolute;
-        inset: 0;
-        width: 30%;
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: 1px;
         background: linear-gradient(90deg, #3391ff, #00c6b5);
-        animation: loader 1.1s ease-in-out infinite;
+        animation: splash-slide 1.2s ease-in-out infinite;
       }
-      @media (prefers-color-scheme: dark) {
-        .loader {
-          background: rgba(255, 255, 255, 0.12);
-        }
+      .splash-credit {
+        position: absolute;
+        bottom: max(28px, env(safe-area-inset-bottom));
+        font: 12px system-ui, -apple-system, sans-serif;
+        color: #7c8491;
+        text-decoration: none;
+        animation: splash-in 500ms 200ms ease-out both;
       }
-      @keyframes loader {
-        0% {
-          transform: translateX(-10%);
-        }
-        50% {
-          transform: translateX(260%);
-        }
-        100% {
-          transform: translateX(-10%);
-        }
-      }
-      @keyframes fadeIn {
+      @keyframes splash-in {
         from {
           opacity: 0;
-          transform: translateY(8px);
+          transform: translateY(6px);
+        }
+      }
+      @keyframes splash-slide {
+        from {
+          transform: translateX(-100%);
         }
         to {
-          opacity: 1;
-          transform: translateY(0);
+          transform: translateX(250%);
         }
-      }
-      @keyframes scaleIn {
-        0% {
-          transform: scale(0.88);
-          opacity: 0;
-        }
-        60% {
-          transform: scale(1.04);
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-      @keyframes float {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-6px);
-        }
-      }
-      .no-motion * {
-        animation: none !important;
       }
       @media (prefers-reduced-motion: reduce) {
-        .splash-content,
-        .loader::before {
-          animation: none !important;
+        .splash-brand,
+        .splash-track,
+        .splash-credit,
+        .splash-track::before {
+          animation: none;
+        }
+        .splash-track::before {
+          width: 100%;
         }
       }
     </style>
+    <link rel="preload" href="assets/assets/nasalization-rg.ttf" as="font" type="font/ttf" crossorigin />
     <script id="splash-screen-script">
+      // Old links used /#/apod/...; the app now uses clean addresses.
+      if (location.hash.startsWith("#/")) {
+        history.replaceState(null, "", location.hash.slice(1));
+      }
       function removeSplashFromWeb() {
         const s = document.getElementById("custom-splash");
         if (!s) return;
         s.classList.add("fade-out");
         setTimeout(() => {
           s.remove();
-        }, 480);
+        }, 320);
       }
+      // Hide as soon as Flutter has drawn its first frame.
+      window.addEventListener("flutter-first-frame", removeSplashFromWeb);
       // Fallback si Flutter tarda demasiado
       setTimeout(() => {
         removeSplashFromWeb();
@@ -308,34 +188,16 @@
     />
   </head>
   <body>
-    <div id="custom-splash" class="splash">
-      <div class="splash-content">
-        <div class="splash-logo">
-          <img
-            src="assets/assets/Appod.png"
-            alt="APPOD"
-            class="logo"
-            width="170"
-            height="170"
-            decoding="async"
-            fetchpriority="high"
-            onerror="this.onerror=null;this.src='/appod.png'"
-          />
-        </div>
-        <div class="splash-center">
-          <div class="loader" aria-label="Cargando"></div>
-          <h1 class="tagline" aria-label="Autor del proyecto">
-            <span class="by-badge">BY</span>
-            <a
-              href="https://angelcalderon.dev"
-              target="_blank"
-              rel="noopener"
-              class="brand-link"
-              >angelcalderon.dev</a
-            >
-          </h1>
-        </div>
+    <div id="custom-splash" class="splash" role="img" aria-label="APPOD">
+      <div class="splash-brand">
+        <span class="splash-name">APPOD</span>
+        <svg class="splash-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+          <rect x="2.5" y="8.5" width="13" height="13" rx="1" />
+          <rect x="8.5" y="2.5" width="13" height="13" rx="3.5" />
+        </svg>
       </div>
+      <div class="splash-track"></div>
+      <a class="splash-credit" href="https://angelcalderon.dev" target="_blank" rel="noopener">by angelcalderon.dev</a>
     </div>
     <script src="flutter_bootstrap.js" async></script>
   </body>

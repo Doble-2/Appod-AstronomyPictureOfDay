@@ -5,10 +5,9 @@ Guía rápida despliegue en Vercel (Flutter Web)
 
 2. Variables en Vercel (Project Settings > Environment Variables)
    - NASA_KEY = (clave real NASA)
-   - IMAGE_PROXY_BASE_URL = https://proxycp.onrender.com/proxy-img?url
 
 3. Build Command
-   flutter build web --release --dart-define=NASA_KEY=$NASA_KEY --dart-define=IMAGE_PROXY_BASE_URL=$IMAGE_PROXY_BASE_URL
+   flutter build web --release --dart-define=NASA_KEY=$NASA_KEY
 
 4. Output Directory
    build/web
@@ -36,3 +35,5 @@ Notas:
   flutter run -d chrome --dart-define=NASA_KEY=TUCLAVE --dart-define=IMAGE_PROXY_BASE_URL=https://proxycp.onrender.com/proxy-img?url=
 
 Fin.
+
+Nota: IMAGE_PROXY_BASE_URL ya no hace falta: las imágenes se leen directamente de la NASA. `vercel.json` sirve `index.html` en cualquier ruta, necesario para direcciones como /apod/2026-10-26.

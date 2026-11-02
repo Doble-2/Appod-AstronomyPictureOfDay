@@ -155,19 +155,19 @@ abstract class AppLocalizations {
   /// No description provided for @darkMode.
   ///
   /// In en, this message translates to:
-  /// **'Dark Mode'**
+  /// **'Dark'**
   String get darkMode;
 
   /// No description provided for @lightMode.
   ///
   /// In en, this message translates to:
-  /// **'Light Mode'**
+  /// **'Light'**
   String get lightMode;
 
   /// No description provided for @systemMode.
   ///
   /// In en, this message translates to:
-  /// **'System Mode'**
+  /// **'System'**
   String get systemMode;
 
   /// No description provided for @language.
@@ -409,6 +409,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Translating…'**
   String get translating;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @previousDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get previousDay;
+
+  /// No description provided for @nextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get nextDay;
+
+  /// No description provided for @chooseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get chooseDate;
+
+  /// No description provided for @backToToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to today\'s picture'**
+  String get backToToday;
+
+  /// No description provided for @previousDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous days'**
+  String get previousDays;
+
+  /// No description provided for @readMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this picture'**
+  String get readMore;
+
+  /// No description provided for @viewFullScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'View full screen'**
+  String get viewFullScreen;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @openVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Open video'**
+  String get openVideo;
+
+  /// No description provided for @imageLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this image.'**
+  String get imageLoadError;
+
+  /// No description provided for @imageCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit'**
+  String get imageCredit;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @aboutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Appod shows NASA\'s Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors. Appod is not affiliated with or endorsed by NASA.'**
+  String get aboutBody;
+
+  /// No description provided for @sourceCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code on GitHub'**
+  String get sourceCode;
+
+  /// No description provided for @loginToSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to keep your favorites across devices.'**
+  String get loginToSync;
+
+  /// No description provided for @favoritesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your favorites.'**
+  String get favoritesError;
+
+  /// No description provided for @favoriteAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to favorites'**
+  String get favoriteAdded;
+
+  /// No description provided for @favoriteRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from favorites'**
+  String get favoriteRemoved;
+
+  /// No description provided for @errorBadDate.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no picture for this date. Try another day.'**
+  String get errorBadDate;
+
+  /// No description provided for @errorKey.
+  ///
+  /// In en, this message translates to:
+  /// **'The NASA key is invalid or has expired.'**
+  String get errorKey;
+
+  /// No description provided for @errorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no content for this date. Try another day.'**
+  String get errorNotFound;
+
+  /// No description provided for @errorRateLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests to NASA. Wait a moment and try again.'**
+  String get errorRateLimit;
+
+  /// No description provided for @errorNasa.
+  ///
+  /// In en, this message translates to:
+  /// **'NASA\'s service is having problems. Try again later.'**
+  String get errorNasa;
+
+  /// No description provided for @errorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'NASA took too long to respond. Try again.'**
+  String get errorTimeout;
+
+  /// No description provided for @errorConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your internet connection and try again.'**
+  String get errorConnection;
+
+  /// No description provided for @shareCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied. Paste it anywhere.'**
+  String get shareCopied;
+
+  /// No description provided for @shareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t share this picture.'**
+  String get shareFailed;
+
+  /// No description provided for @downloadStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Download started.'**
+  String get downloadStarted;
+
+  /// No description provided for @downloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download this image.'**
+  String get downloadFailed;
+
+  /// No description provided for @imageSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Image saved to your gallery.'**
+  String get imageSaved;
+
+  /// No description provided for @permissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow access to your gallery to save images.'**
+  String get permissionDenied;
+
+  /// No description provided for @shareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Look at the astronomy picture of {date}: {url}'**
+  String shareText(String date, String url);
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @pageNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This page doesn\'t exist'**
+  String get pageNotFound;
+
+  /// No description provided for @pageNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The address is wrong, or there is no picture for that date.'**
+  String get pageNotFoundBody;
+
+  /// No description provided for @onThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'On this day'**
+  String get onThisDay;
+
+  /// No description provided for @yearsAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 year ago} other{{count} years ago}}'**
+  String yearsAgo(int count);
+
+  /// No description provided for @fromTheArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'From the archive'**
+  String get fromTheArchive;
+
+  /// No description provided for @showingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Showing what is saved.'**
+  String get showingSaved;
 }
 
 class _AppLocalizationsDelegate

@@ -8,11 +8,14 @@ Aplicación Flutter multiplataforma (Web, Android, Desktop) para explorar Astron
 - Selector de fecha y mes (dropdown en desktop, carrusel en móvil).
 - Vista detalle con traducción bajo demanda (Google unofficial) y acciones (favorito, descargar, ampliar).
 - Favoritos persistentes (Firebase/AuthService) y theming dinámico.
-- Mitigación CORS en Web mediante proxy configurable.
 
 ## Estructura Clave
 
 `lib/ui/responsive/responsive.dart` Breakpoints y `MaxWidthContainer`. `lib/utils/image_proxy.dart` Utilidad para proxificar imágenes en Web. `lib/ui/widgets/organisms/` Componentes adaptativos (layout, navigation, month selector, etc.).
+
+## Fuente de datos
+
+Las imágenes y los textos se leen de `science.nasa.gov` (`lib/data/nasa_site.dart`), adonde la NASA movió el archivo. `api.nasa.gov/planetary/apod` responde ahora con su logo como imagen, así que solo se usa como respaldo si el sitio falla y la API entrega datos válidos. El navegador puede leer ambos directamente, sin proxy.
 
 ## Ejecución local
 
@@ -23,41 +26,19 @@ flutter pub get
 flutter run
 ```
 
-### Web y CORS de imágenes (proxy opcional)
-
-La API de NASA APOD no envía cabeceras CORS para imágenes en algunos dominios. Para Web puedes usar un proxy.
-
-Variables soportadas en build/run:
-
-- NASA_KEY: tu clave de API de NASA (opcional; por defecto usa DEMO_KEY).
-- IMAGE_PROXY_BASE_URL: base del proxy para imágenes. Ej: https://proxycp.onrender.com/proxy-img?url=
-
-Ejecutar en Chrome con zsh (escapar el ? o usar comillas):
+### Web
 
 ```bash
-flutter run -d chrome \
-  --dart-define=NASA_KEY=TU_CLAVE \
-  --dart-define=IMAGE_PROXY_BASE_URL=https://proxycp.onrender.com/proxy-img\?url=
+flutter run -d chrome
+flutter build web --release
 ```
 
-Build web release:
-
-```bash
-flutter build web \
-  --release \
-  --dart-define=NASA_KEY=TU_CLAVE \
-  --dart-define=IMAGE_PROXY_BASE_URL=https://proxycp.onrender.com/proxy-img\?url=
-```
-
-Cómo funciona: `proxiedImageUrl(originalUrl)` devuelve la URL original en nativo y `IMAGE_PROXY_BASE_URL + encode(originalUrl)` en Web. Implementación en `lib/utils/image_proxy.dart`.
+Las imágenes se leen directamente de la NASA, sin proxy. Las direcciones son limpias (`/apod/2026-10-26`), así que el servidor debe entregar `index.html` en cualquier ruta: `vercel.json` y `server_og.py` ya lo hacen.
 
 ## Variables Dart-Define adicionales
 
 Puedes añadir más banderas personalizadas como `FLAVOR=dev` si las aprovechas en tu código.
 
-## Proxy recomendado (resumen)
-
-Sea cual sea la tecnología (Node, Cloudflare Worker, etc.), se sugiere: whitelist de hosts, rate limit, cache LRU, y cabeceras CORS. Ruta ejemplo: `/proxy-img?url=`.
 
 ## Accesibilidad
 

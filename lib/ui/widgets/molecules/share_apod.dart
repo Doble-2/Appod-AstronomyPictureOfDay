@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Comparte el APOD con un mensaje limpio y personal, sin enlaces externos.
@@ -15,13 +16,17 @@ Future<void> shareApod(
   required String title,
   required String date,
   required String imageUrl,
+  String? credit,
 }) async {
   final appUrl = _appUrl(date);
-  final text = 'Hola, mira la foto astronómica del día $date: $appUrl';
+  final i10n = AppLocalizations.of(context)!;
+  final text = [
+    i10n.shareText(date, appUrl),
+    if (credit != null && credit.trim().isNotEmpty) '${i10n.imageCredit}: ${credit.trim()}',
+  ].join('\n');
 
   // Capturar antes del await para evitar usar context tras un async gap.
   final messenger = ScaffoldMessenger.of(context);
-  final scheme = Theme.of(context).colorScheme;
 
   try {
     await Share.share(text, subject: 'Appod · $title');
@@ -29,27 +34,10 @@ Future<void> shareApod(
     // Fallback: la Web Share API no está disponible → portapapeles.
     try {
       await Clipboard.setData(ClipboardData(text: text));
-      messenger.showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.check_circle_rounded,
-                  color: scheme.primary, size: 20),
-              const SizedBox(width: 10),
-              const Expanded(
-                  child: Text('Mensaje copiado, pégalo donde quieras')),
-            ],
-          ),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(i10n.shareCopied)));
     } catch (_) {
       messenger.showSnackBar(
-        SnackBar(content: Text('No se pudo compartir. Enlace: $appUrl')),
+        SnackBar(content: Text('${i10n.shareFailed} $appUrl')),
       );
     }
   }
