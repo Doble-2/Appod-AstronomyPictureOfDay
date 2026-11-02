@@ -66,6 +66,7 @@
   "imageCredit": "Crédito",
   "about": "Acerca de",
   "aboutBody": "Appod muestra la imagen astronómica del día de la NASA. Las imágenes y los textos pertenecen a la NASA y a sus autores acreditados. Appod no está afiliada a la NASA ni cuenta con su respaldo.",
+  "unofficialNotice": "App no oficial · Sin relación con la NASA",
   "sourceCode": "Código fuente en GitHub",
   "loginToSync": "Inicia sesión para conservar tus favoritos entre dispositivos.",
   "favoritesError": "No se pudieron cargar tus favoritos.",

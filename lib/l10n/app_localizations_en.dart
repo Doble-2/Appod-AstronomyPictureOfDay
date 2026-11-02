@@ -214,6 +214,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Appod shows NASA\'s Astronomy Picture of the Day. Pictures and text belong to NASA and their credited authors. Appod is not affiliated with or endorsed by NASA.';
 
   @override
+  String get unofficialNotice => 'Unofficial app · Not affiliated with NASA';
+
+  @override
   String get sourceCode => 'Source code on GitHub';
 
   @override

@@ -6,9 +6,8 @@ import 'package:share_plus/share_plus.dart';
 
 /// Comparte el APOD con un mensaje limpio y personal, sin enlaces externos.
 ///
-/// El enlace es el de nuestra app (`/apod/YYYY-MM-DD`): el servidor
-/// (server_og.py) devuelve metadata OG dinámica a los crawlers de
-/// WhatsApp/Telegram, así la preview sale con la imagen del día.
+/// El enlace es el de nuestra app (`/apod/YYYY-MM-DD`). Las redes muestran la
+/// tarjeta general de web/index.html, no la imagen de ese día.
 ///
 /// En web sin Web Share API (Chrome desktop) hace fallback al portapapeles.
 Future<void> shareApod(
@@ -43,9 +42,8 @@ Future<void> shareApod(
   }
 }
 
-/// URL de la app para una fecha: usa la ruta `/apod/YYYY-MM-DD` (sin hash)
-/// para que los crawlers reciban el HTML con og:image dinámico servido por
-/// server_og.py. En nativo (sin servidor propio) cae al APOD de NASA.
+/// URL de la app para una fecha. En nativo no hay dirección propia, así que
+/// cae al APOD de NASA.
 String _appUrl(String date) {
   if (kIsWeb) {
     final base = Uri.base;

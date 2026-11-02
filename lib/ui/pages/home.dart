@@ -151,6 +151,10 @@ class _HomeViewState extends State<HomeView> {
           else
             _Carousel(key: ValueKey(state.date), days: [if (current != null) current, ...others], date: state.date),
           const _GetAppNotice(),
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text(i10n.unofficialNotice, textAlign: TextAlign.center, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+          ),
           const SizedBox(height: 30),
           _OnThisDay(key: ValueKey('otd-${state.date}'), date: state.date),
           PageBody(child: Text(i10n.fromTheArchive, style: theme.textTheme.headlineMedium)),
