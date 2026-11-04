@@ -315,4 +315,29 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get showingSaved => 'Sin conexión. Mostrando lo guardado.';
+
+  @override
+  String get yesterday => 'Ayer';
+
+  @override
+  String get otherDate => 'Otra fecha';
+
+  @override
+  String get birthdayTitle => '¿Y tu cumpleaños?';
+
+  @override
+  String get birthdayBody =>
+      'Hay una foto para cada día desde 1995. Busca tu cumpleaños, un aniversario o cualquier día importante para ti.';
+
+  @override
+  String get birthdayAction => 'Buscar mi día';
+
+  @override
+  String get birthdayPickerHelp => 'Elige tu día';
+
+  @override
+  String get undo => 'Deshacer';
+
+  @override
+  String get view => 'Ver';
 }

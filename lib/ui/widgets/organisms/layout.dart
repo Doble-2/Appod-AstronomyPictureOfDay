@@ -90,27 +90,7 @@ class Layout extends StatelessWidget {
                 left: 0,
                 right: 0,
                 bottom: padding.bottom + 18,
-                child: Center(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                      boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 30, offset: Offset(0, 12))],
-                    ),
-                    child: Glass(
-                      radius: AppTheme.radiusPill,
-                      child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            for (var i = 0; i < items.length; i++)
-                              _Tab(item: items[i], selected: i == currentIndex, labeled: i == currentIndex, onTap: () => onTap(i)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                child: Center(child: _Dock(items: items, currentIndex: currentIndex, onTap: onTap)),
               ),
           ],
         ),
@@ -192,6 +172,142 @@ class _Tab extends StatelessWidget {
                         child: Text(item.label, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 13)),
                       )
                     : const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The phone dock: every tab named, and a lit capsule that glides to the one
+/// in use. Each tab is its own route, so the dock remembers where the capsule
+/// was and slides it over from there when the next tab appears.
+class _Dock extends StatefulWidget {
+  final List<_NavItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  const _Dock({required this.items, required this.currentIndex, required this.onTap});
+
+  @override
+  State<_Dock> createState() => _DockState();
+}
+
+class _DockState extends State<_Dock> {
+  static int _shown = 0;
+  static const _itemWidth = 86.0;
+  static const _itemHeight = 56.0;
+  static const _pad = 6.0;
+  late final double _from;
+
+  @override
+  void initState() {
+    super.initState();
+    _from = _shown.toDouble();
+    _shown = widget.currentIndex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final dark = scheme.brightness == Brightness.dark;
+    final count = widget.items.length;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: dark ? 0.45 : 0.16), blurRadius: 30, offset: const Offset(0, 12))],
+      ),
+      child: Glass(
+        radius: AppTheme.radiusPill,
+        child: Container(
+          width: count * _itemWidth + 2 * _pad,
+          height: _itemHeight + 2 * _pad,
+          padding: const EdgeInsets.all(_pad),
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+            border: Border.all(color: (dark ? Colors.white : Colors.black).withValues(alpha: 0.08)),
+          ),
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: _from, end: widget.currentIndex.toDouble()),
+            duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 320),
+            curve: const Cubic(0.23, 1, 0.32, 1),
+            builder: (context, at, _) => Stack(
+              children: [
+                Positioned(
+                  left: at * _itemWidth,
+                  top: 0,
+                  width: _itemWidth,
+                  height: _itemHeight,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: scheme.primary.withValues(alpha: dark ? 0.2 : 0.14),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                      border: Border.all(color: scheme.primary.withValues(alpha: 0.35)),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    for (var i = 0; i < count; i++)
+                      _DockItem(
+                        item: widget.items[i],
+                        // 1 under the capsule, fading to 0 a tab away.
+                        lit: (1 - (at - i).abs()).clamp(0.0, 1.0),
+                        selected: i == widget.currentIndex,
+                        width: _itemWidth,
+                        height: _itemHeight,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          widget.onTap(i);
+                        },
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DockItem extends StatelessWidget {
+  final _NavItem item;
+  final double lit;
+  final bool selected;
+  final double width;
+  final double height;
+  final VoidCallback onTap;
+  const _DockItem({required this.item, required this.lit, required this.selected, required this.width, required this.height, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = Color.lerp(scheme.onSurfaceVariant, scheme.primary, lit)!;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: item.label,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+        onTap: onTap,
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Transform.scale(scale: 1 + 0.08 * lit, child: Icon(lit > 0.5 ? item.selectedIcon : item.icon, color: color, size: 22)),
+              const SizedBox(height: 3),
+              Text(
+                item.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: color, fontSize: 11, fontWeight: lit > 0.5 ? FontWeight.w700 : FontWeight.w500, letterSpacing: 0.1),
               ),
             ],
           ),

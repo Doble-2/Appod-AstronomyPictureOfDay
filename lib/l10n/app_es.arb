@@ -93,5 +93,13 @@
   "onThisDay": "En este día",
   "yearsAgo": "{count, plural, =1{Hace 1 año} other{Hace {count} años}}",
   "fromTheArchive": "Del archivo",
-  "showingSaved": "Sin conexión. Mostrando lo guardado."
+  "showingSaved": "Sin conexión. Mostrando lo guardado.",
+  "yesterday": "Ayer",
+  "otherDate": "Otra fecha",
+  "birthdayTitle": "¿Y tu cumpleaños?",
+  "birthdayBody": "Hay una foto para cada día desde 1995. Busca tu cumpleaños, un aniversario o cualquier día importante para ti.",
+  "birthdayAction": "Buscar mi día",
+  "birthdayPickerHelp": "Elige tu día",
+  "undo": "Deshacer",
+  "view": "Ver"
 }

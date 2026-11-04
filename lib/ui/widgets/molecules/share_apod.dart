@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nasa_apod/ui/widgets/common.dart';
 import 'package:flutter/services.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
@@ -25,7 +26,7 @@ Future<void> shareApod(
   ].join('\n');
 
   // Capturar antes del await para evitar usar context tras un async gap.
-  final messenger = ScaffoldMessenger.of(context);
+  final toast = Toaster.of(context);
 
   try {
     await Share.share(text, subject: 'Appod · $title');
@@ -33,11 +34,9 @@ Future<void> shareApod(
     // Fallback: la Web Share API no está disponible → portapapeles.
     try {
       await Clipboard.setData(ClipboardData(text: text));
-      messenger.showSnackBar(SnackBar(content: Text(i10n.shareCopied)));
+      toast.show(i10n.shareCopied, icon: Icons.link_rounded);
     } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('${i10n.shareFailed} $appUrl')),
-      );
+toast.show('${i10n.shareFailed} $appUrl', icon: Icons.error_outline_rounded, tone: ToastTone.error);
     }
   }
 }

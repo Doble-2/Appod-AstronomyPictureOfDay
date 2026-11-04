@@ -661,6 +661,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No connection. Showing what is saved.'**
   String get showingSaved;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @otherDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Other date'**
+  String get otherDate;
+
+  /// No description provided for @birthdayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What about your birthday?'**
+  String get birthdayTitle;
+
+  /// No description provided for @birthdayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s a picture for every day since 1995. Look up your birthday, an anniversary or any day that matters to you.'**
+  String get birthdayBody;
+
+  /// No description provided for @birthdayAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Find my day'**
+  String get birthdayAction;
+
+  /// No description provided for @birthdayPickerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your day'**
+  String get birthdayPickerHelp;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @view.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get view;
 }
 
 class _AppLocalizationsDelegate

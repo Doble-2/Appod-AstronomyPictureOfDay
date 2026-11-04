@@ -110,5 +110,13 @@
       }
     }
   },
-  "showingSaved": "No connection. Showing what is saved."
+  "showingSaved": "No connection. Showing what is saved.",
+  "yesterday": "Yesterday",
+  "otherDate": "Other date",
+  "birthdayTitle": "What about your birthday?",
+  "birthdayBody": "There's a picture for every day since 1995. Look up your birthday, an anniversary or any day that matters to you.",
+  "birthdayAction": "Find my day",
+  "birthdayPickerHelp": "Pick your day",
+  "undo": "Undo",
+  "view": "View"
 }

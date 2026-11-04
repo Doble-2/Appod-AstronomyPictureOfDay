@@ -1,6 +1,7 @@
 import 'package:nasa_apod/l10n/app_localizations.dart';
 // ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:nasa_apod/ui/widgets/common.dart';
 import 'dart:html' as html;
 import 'package:nasa_apod/utils/image_proxy.dart';
 
@@ -28,15 +29,11 @@ Future<void> saveNetworkImage(BuildContext context, String imageUrl, String titl
     html.Url.revokeObjectUrl(objectUrl);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.downloadStarted)),
-      );
+Toaster.of(context).show(AppLocalizations.of(context)!.downloadStarted, icon: Icons.download_rounded);
     }
   } catch (e) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.downloadFailed)),
-      );
+Toaster.of(context).show(AppLocalizations.of(context)!.downloadFailed, icon: Icons.error_outline_rounded, tone: ToastTone.error);
     }
   }
 }

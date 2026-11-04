@@ -59,7 +59,8 @@ class _ApodViewState extends State<ApodView> {
 
   Future<void> _toggleFavorite(String date) async {
     final i10n = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
+    final toast = Toaster.of(context);
+    final navigator = Navigator.of(context);
     final wasFavorite = _favorites.contains(date);
     HapticFeedback.lightImpact();
     setState(() => wasFavorite ? _favorites.remove(date) : _favorites.add(date));
@@ -68,7 +69,14 @@ class _ApodViewState extends State<ApodView> {
     } else {
       await AuthService().addFavorite(date);
     }
-    if (mounted) messenger.showSnackBar(SnackBar(content: Text(wasFavorite ? i10n.favoriteRemoved : i10n.favoriteAdded)));
+    if (!mounted) return;
+    if (wasFavorite) {
+      toast.show(i10n.favoriteRemoved, icon: Icons.heart_broken_rounded, tone: ToastTone.neutral, actionLabel: i10n.undo, onAction: () {
+        if (mounted && !_favorites.contains(date)) _toggleFavorite(date);
+      });
+    } else {
+      toast.show(i10n.favoriteAdded, icon: Icons.favorite_rounded, actionLabel: i10n.view, onAction: () => navigator.pushNamedAndRemoveUntil(AppRoutes.favorites, (_) => false));
+    }
   }
 
   void _back() {

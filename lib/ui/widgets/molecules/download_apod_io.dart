@@ -1,5 +1,6 @@
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:nasa_apod/ui/widgets/common.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -13,9 +14,7 @@ Future<void> saveNetworkImage(BuildContext context, String imageUrl, String titl
     }
     if (!granted) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.permissionDenied)),
-        );
+        Toaster.of(context).show(AppLocalizations.of(context)!.permissionDenied, icon: Icons.lock_outline_rounded, tone: ToastTone.error);
       }
       return;
     }
@@ -32,20 +31,14 @@ Future<void> saveNetworkImage(BuildContext context, String imageUrl, String titl
     );
     if (context.mounted) {
       if (result['isSuccess'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.imageSaved)),
-        );
+Toaster.of(context).show(AppLocalizations.of(context)!.imageSaved, icon: Icons.download_done_rounded);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.downloadFailed)),
-        );
+Toaster.of(context).show(AppLocalizations.of(context)!.downloadFailed, icon: Icons.error_outline_rounded, tone: ToastTone.error);
       }
     }
   } catch (e) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.downloadFailed)),
-      );
+Toaster.of(context).show(AppLocalizations.of(context)!.downloadFailed, icon: Icons.error_outline_rounded, tone: ToastTone.error);
     }
   }
 }
