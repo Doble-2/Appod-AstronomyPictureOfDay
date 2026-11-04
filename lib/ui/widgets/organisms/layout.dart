@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
+import 'package:nasa_apod/ui/theme/app_theme.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 
 /// App frame: a glass header on large screens, a floating dock on phones.
@@ -92,11 +93,11 @@ class Layout extends StatelessWidget {
                 child: Center(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                       boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 30, offset: Offset(0, 12))],
                     ),
                     child: Glass(
-                      radius: 40,
+                      radius: AppTheme.radiusPill,
                       child: Padding(
                         padding: const EdgeInsets.all(6),
                         child: Row(
@@ -165,7 +166,7 @@ class _Tab extends StatelessWidget {
       excludeSemantics: true,
       onTap: onTap,
       child: InkWell(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
         onTap: () {
           HapticFeedback.selectionClick();
           onTap();
@@ -176,7 +177,7 @@ class _Tab extends StatelessWidget {
           height: 48,
           constraints: const BoxConstraints(minWidth: 56),
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: selected ? scheme.primary : Colors.transparent),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppTheme.radiusPill), color: selected ? scheme.primary : Colors.transparent),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,

@@ -141,8 +141,8 @@ class _HomeViewState extends State<HomeView> {
           if (state.status == ApodStatus.failed)
             PageBody(
               child: StateMessage(
-                icon: Icons.cloud_off_rounded,
-                title: i10n.genericError,
+                icon: apodErrorIcon(state.errorCode),
+                title: apodErrorTitle(i10n, state.errorCode),
                 body: apodErrorText(i10n, state.errorCode),
                 actionLabel: i10n.retry,
                 onAction: () => context.read<ApodBloc>().add(RefreshData()),
@@ -239,13 +239,13 @@ class _Heading extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(toBeginningOfSentenceCase(DateFormat.MMMEd(locale).format(parsed)), style: theme.textTheme.labelMedium?.copyWith(fontSize: 13)),
+              Text(toBeginningOfSentenceCase(DateFormat.MMMEd(locale).format(parsed)), style: theme.textTheme.labelMedium?.copyWith(fontSize: 13, fontFeatures: AppTheme.tabular)),
               const SizedBox(height: 2),
               Text(
                 isToday ? i10n.today : shortDate(date, locale),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.displayLarge,
+                style: theme.textTheme.displayLarge?.copyWith(fontFeatures: AppTheme.tabular),
               ),
             ],
           ),
@@ -379,7 +379,7 @@ class _CarouselState extends State<_Carousel> {
                   margin: const EdgeInsets.symmetric(horizontal: 3),
                   width: i == _page ? 18 : 6,
                   height: 6,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(3), color: i == _page ? scheme.primary : scheme.onSurface.withValues(alpha: 0.25)),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppTheme.radiusPill), color: i == _page ? scheme.primary : scheme.onSurface.withValues(alpha: 0.25)),
                 ),
             ],
           ),
@@ -439,7 +439,7 @@ class _HeroCard extends StatelessWidget {
                       children: [
                         Text(
                           date == todayIso() ? i10n.apodToday : shortDate(date, locale),
-                          style: theme.textTheme.labelMedium?.copyWith(color: Colors.white, fontSize: 13),
+                          style: theme.textTheme.labelMedium?.copyWith(color: Colors.white, fontSize: 13, fontFeatures: AppTheme.tabular),
                         ),
                         const SizedBox(height: 6),
                         Text(

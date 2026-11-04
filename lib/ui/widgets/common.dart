@@ -351,7 +351,7 @@ class _ApodCardState extends State<ApodCard> {
                             widget.eyebrow ?? shortDate(date, Localizations.localeOf(context).languageCode),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, fontSize: 11),
+                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, fontSize: 11, fontFeatures: AppTheme.tabular),
                           ),
                           const SizedBox(height: 3),
                           Text(
@@ -553,6 +553,15 @@ class StateMessage extends StatelessWidget {
     );
   }
 }
+
+/// False while this screen is still sliding in. A second quick tap on the card
+/// that opened it would otherwise land here and open the next screen too.
+bool routeSettled(BuildContext context) => ModalRoute.of(context)?.animation?.isCompleted ?? true;
+
+/// A day without a picture is empty, not broken: it gets its own title and icon.
+bool isMissingDay(int? code) => code == 400 || code == 404;
+String apodErrorTitle(AppLocalizations i10n, int? code) => isMissingDay(code) ? i10n.noPictureTitle : i10n.genericError;
+IconData apodErrorIcon(int? code) => isMissingDay(code) ? Icons.image_not_supported_outlined : Icons.cloud_off_rounded;
 
 /// NASA failures in the reader's language, instead of raw API text.
 String apodErrorText(AppLocalizations i10n, int? code) => switch (code) {

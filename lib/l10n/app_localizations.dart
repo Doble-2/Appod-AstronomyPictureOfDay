@@ -392,6 +392,12 @@ abstract class AppLocalizations {
   /// **'Couldn\'t load data.'**
   String get genericError;
 
+  /// No description provided for @noPictureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No picture for this day'**
+  String get noPictureTitle;
+
   /// No description provided for @translate.
   ///
   /// In en, this message translates to:
@@ -533,7 +539,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorBadDate.
   ///
   /// In en, this message translates to:
-  /// **'There is no picture for this date. Try another day.'**
+  /// **'Try another day.'**
   String get errorBadDate;
 
   /// No description provided for @errorKey.
@@ -545,7 +551,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorNotFound.
   ///
   /// In en, this message translates to:
-  /// **'There is no content for this date. Try another day.'**
+  /// **'Try another day.'**
   String get errorNotFound;
 
   /// No description provided for @errorRateLimit.

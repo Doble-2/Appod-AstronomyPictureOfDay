@@ -162,6 +162,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genericError => 'Couldn\'t load data.';
 
   @override
+  String get noPictureTitle => 'No picture for this day';
+
+  @override
   String get translate => 'Translate';
 
   @override
@@ -232,15 +235,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get favoriteRemoved => 'Removed from favorites';
 
   @override
-  String get errorBadDate =>
-      'There is no picture for this date. Try another day.';
+  String get errorBadDate => 'Try another day.';
 
   @override
   String get errorKey => 'The NASA key is invalid or has expired.';
 
   @override
-  String get errorNotFound =>
-      'There is no content for this date. Try another day.';
+  String get errorNotFound => 'Try another day.';
 
   @override
   String get errorRateLimit =>
