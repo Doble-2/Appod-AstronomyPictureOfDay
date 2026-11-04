@@ -118,5 +118,11 @@
   "birthdayAction": "Find my day",
   "birthdayPickerHelp": "Pick your day",
   "undo": "Undo",
-  "view": "View"
+  "view": "View",
+  "chooseYear": "Choose a year",
+  "previousMonth": "Previous month",
+  "nextMonth": "Next month",
+  "oneYearAgo": "A year ago",
+  "randomDay": "Surprise me",
+  "seeThisDay": "See this day"
 }

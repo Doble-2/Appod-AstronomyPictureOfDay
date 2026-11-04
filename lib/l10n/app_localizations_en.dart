@@ -334,4 +334,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get view => 'View';
+
+  @override
+  String get chooseYear => 'Choose a year';
+
+  @override
+  String get previousMonth => 'Previous month';
+
+  @override
+  String get nextMonth => 'Next month';
+
+  @override
+  String get oneYearAgo => 'A year ago';
+
+  @override
+  String get randomDay => 'Surprise me';
+
+  @override
+  String get seeThisDay => 'See this day';
 }

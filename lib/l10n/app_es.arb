@@ -101,5 +101,11 @@
   "birthdayAction": "Buscar mi día",
   "birthdayPickerHelp": "Elige tu día",
   "undo": "Deshacer",
-  "view": "Ver"
+  "view": "Ver",
+  "chooseYear": "Elige un año",
+  "previousMonth": "Mes anterior",
+  "nextMonth": "Mes siguiente",
+  "oneYearAgo": "Hace un año",
+  "randomDay": "Sorpréndeme",
+  "seeThisDay": "Ver este día"
 }

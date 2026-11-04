@@ -14,6 +14,7 @@ import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/ui/theme/app_theme.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
+import 'package:nasa_apod/ui/widgets/organisms/apod_calendar.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 import 'package:nasa_apod/utils/apod_dates.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -210,18 +211,16 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-/// Opens the date picker and moves Home to the chosen day. A birthday search
+/// Opens Appod's calendar and moves Home to the chosen day. A birthday search
 /// starts on the year grid, since most people jump decades, not days.
 Future<void> pickApodDay(BuildContext context, {bool byYear = false}) async {
   final bloc = context.read<ApodBloc>();
   final i10n = AppLocalizations.of(context)!;
-  final picked = await showDatePicker(
-    context: context,
-    initialDate: byYear ? DateTime(2000, 1, 1) : DateTime.tryParse(bloc.state.date) ?? DateTime.now(),
-    initialDatePickerMode: byYear ? DatePickerMode.year : DatePickerMode.day,
-    helpText: byYear ? i10n.birthdayPickerHelp : null,
-    firstDate: firstApodDate,
-    lastDate: DateTime.now(),
+  final picked = await showApodCalendar(
+    context,
+    initial: DateTime.tryParse(bloc.state.date) ?? DateTime.now(),
+    startOnYears: byYear,
+    title: byYear ? i10n.birthdayPickerHelp : null,
   );
   if (picked != null) {
     HapticFeedback.selectionClick();

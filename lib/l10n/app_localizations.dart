@@ -709,6 +709,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View'**
   String get view;
+
+  /// No description provided for @chooseYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a year'**
+  String get chooseYear;
+
+  /// No description provided for @previousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get previousMonth;
+
+  /// No description provided for @nextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get nextMonth;
+
+  /// No description provided for @oneYearAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'A year ago'**
+  String get oneYearAgo;
+
+  /// No description provided for @randomDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Surprise me'**
+  String get randomDay;
+
+  /// No description provided for @seeThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'See this day'**
+  String get seeThisDay;
 }
 
 class _AppLocalizationsDelegate
