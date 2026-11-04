@@ -1,8 +1,12 @@
+import 'dart:math';
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nasa_apod/l10n/app_localizations.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
+import 'package:nasa_apod/ui/theme/app_theme.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
 
 /// App frame: a glass header on large screens, a floating dock on phones.
@@ -89,27 +93,7 @@ class Layout extends StatelessWidget {
                 left: 0,
                 right: 0,
                 bottom: padding.bottom + 18,
-                child: Center(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(40),
-                      boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 30, offset: Offset(0, 12))],
-                    ),
-                    child: Glass(
-                      radius: 40,
-                      child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            for (var i = 0; i < items.length; i++)
-                              _Tab(item: items[i], selected: i == currentIndex, labeled: i == currentIndex, onTap: () => onTap(i)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                child: Center(child: _Dock(items: items, currentIndex: currentIndex, onTap: onTap)),
               ),
           ],
         ),
@@ -165,7 +149,7 @@ class _Tab extends StatelessWidget {
       excludeSemantics: true,
       onTap: onTap,
       child: InkWell(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
         onTap: () {
           HapticFeedback.selectionClick();
           onTap();
@@ -176,7 +160,7 @@ class _Tab extends StatelessWidget {
           height: 48,
           constraints: const BoxConstraints(minWidth: 56),
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: selected ? scheme.primary : Colors.transparent),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppTheme.radiusPill), color: selected ? scheme.primary : Colors.transparent),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -193,6 +177,207 @@ class _Tab extends StatelessWidget {
                     : const SizedBox.shrink(),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The phone dock: every tab named, and a lit capsule that glides to the one
+/// in use, stretching a little in flight like a drop of liquid. Each tab is its
+/// own route, so the dock remembers where the capsule was and slides it over
+/// from there when the next tab appears.
+class _Dock extends StatefulWidget {
+  final List<_NavItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  const _Dock({required this.items, required this.currentIndex, required this.onTap});
+
+  @override
+  State<_Dock> createState() => _DockState();
+}
+
+class _DockState extends State<_Dock> {
+  static int _shown = 0;
+  static const _itemWidth = 82.0;
+  static const _itemHeight = 54.0;
+  static const _pad = 5.0;
+  late final double _from;
+
+  @override
+  void initState() {
+    super.initState();
+    _from = _shown.toDouble();
+    _shown = widget.currentIndex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final dark = scheme.brightness == Brightness.dark;
+    final count = widget.items.length;
+    final radius = BorderRadius.circular(AppTheme.radiusPill);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: [
+          // A tight contact shadow and a wide soft one, like a real object.
+          BoxShadow(color: Colors.black.withValues(alpha: dark ? 0.35 : 0.10), blurRadius: 6, offset: const Offset(0, 2)),
+          BoxShadow(color: Colors.black.withValues(alpha: dark ? 0.40 : 0.14), blurRadius: 36, offset: const Offset(0, 16)),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: CustomPaint(
+            foregroundPainter: _RimPainter(dark: dark),
+            child: Container(
+              width: count * _itemWidth + 2 * _pad,
+              height: _itemHeight + 2 * _pad,
+              padding: const EdgeInsets.all(_pad),
+              color: dark ? const Color(0xFF1B1F27).withValues(alpha: 0.62) : Colors.white.withValues(alpha: 0.70),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: _from, end: widget.currentIndex.toDouble()),
+                duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 420),
+                curve: const Cubic(0.23, 1, 0.32, 1),
+                builder: (context, at, _) {
+                  // How far through the move: 0 at rest, 1 halfway.
+                  final travel = (_from - widget.currentIndex).abs() < 0.01 ? 0.0 : sin(pi * ((at - _from) / (widget.currentIndex - _from)).clamp(0.0, 1.0));
+                  final stretch = 16 * travel;
+                  return Stack(
+                    children: [
+                      Positioned(
+                        left: at * _itemWidth - stretch / 2,
+                        top: 2 * travel,
+                        width: _itemWidth + stretch,
+                        height: _itemHeight - 4 * travel,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: radius,
+                            color: dark ? Colors.white.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.055),
+                            border: Border.all(color: (dark ? Colors.white : Colors.black).withValues(alpha: dark ? 0.10 : 0.05)),
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          for (var i = 0; i < count; i++)
+                            _DockItem(
+                              item: widget.items[i],
+                              // 1 under the capsule, fading to 0 a tab away.
+                              lit: (1 - (at - i).abs()).clamp(0.0, 1.0),
+                              selected: i == widget.currentIndex,
+                              width: _itemWidth,
+                              height: _itemHeight,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                widget.onTap(i);
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A hairline rim, bright along the top where light would catch the glass and
+/// fading toward the bottom.
+class _RimPainter extends CustomPainter {
+  final bool dark;
+  const _RimPainter({required this.dark});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndRadius(rect.deflate(0.5), Radius.circular(size.height / 2));
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: dark
+            ? [Colors.white.withValues(alpha: 0.22), Colors.white.withValues(alpha: 0.04)]
+            : [Colors.white, Colors.black.withValues(alpha: 0.08)],
+      ).createShader(rect);
+    canvas.drawRRect(rrect, paint);
+  }
+
+  @override
+  bool shouldRepaint(_RimPainter old) => old.dark != dark;
+}
+
+class _DockItem extends StatefulWidget {
+  final _NavItem item;
+  final double lit;
+  final bool selected;
+  final double width;
+  final double height;
+  final VoidCallback onTap;
+  const _DockItem({required this.item, required this.lit, required this.selected, required this.width, required this.height, required this.onTap});
+
+  @override
+  State<_DockItem> createState() => _DockItemState();
+}
+
+class _DockItemState extends State<_DockItem> {
+  bool _pressed = false;
+
+  void _press(bool down) {
+    if (_pressed != down) setState(() => _pressed = down);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final lit = widget.lit;
+    final color = Color.lerp(scheme.onSurface.withValues(alpha: 0.62), scheme.primary, lit)!;
+    return Semantics(
+      button: true,
+      selected: widget.selected,
+      label: widget.item.label,
+      excludeSemantics: true,
+      onTap: widget.onTap,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (_) => _press(true),
+          onTapCancel: () => _press(false),
+          onTapUp: (_) => _press(false),
+          onTap: widget.onTap,
+          child: AnimatedScale(
+            // Feedback on press-in, not on release.
+            scale: _pressed ? 0.9 : 1,
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOut,
+            child: SizedBox(
+              width: widget.width,
+              height: widget.height,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(lit > 0.5 ? widget.item.selectedIcon : widget.item.icon, color: color, size: 23),
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.item.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: color, fontSize: 10.5, fontWeight: lit > 0.5 ? FontWeight.w700 : FontWeight.w500, letterSpacing: 0.15, height: 1.2),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

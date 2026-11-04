@@ -14,6 +14,7 @@ import 'package:nasa_apod/ui/blocs/apod_bloc.dart';
 import 'package:nasa_apod/ui/responsive/responsive.dart';
 import 'package:nasa_apod/ui/theme/app_theme.dart';
 import 'package:nasa_apod/ui/widgets/common.dart';
+import 'package:nasa_apod/ui/widgets/organisms/apod_calendar.dart';
 import 'package:nasa_apod/ui/widgets/organisms/layout.dart';
 import 'package:nasa_apod/utils/apod_dates.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -141,8 +142,8 @@ class _HomeViewState extends State<HomeView> {
           if (state.status == ApodStatus.failed)
             PageBody(
               child: StateMessage(
-                icon: Icons.cloud_off_rounded,
-                title: i10n.genericError,
+                icon: apodErrorIcon(state.errorCode),
+                title: apodErrorTitle(i10n, state.errorCode),
                 body: apodErrorText(i10n, state.errorCode),
                 actionLabel: i10n.retry,
                 onAction: () => context.read<ApodBloc>().add(RefreshData()),
@@ -150,6 +151,7 @@ class _HomeViewState extends State<HomeView> {
             )
           else
             _Carousel(key: ValueKey(state.date), days: [if (current != null) current, ...others], date: state.date),
+          const PageBody(child: Padding(padding: EdgeInsets.only(top: 18), child: _BirthdayPrompt())),
           const _GetAppNotice(),
           Padding(
             padding: const EdgeInsets.only(top: 12),
@@ -209,55 +211,226 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-/// A big, plain statement of where the reader is in time.
+/// Opens Appod's calendar and moves Home to the chosen day. A birthday search
+/// starts on the year grid, since most people jump decades, not days.
+Future<void> pickApodDay(BuildContext context, {bool byYear = false}) async {
+  final bloc = context.read<ApodBloc>();
+  final i10n = AppLocalizations.of(context)!;
+  final picked = await showApodCalendar(
+    context,
+    initial: DateTime.tryParse(bloc.state.date) ?? DateTime.now(),
+    startOnYears: byYear,
+    title: byYear ? i10n.birthdayPickerHelp : null,
+  );
+  if (picked != null) {
+    HapticFeedback.selectionClick();
+    bloc.add(ChangeDate(DateFormat('yyyy-MM-dd').format(picked)));
+  }
+}
+
+/// A big, plain statement of where the reader is in time. The date itself is
+/// the button that changes it, and the days just before sit right under it.
 class _Heading extends StatelessWidget {
   final String date;
   const _Heading({required this.date});
-
-  Future<void> _pick(BuildContext context) async {
-    final bloc = context.read<ApodBloc>();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.tryParse(date) ?? DateTime.now(),
-      firstDate: firstApodDate,
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) bloc.add(ChangeDate(DateFormat('yyyy-MM-dd').format(picked)));
-  }
 
   @override
   Widget build(BuildContext context) {
     final i10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final locale = Localizations.localeOf(context).languageCode;
     final isToday = date == todayIso();
     final parsed = DateTime.tryParse(date) ?? DateTime.now();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(toBeginningOfSentenceCase(DateFormat.MMMEd(locale).format(parsed)), style: theme.textTheme.labelMedium?.copyWith(fontSize: 13)),
-              const SizedBox(height: 2),
-              Text(
-                isToday ? i10n.today : shortDate(date, locale),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.displayLarge,
-              ),
-            ],
+        Text(toBeginningOfSentenceCase(DateFormat.MMMEd(locale).format(parsed)), style: theme.textTheme.labelMedium?.copyWith(fontSize: 13, fontFeatures: AppTheme.tabular)),
+        const SizedBox(height: 2),
+        Semantics(
+          button: true,
+          label: i10n.chooseDate,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppTheme.radiusControl),
+            onTap: () => pickApodDay(context),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    isToday ? i10n.today : shortDate(date, locale),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.displayLarge?.copyWith(fontFeatures: AppTheme.tabular),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(color: scheme.primary.withValues(alpha: 0.16), shape: BoxShape.circle),
+                  child: Icon(Icons.expand_more_rounded, color: scheme.primary, size: 28),
+                ),
+              ],
+            ),
           ),
         ),
-        if (!isToday)
-          IconButton(
-            tooltip: i10n.backToToday,
-            onPressed: () => context.read<ApodBloc>().add(ChangeDate(todayIso())),
-            icon: const Icon(Icons.today_rounded),
-          ),
-        IconButton(tooltip: i10n.chooseDate, onPressed: () => _pick(context), icon: const Icon(Icons.calendar_month_outlined)),
+        const SizedBox(height: 14),
+        _DayStrip(date: date),
       ],
+    );
+  }
+}
+
+/// The last two weeks as tappable chips, so changing the day needs no hunting,
+/// and a last chip for any other date.
+class _DayStrip extends StatelessWidget {
+  final String date;
+  const _DayStrip({required this.date});
+
+  static const _days = 14;
+
+  @override
+  Widget build(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    final today = DateTime.parse(todayIso());
+    final days = [for (var i = 0; i < _days; i++) DateFormat('yyyy-MM-dd').format(DateTime(today.year, today.month, today.day - i))];
+    // A day picked from the calendar shows up front, lit, so the strip always
+    // says where the reader is.
+    if (!days.contains(date)) days.insert(1, date);
+    final yesterday = DateFormat('yyyy-MM-dd').format(DateTime(today.year, today.month, today.day - 1));
+    return SizedBox(
+      height: 64,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        itemCount: days.length + 1,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          if (i == days.length) {
+            return _StripChip(
+              top: Icon(Icons.calendar_month_rounded, size: 20, color: Theme.of(context).colorScheme.primary),
+              bottom: i10n.otherDate,
+              selected: false,
+              wide: true,
+              semantics: i10n.chooseDate,
+              onTap: () => pickApodDay(context),
+            );
+          }
+          final day = DateTime.parse(days[i]);
+          final top = days[i] == days[0] ? i10n.today : days[i] == yesterday ? i10n.yesterday : DateFormat.E(locale).format(day);
+          return _StripChip(
+            label: toBeginningOfSentenceCase(top.replaceAll('.', '')),
+            bottom: day.year == today.year ? '${day.day}' : DateFormat('d MMM yy', locale).format(day).replaceAll('.', ''),
+            selected: days[i] == date,
+            semantics: longDate(days[i], locale),
+            onTap: () {
+              if (days[i] == date) return;
+              HapticFeedback.selectionClick();
+              context.read<ApodBloc>().add(ChangeDate(days[i]));
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _StripChip extends StatelessWidget {
+  final String? label;
+  final Widget? top;
+  final String bottom;
+  final bool selected;
+  final bool wide;
+  final String semantics;
+  final VoidCallback onTap;
+  const _StripChip({this.label, this.top, required this.bottom, required this.selected, required this.semantics, required this.onTap, this.wide = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final fg = selected ? scheme.onPrimary : scheme.onSurface;
+    final long = bottom.length > 3;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: semantics,
+      excludeSemantics: true,
+      child: Material(
+        color: selected ? scheme.primary : scheme.onSurface.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(AppTheme.radiusControl),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppTheme.radiusControl),
+          onTap: onTap,
+          child: Container(
+            constraints: BoxConstraints(minWidth: wide || long ? 76 : 54),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppTheme.radiusControl),
+              border: Border.all(color: selected ? Colors.transparent : scheme.outlineVariant.withValues(alpha: 0.7)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                top ?? Text(label!, style: theme.textTheme.labelSmall?.copyWith(color: fg.withValues(alpha: selected ? 0.85 : 0.65), fontSize: 11)),
+                const SizedBox(height: 3),
+                Text(
+                  bottom,
+                  style: (long ? theme.textTheme.labelMedium : theme.textTheme.titleMedium)?.copyWith(color: fg, fontWeight: FontWeight.w700, fontFeatures: AppTheme.tabular),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The hook that makes the archive personal: any date since 1995 has a picture.
+class _BirthdayPrompt extends StatelessWidget {
+  const _BirthdayPrompt();
+
+  @override
+  Widget build(BuildContext context) {
+    final i10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: scheme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppTheme.radius),
+        border: Border.all(color: scheme.primary.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(color: scheme.primary.withValues(alpha: 0.18), shape: BoxShape.circle),
+            child: Icon(Icons.cake_rounded, color: scheme.primary),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(i10n.birthdayTitle, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(i10n.birthdayBody, style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                const SizedBox(height: 10),
+                FilledButton.icon(
+                  onPressed: () => pickApodDay(context, byYear: true),
+                  icon: const Icon(Icons.search_rounded, size: 18),
+                  label: Text(i10n.birthdayAction),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -379,7 +552,7 @@ class _CarouselState extends State<_Carousel> {
                   margin: const EdgeInsets.symmetric(horizontal: 3),
                   width: i == _page ? 18 : 6,
                   height: 6,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(3), color: i == _page ? scheme.primary : scheme.onSurface.withValues(alpha: 0.25)),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppTheme.radiusPill), color: i == _page ? scheme.primary : scheme.onSurface.withValues(alpha: 0.25)),
                 ),
             ],
           ),
@@ -439,7 +612,7 @@ class _HeroCard extends StatelessWidget {
                       children: [
                         Text(
                           date == todayIso() ? i10n.apodToday : shortDate(date, locale),
-                          style: theme.textTheme.labelMedium?.copyWith(color: Colors.white, fontSize: 13),
+                          style: theme.textTheme.labelMedium?.copyWith(color: Colors.white, fontSize: 13, fontFeatures: AppTheme.tabular),
                         ),
                         const SizedBox(height: 6),
                         Text(

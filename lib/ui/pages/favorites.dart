@@ -30,11 +30,14 @@ class _FavoritesViewState extends State<FavoritesView> {
 
   Future<void> _remove(String date) async {
     final i10n = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
+    final toast = Toaster.of(context);
     await widget.authService.removeFavorite(date);
     if (!mounted) return;
     _reload();
-    messenger.showSnackBar(SnackBar(content: Text(i10n.favoriteRemoved)));
+    toast.show(i10n.favoriteRemoved, icon: Icons.heart_broken_rounded, tone: ToastTone.neutral, actionLabel: i10n.undo, onAction: () async {
+      await widget.authService.addFavorite(date);
+      if (mounted) _reload();
+    });
   }
 
   @override

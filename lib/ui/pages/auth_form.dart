@@ -48,15 +48,14 @@ class _AuthFormState extends State<AuthForm> {
     if (_loading || !_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final toast = Toaster.of(context);
     final message = await widget.submit(_email.text.trim(), _password.text);
     if (!mounted) return;
     setState(() => _loading = false);
     if (message != null && message.contains('Success')) {
       navigator.pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
     } else {
-      messenger.showSnackBar(SnackBar(content: Text(message ?? ''), backgroundColor: scheme.error));
+      toast.show(message ?? '', icon: Icons.error_outline_rounded, tone: ToastTone.error);
     }
   }
 

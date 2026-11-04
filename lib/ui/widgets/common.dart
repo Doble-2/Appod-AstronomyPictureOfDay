@@ -351,7 +351,7 @@ class _ApodCardState extends State<ApodCard> {
                             widget.eyebrow ?? shortDate(date, Localizations.localeOf(context).languageCode),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, fontSize: 11),
+                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, fontSize: 11, fontFeatures: AppTheme.tabular),
                           ),
                           const SizedBox(height: 3),
                           Text(
@@ -554,6 +554,15 @@ class StateMessage extends StatelessWidget {
   }
 }
 
+/// False while this screen is still sliding in. A second quick tap on the card
+/// that opened it would otherwise land here and open the next screen too.
+bool routeSettled(BuildContext context) => ModalRoute.of(context)?.animation?.isCompleted ?? true;
+
+/// A day without a picture is empty, not broken: it gets its own title and icon.
+bool isMissingDay(int? code) => code == 400 || code == 404;
+String apodErrorTitle(AppLocalizations i10n, int? code) => isMissingDay(code) ? i10n.noPictureTitle : i10n.genericError;
+IconData apodErrorIcon(int? code) => isMissingDay(code) ? Icons.image_not_supported_outlined : Icons.cloud_off_rounded;
+
 /// NASA failures in the reader's language, instead of raw API text.
 String apodErrorText(AppLocalizations i10n, int? code) => switch (code) {
       400 => i10n.errorBadDate,
@@ -564,3 +573,112 @@ String apodErrorText(AppLocalizations i10n, int? code) => switch (code) {
       504 => i10n.errorTimeout,
       _ => i10n.errorConnection,
     };
+
+enum ToastTone { success, neutral, error }
+
+/// Short confirmations as a glass capsule above the dock, with an icon and an
+/// optional action. Take it before an `await`, then call [show] after.
+class Toaster {
+  final ScaffoldMessengerState _messenger;
+  final bool _desktop;
+  Toaster.of(BuildContext context)
+      : _messenger = ScaffoldMessenger.of(context),
+        _desktop = context.isDesktop;
+
+  void show(String message, {IconData icon = Icons.check_rounded, ToastTone tone = ToastTone.success, String? actionLabel, VoidCallback? onAction}) {
+    _messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          behavior: SnackBarBehavior.floating,
+          // Clear of the floating dock on phones.
+          margin: EdgeInsets.fromLTRB(16, 0, 16, _desktop ? 24 : 92),
+          duration: Duration(milliseconds: actionLabel == null ? 2600 : 4500),
+          content: Center(child: _Toast(message: message, icon: icon, tone: tone, actionLabel: actionLabel, onAction: onAction, messenger: _messenger)),
+        ),
+      );
+  }
+}
+
+class _Toast extends StatelessWidget {
+  final String message;
+  final IconData icon;
+  final ToastTone tone;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final ScaffoldMessengerState messenger;
+  const _Toast({required this.message, required this.icon, required this.tone, required this.messenger, this.actionLabel, this.onAction});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final dark = scheme.brightness == Brightness.dark;
+    final accent = switch (tone) {
+      ToastTone.success => scheme.primary,
+      ToastTone.neutral => scheme.onSurfaceVariant,
+      ToastTone.error => scheme.error,
+    };
+    final capsule = DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+        boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 24, offset: Offset(0, 10))],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 440, minHeight: 52),
+            padding: EdgeInsets.fromLTRB(8, 6, actionLabel == null ? 20 : 6, 6),
+            decoration: BoxDecoration(
+              color: dark ? scheme.surfaceContainerHighest.withValues(alpha: 0.88) : Colors.white.withValues(alpha: 0.94),
+              borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+              border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.6)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(color: accent.withValues(alpha: 0.16), shape: BoxShape.circle),
+                  child: Icon(icon, size: 18, color: accent),
+                ),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Text(message, style: theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurface, fontWeight: FontWeight.w500)),
+                ),
+                if (actionLabel != null) ...[
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () {
+                      messenger.hideCurrentSnackBar();
+                      onAction?.call();
+                    },
+                    child: Text(actionLabel!, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (reduceMotion(context)) return capsule;
+    // Rises and settles from a little smaller, on top of the snack bar's fade.
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 280),
+      curve: const Cubic(0.23, 1, 0.32, 1),
+      builder: (context, t, child) => Transform.translate(
+        offset: Offset(0, 10 * (1 - t)),
+        child: Transform.scale(scale: 0.94 + 0.06 * t, child: child),
+      ),
+      child: capsule,
+    );
+  }
+}

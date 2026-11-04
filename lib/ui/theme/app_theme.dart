@@ -5,11 +5,17 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static const display = 'SpaceGrotesk';
   static const text = 'Inter';
-  // Radius scale: hero 32, cards and groups 24, controls 16, small marks 10.
+  // Radius scale: hero 32, cards and groups 24, controls 16, small marks 10,
+  // and capsules (bars, docks, pills) fully round.
   static const radiusHero = 32.0;
   static const radius = 24.0;
   static const radiusControl = 16.0;
   static const radiusSheet = 32.0;
+  static const radiusMark = 10.0;
+  static const radiusPill = 999.0;
+
+  /// Same-width digits, so dates and counts don't shift as they change.
+  static const tabular = [FontFeature.tabularFigures()];
 
   static final dark = _build(const ColorScheme(
     brightness: Brightness.dark,
@@ -79,11 +85,11 @@ class AppTheme {
       tooltipTheme: TooltipThemeData(
         waitDuration: const Duration(milliseconds: 500),
         textStyle: TextStyle(color: scheme.surface, fontSize: 12, fontWeight: FontWeight.w500),
-        decoration: BoxDecoration(color: on, borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(color: on, borderRadius: BorderRadius.circular(radiusMark)),
       ),
       scrollbarTheme: ScrollbarThemeData(
         thickness: const WidgetStatePropertyAll(6),
-        radius: const Radius.circular(3),
+        radius: const Radius.circular(radiusPill),
         thumbColor: WidgetStatePropertyAll(on.withValues(alpha: 0.25)),
       ),
       dividerColor: scheme.outlineVariant,

@@ -164,6 +164,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get genericError => 'No se pudieron cargar los datos.';
 
   @override
+  String get noPictureTitle => 'Este día no tiene foto';
+
+  @override
   String get translate => 'Traducir';
 
   @override
@@ -235,15 +238,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get favoriteRemoved => 'Quitada de favoritos';
 
   @override
-  String get errorBadDate =>
-      'No hay imagen para esta fecha. Prueba con otro día.';
+  String get errorBadDate => 'Prueba con otro día.';
 
   @override
   String get errorKey => 'La clave de la NASA no es válida o caducó.';
 
   @override
-  String get errorNotFound =>
-      'No hay contenido para esta fecha. Prueba con otro día.';
+  String get errorNotFound => 'Prueba con otro día.';
 
   @override
   String get errorRateLimit =>
@@ -314,4 +315,47 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get showingSaved => 'Sin conexión. Mostrando lo guardado.';
+
+  @override
+  String get yesterday => 'Ayer';
+
+  @override
+  String get otherDate => 'Otra fecha';
+
+  @override
+  String get birthdayTitle => '¿Y tu cumpleaños?';
+
+  @override
+  String get birthdayBody =>
+      'Hay una foto para cada día desde 1995. Busca tu cumpleaños, un aniversario o cualquier día importante para ti.';
+
+  @override
+  String get birthdayAction => 'Buscar mi día';
+
+  @override
+  String get birthdayPickerHelp => 'Elige tu día';
+
+  @override
+  String get undo => 'Deshacer';
+
+  @override
+  String get view => 'Ver';
+
+  @override
+  String get chooseYear => 'Elige un año';
+
+  @override
+  String get previousMonth => 'Mes anterior';
+
+  @override
+  String get nextMonth => 'Mes siguiente';
+
+  @override
+  String get oneYearAgo => 'Hace un año';
+
+  @override
+  String get randomDay => 'Sorpréndeme';
+
+  @override
+  String get seeThisDay => 'Ver este día';
 }

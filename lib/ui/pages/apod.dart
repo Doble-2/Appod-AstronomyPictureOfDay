@@ -59,7 +59,8 @@ class _ApodViewState extends State<ApodView> {
 
   Future<void> _toggleFavorite(String date) async {
     final i10n = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
+    final toast = Toaster.of(context);
+    final navigator = Navigator.of(context);
     final wasFavorite = _favorites.contains(date);
     HapticFeedback.lightImpact();
     setState(() => wasFavorite ? _favorites.remove(date) : _favorites.add(date));
@@ -68,7 +69,14 @@ class _ApodViewState extends State<ApodView> {
     } else {
       await AuthService().addFavorite(date);
     }
-    if (mounted) messenger.showSnackBar(SnackBar(content: Text(wasFavorite ? i10n.favoriteRemoved : i10n.favoriteAdded)));
+    if (!mounted) return;
+    if (wasFavorite) {
+      toast.show(i10n.favoriteRemoved, icon: Icons.heart_broken_rounded, tone: ToastTone.neutral, actionLabel: i10n.undo, onAction: () {
+        if (mounted && !_favorites.contains(date)) _toggleFavorite(date);
+      });
+    } else {
+      toast.show(i10n.favoriteAdded, icon: Icons.favorite_rounded, actionLabel: i10n.view, onAction: () => navigator.pushNamedAndRemoveUntil(AppRoutes.favorites, (_) => false));
+    }
   }
 
   void _back() {
@@ -213,10 +221,11 @@ class _DayPageState extends State<_DayPage> {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           final error = snapshot.error;
+          final code = error is NasaApiException ? error.statusCode : null;
           return StateMessage(
-            icon: Icons.cloud_off_rounded,
-            title: i10n.genericError,
-            body: apodErrorText(i10n, error is NasaApiException ? error.statusCode : null),
+            icon: apodErrorIcon(code),
+            title: apodErrorTitle(i10n, code),
+            body: apodErrorText(i10n, code),
             actionLabel: i10n.retry,
             onAction: () => setState(() => _day = widget.service.getApod(widget.date)),
           );
@@ -259,7 +268,7 @@ class _DayPageState extends State<_DayPage> {
                       width: 44,
                       height: 5,
                       margin: const EdgeInsets.only(bottom: 18),
-                      decoration: BoxDecoration(color: scheme.outline, borderRadius: BorderRadius.circular(3)),
+                      decoration: BoxDecoration(color: scheme.outline, borderRadius: BorderRadius.circular(AppTheme.radiusPill)),
                     ),
                   ),
                   ..._story(apod, i10n, titleSize: 28),
@@ -324,11 +333,11 @@ class _DayPageState extends State<_DayPage> {
     final isImage = apod['media_type'] == 'image';
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
         boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 26, offset: Offset(0, 10))],
       ),
       child: Glass(
-        radius: 40,
+        radius: AppTheme.radiusPill,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: Row(
@@ -369,7 +378,7 @@ class _DayPageState extends State<_DayPage> {
     final next = shiftDay(widget.date, 1);
     final text = _translated ?? explanation;
     return [
-      Text(longDate(widget.date, locale), style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontSize: 13)),
+      Text(longDate(widget.date, locale), style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontSize: 13, fontFeatures: AppTheme.tabular)),
       const SizedBox(height: 8),
       Text((apod['title'] ?? '') as String, style: theme.textTheme.displaySmall?.copyWith(fontSize: titleSize)),
       const SizedBox(height: 10),
@@ -472,14 +481,17 @@ class _Stage extends StatelessWidget {
           button: true,
           label: i10n.viewFullScreen,
           child: InkWell(
-            onTap: () => Navigator.of(context).push(
-              PageRouteBuilder<void>(
-                opaque: false,
-                barrierColor: Colors.black,
-                pageBuilder: (context, _, __) => _FullScreenPhoto(apod: apod),
-                transitionsBuilder: (context, animation, _, child) => FadeTransition(opacity: animation, child: child),
-              ),
-            ),
+            onTap: () {
+              if (!routeSettled(context)) return;
+              Navigator.of(context).push(
+                PageRouteBuilder<void>(
+                  opaque: false,
+                  barrierColor: Colors.black,
+                  pageBuilder: (context, _, __) => _FullScreenPhoto(apod: apod),
+                  transitionsBuilder: (context, animation, _, child) => FadeTransition(opacity: animation, child: child),
+                ),
+              );
+            },
             mouseCursor: SystemMouseCursors.zoomIn,
             child: Hero(
               tag: 'apod-$date',

@@ -392,6 +392,12 @@ abstract class AppLocalizations {
   /// **'Couldn\'t load data.'**
   String get genericError;
 
+  /// No description provided for @noPictureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No picture for this day'**
+  String get noPictureTitle;
+
   /// No description provided for @translate.
   ///
   /// In en, this message translates to:
@@ -533,7 +539,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorBadDate.
   ///
   /// In en, this message translates to:
-  /// **'There is no picture for this date. Try another day.'**
+  /// **'Try another day.'**
   String get errorBadDate;
 
   /// No description provided for @errorKey.
@@ -545,7 +551,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorNotFound.
   ///
   /// In en, this message translates to:
-  /// **'There is no content for this date. Try another day.'**
+  /// **'Try another day.'**
   String get errorNotFound;
 
   /// No description provided for @errorRateLimit.
@@ -655,6 +661,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No connection. Showing what is saved.'**
   String get showingSaved;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @otherDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Other date'**
+  String get otherDate;
+
+  /// No description provided for @birthdayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What about your birthday?'**
+  String get birthdayTitle;
+
+  /// No description provided for @birthdayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s a picture for every day since 1995. Look up your birthday, an anniversary or any day that matters to you.'**
+  String get birthdayBody;
+
+  /// No description provided for @birthdayAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Find my day'**
+  String get birthdayAction;
+
+  /// No description provided for @birthdayPickerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your day'**
+  String get birthdayPickerHelp;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @view.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get view;
+
+  /// No description provided for @chooseYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a year'**
+  String get chooseYear;
+
+  /// No description provided for @previousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get previousMonth;
+
+  /// No description provided for @nextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get nextMonth;
+
+  /// No description provided for @oneYearAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'A year ago'**
+  String get oneYearAgo;
+
+  /// No description provided for @randomDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Surprise me'**
+  String get randomDay;
+
+  /// No description provided for @seeThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'See this day'**
+  String get seeThisDay;
 }
 
 class _AppLocalizationsDelegate
